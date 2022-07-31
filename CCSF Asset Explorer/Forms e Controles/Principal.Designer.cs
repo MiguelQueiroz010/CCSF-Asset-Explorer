@@ -66,6 +66,7 @@ namespace CCSF_Asset_Explorer
             this.extractAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.repackAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.blocksReadWriteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.systemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,8 +76,6 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setTextureViewerEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -183,7 +182,7 @@ namespace CCSF_Asset_Explorer
             this.resourceTreeToolStripMenuItem,
             this.frameModeSceneToolStripMenuItem});
             this.editModeToolStripMenuItem.Name = "editModeToolStripMenuItem";
-            this.editModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editModeToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.editModeToolStripMenuItem.Text = "Edit Mode";
             // 
             // resourceTreeToolStripMenuItem
@@ -206,14 +205,14 @@ namespace CCSF_Asset_Explorer
             // 
             this.animationsToolStripMenuItem.CheckOnClick = true;
             this.animationsToolStripMenuItem.Name = "animationsToolStripMenuItem";
-            this.animationsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.animationsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.animationsToolStripMenuItem.Text = "Animations";
             this.animationsToolStripMenuItem.CheckStateChanged += new System.EventHandler(this.animationsToolStripMenuItem_CheckStateChanged);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(132, 6);
             // 
             // consoleToolStripMenuItem
             // 
@@ -223,7 +222,7 @@ namespace CCSF_Asset_Explorer
             this.systemToolStripMenuItem1,
             this.clearConsoleToolStripMenuItem});
             this.consoleToolStripMenuItem.Name = "consoleToolStripMenuItem";
-            this.consoleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.consoleToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.consoleToolStripMenuItem.Text = "Console";
             this.consoleToolStripMenuItem.CheckedChanged += new System.EventHandler(this.consoleToolStripMenuItem_CheckedChanged);
             // 
@@ -272,14 +271,14 @@ namespace CCSF_Asset_Explorer
             // 
             this.addToolStripMenuItem.Enabled = false;
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.addToolStripMenuItem.Text = "Add";
             // 
             // searchAndCheckToolStripMenuItem
             // 
             this.searchAndCheckToolStripMenuItem.Enabled = false;
             this.searchAndCheckToolStripMenuItem.Name = "searchAndCheckToolStripMenuItem";
-            this.searchAndCheckToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.searchAndCheckToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.searchAndCheckToolStripMenuItem.Text = "Search/Check";
             this.searchAndCheckToolStripMenuItem.Click += new System.EventHandler(this.searchAndCheckToolStripMenuItem_Click);
             // 
@@ -287,7 +286,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.extractToolStripMenuItem1.Enabled = false;
             this.extractToolStripMenuItem1.Name = "extractToolStripMenuItem1";
-            this.extractToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.extractToolStripMenuItem1.Size = new System.Drawing.Size(147, 22);
             this.extractToolStripMenuItem1.Text = "Extract";
             this.extractToolStripMenuItem1.Click += new System.EventHandler(this.extractToolStripMenuItem1_Click);
             // 
@@ -295,7 +294,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.replaceToolStripMenuItem.Enabled = false;
             this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
-            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.replaceToolStripMenuItem.Text = "Replace";
             this.replaceToolStripMenuItem.Click += new System.EventHandler(this.replaceToolStripMenuItem_Click);
             // 
@@ -303,7 +302,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.copyToolStripMenuItem.Enabled = false;
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
@@ -311,7 +310,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.pasteToolStripMenuItem.Enabled = false;
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.pasteToolStripMenuItem.Text = "Paste";
             this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
             // 
@@ -319,32 +318,32 @@ namespace CCSF_Asset_Explorer
             // 
             this.removeToolStripMenuItem.Enabled = false;
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(144, 6);
             // 
             // uncheckAllToolStripMenuItem
             // 
             this.uncheckAllToolStripMenuItem.Enabled = false;
             this.uncheckAllToolStripMenuItem.Name = "uncheckAllToolStripMenuItem";
-            this.uncheckAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.uncheckAllToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.uncheckAllToolStripMenuItem.Text = "Uncheck All";
             this.uncheckAllToolStripMenuItem.Click += new System.EventHandler(this.uncheckAllToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(144, 6);
             // 
             // convertToI8ToolStripMenuItem
             // 
             this.convertToI8ToolStripMenuItem.Name = "convertToI8ToolStripMenuItem";
-            this.convertToI8ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.convertToI8ToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.convertToI8ToolStripMenuItem.Text = "Convert to I8";
             this.convertToI8ToolStripMenuItem.Visible = false;
             this.convertToI8ToolStripMenuItem.Click += new System.EventHandler(this.convertToI8ToolStripMenuItem_Click);
@@ -353,7 +352,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.propriedadesToolStripMenuItem.Enabled = false;
             this.propriedadesToolStripMenuItem.Name = "propriedadesToolStripMenuItem";
-            this.propriedadesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.propriedadesToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.propriedadesToolStripMenuItem.Text = "Properties";
             this.propriedadesToolStripMenuItem.Click += new System.EventHandler(this.propriedadesToolStripMenuItem_Click);
             // 
@@ -370,14 +369,14 @@ namespace CCSF_Asset_Explorer
             // 
             this.extractAllToolStripMenuItem.Enabled = false;
             this.extractAllToolStripMenuItem.Name = "extractAllToolStripMenuItem";
-            this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.extractAllToolStripMenuItem.Text = "Extract All";
             this.extractAllToolStripMenuItem.Click += new System.EventHandler(this.extractAllToolStripMenuItem_Click);
             // 
             // repackAllToolStripMenuItem
             // 
             this.repackAllToolStripMenuItem.Name = "repackAllToolStripMenuItem";
-            this.repackAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.repackAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.repackAllToolStripMenuItem.Text = "Repack All";
             this.repackAllToolStripMenuItem.Click += new System.EventHandler(this.repackAllToolStripMenuItem_Click);
             // 
@@ -388,6 +387,13 @@ namespace CCSF_Asset_Explorer
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.optionsToolStripMenuItem.Text = "Options";
+            this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
             // tabControl1
             // 
@@ -421,7 +427,7 @@ namespace CCSF_Asset_Explorer
             this.commandLBL.AutoSize = true;
             this.commandLBL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.commandLBL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.commandLBL.Location = new System.Drawing.Point(30, 1);
+            this.commandLBL.Location = new System.Drawing.Point(28, 1);
             this.commandLBL.Name = "commandLBL";
             this.commandLBL.Size = new System.Drawing.Size(327, 32);
             this.commandLBL.TabIndex = 3;
@@ -432,7 +438,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.opLBL.AutoSize = true;
             this.opLBL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.opLBL.Location = new System.Drawing.Point(364, 1);
+            this.opLBL.Location = new System.Drawing.Point(362, 1);
             this.opLBL.Name = "opLBL";
             this.opLBL.Size = new System.Drawing.Size(158, 32);
             this.opLBL.TabIndex = 2;
@@ -443,10 +449,10 @@ namespace CCSF_Asset_Explorer
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar1.Location = new System.Drawing.Point(529, 4);
+            this.progressBar1.Location = new System.Drawing.Point(527, 4);
             this.progressBar1.MarqueeAnimationSpeed = 50;
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(160, 26);
+            this.progressBar1.Size = new System.Drawing.Size(162, 26);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 1;
             this.progressBar1.Value = 100;
@@ -459,7 +465,7 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 333F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 164F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 166F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 168F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.progressBar1, 3, 0);
@@ -479,7 +485,7 @@ namespace CCSF_Asset_Explorer
             this.pictureBox1.Image = global::CCSF_Asset_Explorer.Properties.Resources.sigma_another_tale_22859624_210820211143;
             this.pictureBox1.Location = new System.Drawing.Point(4, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(19, 26);
+            this.pictureBox1.Size = new System.Drawing.Size(17, 26);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -494,21 +500,6 @@ namespace CCSF_Asset_Explorer
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox2.TabIndex = 3;
             this.pictureBox2.TabStop = false;
-            // 
-            // optionsToolStripMenuItem
-            // 
-            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.setTextureViewerEditorToolStripMenuItem});
-            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.optionsToolStripMenuItem.Text = "Options";
-            // 
-            // setTextureViewerEditorToolStripMenuItem
-            // 
-            this.setTextureViewerEditorToolStripMenuItem.Name = "setTextureViewerEditorToolStripMenuItem";
-            this.setTextureViewerEditorToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
-            this.setTextureViewerEditorToolStripMenuItem.Text = "Set Texture Viewer/Editor";
-            this.setTextureViewerEditorToolStripMenuItem.Click += new System.EventHandler(this.setTextureViewerEditorToolStripMenuItem_Click);
             // 
             // Principal
             // 
@@ -529,6 +520,7 @@ namespace CCSF_Asset_Explorer
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.Name = "Principal";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "CCSF Asset Explorer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Principal_FormClosing);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Principal_DragDrop);
@@ -593,7 +585,6 @@ namespace CCSF_Asset_Explorer
         private System.Windows.Forms.ToolStripMenuItem animationsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setTextureViewerEditorToolStripMenuItem;
     }
 }
 

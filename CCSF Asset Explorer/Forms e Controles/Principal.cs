@@ -15,12 +15,19 @@ namespace CCSF_Asset_Explorer
 {
     public partial class Principal : Form
     {
-        SearchCheck sc;
         Size oldPIC2size;
         Point oldPIC2loc;
 
-        public string DefaultTextureVE = "explorer";
-        bool Animations;
+        SearchCheck sc;
+
+        #region Options Variables
+        //General
+        public string DefaultTextureVE = "";
+        public bool EditTexture;
+
+        //View
+        public bool Animations;
+        #endregion
         public Principal()
         {
             InitializeComponent();
@@ -89,6 +96,10 @@ namespace CCSF_Asset_Explorer
                             case "Default_Texture_Viewer_Editor":
                                 DefaultTextureVE = child.InnerText;
                                 break;
+                            case "Edit_Texture":
+                                bool edit = Convert.ToBoolean(child.InnerText);
+                                EditTexture = edit;
+                                break;
                         }
                 #endregion
                 xml.Close();
@@ -98,7 +109,7 @@ namespace CCSF_Asset_Explorer
                 CreateConfig();
             }
         }
-        void CreateConfig()
+        public void CreateConfig()
         {
             Stream xml = File.CreateText("config.xml").BaseStream;
             XmlDocument doc = new XmlDocument();
@@ -142,7 +153,12 @@ namespace CCSF_Asset_Explorer
             var defaulttexture = doc.CreateElement("Default_Texture_Viewer_Editor");
             defaulttexture.AppendChild(doc.CreateTextNode(DefaultTextureVE));
 
+            //Edit Texture Bool
+            var editexture = doc.CreateElement("Edit_Texture");
+            editexture.AppendChild(doc.CreateTextNode(EditTexture.ToString().ToLower()));
+
             opt.AppendChild(defaulttexture);
+            opt.AppendChild(editexture);
             #endregion
 
             root.AppendChild(consoleoptions);//Console Options
@@ -726,6 +742,11 @@ namespace CCSF_Asset_Explorer
             {
                 DefaultTextureVE = open.FileName;
             }
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new Options(this).ShowDialog();
         }
     }
 }

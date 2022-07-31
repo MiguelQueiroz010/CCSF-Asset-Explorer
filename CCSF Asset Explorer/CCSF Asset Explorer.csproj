@@ -98,6 +98,12 @@
     <Compile Include="Forms e Controles\CCSTab.Designer.cs">
       <DependentUpon>CCSTab.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms e Controles\Options.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms e Controles\Options.Designer.cs">
+      <DependentUpon>Options.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms e Controles\PropertyBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -203,6 +209,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms e Controles\CCSTab.resx">
       <DependentUpon>CCSTab.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms e Controles\Options.resx">
+      <DependentUpon>Options.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms e Controles\Principal.resx">
       <DependentUpon>Principal.cs</DependentUpon>

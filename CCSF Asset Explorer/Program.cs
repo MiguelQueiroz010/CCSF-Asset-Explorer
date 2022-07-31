@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -40,6 +41,26 @@ namespace CCSF_Asset_Explorer
         {
             var handle = GetConsoleWindow();
             ShowWindow(handle, SW_HIDE);
+        }
+        /// <summary>
+        /// Returns an icon representation of an image that is contained in the specified file.
+        /// </summary>
+        /// <param name="executablePath"></param>
+        /// <returns></returns>
+        public static Icon ExtractIconFromFilePath(string executablePath)
+        {
+            Icon result = (Icon)null;
+
+            try
+            {
+                result = Icon.ExtractAssociatedIcon(executablePath);
+            }
+            catch (Exception)
+            {
+                //Console.WriteLine("Unable to extract the icon from the binary");
+            }
+
+            return result;
         }
         public static void OpenWithProgram(string path, string Program = "explorer")
         {
