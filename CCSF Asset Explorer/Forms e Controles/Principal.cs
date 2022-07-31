@@ -523,6 +523,7 @@ namespace CCSF_Asset_Explorer
         }
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            MessageBox.Show("oi rs", "programa do raiden");
             var about = new Sobre();
             about.ShowDialog();
         }
