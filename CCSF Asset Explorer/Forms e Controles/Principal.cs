@@ -525,7 +525,6 @@ namespace CCSF_Asset_Explorer
         {
             var about = new Sobre();
             about.ShowDialog();
-            MessageBox.Show("oi", "ola");
         }
         private void convertToI8ToolStripMenuItem_Click(object sender, EventArgs e)
         {
