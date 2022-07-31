@@ -15,6 +15,12 @@ native language.
  I want to open possibilities for people to modify Narutimate Series games and CC2 games such as naruto ones, i want everyone to be able to add more characters, more
  jutsu, specials, models, textures, songs, and so on...
  
+## Compiling and Building
+
+The tool is x86(32 bit) based, for LowEnd compatibility(and i choose to maintain that), and there are some dependencies attached on it:
+
+*OpenTK
+ 
 ## You can contribute!
  If you want to contribute send your pull request, be sure to read the docs about the structures[IN PROGRESS] and good luck!
  Also, i participate on a modding community focused on Narutimatte Series games, you can join in https://discord.gg/3EzrBQFTYW.
