@@ -19,7 +19,7 @@ native language.
 
 The tool is x86(32 bit) based, for LowEnd compatibility(and i choose to maintain that), and there are some dependencies attached on it:
 
-*OpenTK
+**OpenTK (1.1)
  
 ## You can contribute!
  If you want to contribute send your pull request, be sure to read the docs about the structures[IN PROGRESS] and good luck!
