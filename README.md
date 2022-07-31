@@ -1,3 +1,4 @@
+![](https://github.com/MiguelQueiroz010/CCSF-Asset-Explorer/blob/master/CapaG.png)
 # CCSF-Asset-Explorer
 Asset Explorer focused on Narutimatte series CCSF files from Cyber Connect 2.
 
@@ -15,5 +16,5 @@ native language.
  jutsu, specials, models, textures, songs, and so on...
  
 ## You can contribute!
- If you want to contribute send your pull request, be sure to read the Docs about the structures also know and good luck!
+ If you want to contribute send your pull request, be sure to read the docs about the structures[IN PROGRESS] and good luck!
  Also, i participate on a modding community focused on Narutimatte Series games, you can join in https://discord.gg/3EzrBQFTYW.
