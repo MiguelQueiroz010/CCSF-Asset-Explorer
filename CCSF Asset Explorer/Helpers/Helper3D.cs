@@ -232,11 +232,11 @@ public static class Helper3D
 	{
 		scale /= 256.0f;
 
-		float vX = (vec3.X / VTEX_SCALE) / scale;
-		float vY = (vec3.Y / VTEX_SCALE) / scale;
-		float vZ = (vec3.Z / VTEX_SCALE) / scale;
+		float vX = (vec3.X / scale);
+		float vY = (vec3.Y / scale);
+		float vZ = (vec3.Z / scale);
 
-		Vector3 n = new Vector3(vX , vY, vZ);
+		Vector3 n = FixAxis(new Vector3(vX / VTEX_SCALE, vY / VTEX_SCALE, vZ / VTEX_SCALE));
 
 		var result = new List<byte>();
 
@@ -244,7 +244,9 @@ public static class Helper3D
 		result.AddRange(BitConverter.GetBytes((Int16)n.Y));
 		result.AddRange(BitConverter.GetBytes((Int16)n.Z));
 
-		return result.ToArray();
+		byte[] res = result.ToArray();
+
+		return res;
 	}
 
 	public static Vector4 FromColor(Color col)

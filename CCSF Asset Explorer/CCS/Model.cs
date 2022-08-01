@@ -186,8 +186,11 @@ public class Model : Block
 
 		public uint VertexCount;
 		public uint TriangleCount;
-		
+
+		Model mdlRef;
+
 		public ModelVertex[] Vertices;
+		public Vector2[] UVs;
 		public ModelTriangle[] Triangles;
 		public SubModelType subMDLType = SubModelType.DEFORMABLE;
 
@@ -264,6 +267,7 @@ public class Model : Block
 		{
 			SubModel subModel = new SubModel();
 			subModel._CCStoc = ccstoc;
+			subModel.mdlRef = model;
 			subModel._mdlType = model.MDLType;
 			if (model.MDLType==ModelType.DEFORMABLE ||
 				model.MDLType==ModelType.DEFORMABLE_GEN2||
@@ -297,6 +301,7 @@ public class Model : Block
 					{
 						subModel.Vertices[i].Position = ReadVec3Half(Input, model.VertexScale);
 						subModel.Vertices[i].VertexParams = Input.ReadUInt(16);
+						subModel.Vertices[i].ContainsParams = true;
 
 						var Vertex = subModel.Vertices[i];
 
@@ -394,9 +399,11 @@ public class Model : Block
 				}
 				else
 				{
+					subModel.UVs = new Vector2[subModel.UVCount];
+					Input.Position -= subModel.UVCount * 4;
 					for (int i = 0; i < subModel.UVCount; i++)
 					{
-						subModel.Vertices[i].TexCoords = Helper3D.ReadVec2UV(Input);
+						subModel.UVs[i] = Helper3D.ReadVec2UV(Input);
 					}
 				}
 			}
@@ -527,32 +534,27 @@ public class Model : Block
 				{
 					foreach(var vertex in Vertices)
 					{
-						result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
+						byte[] vertexBIN = vertex.Position.GetVec3Half(mdlRef.VertexScale);
+						result.AddRange(vertexBIN);
 						result.AddRange(vertex.VertexParams.ToLEBE(16));
 
-						uint boneID1 = vertex.VertexParams >> 10;
-						uint boneID2 = 0;
+                        //bool dualFlag = ((vertex.VertexParams >> 9) & 0x1) == 0;
 
-						float weight1 = (vertex.VertexParams & 0x1ff) * Helper3D.WEIGHT_SCALE;
-						float weight2 = 0;
+                        //if (dualFlag)
+                        //{
+                        //    result.AddRange(vertex.Position2.GetVec3Half(vertex.VScale));
+                        //    result.AddRange(vertex.SecondVertexParams.ToLEBE(16));
+                        //}
 
-						bool dualFlag = ((vertex.VertexParams >> 9) & 0x1) == 0;
-
-						if (dualFlag)
-						{
-							result.AddRange(vertex.Position2.GetVec3Half(vertex.VScale));
-							result.AddRange(vertex.SecondVertexParams.ToLEBE(16));
-						}
-
-
-					}
+                    }
 				}
 				else if (subMDLType == SubModelType.RIGID)
 				{
 					foreach (var vertex in Vertices)
 					{
 						result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
-						result.AddRange(vertex.VertexParams.ToLEBE(16));
+						if(vertex.ContainsParams)
+							result.AddRange(vertex.VertexParams.ToLEBE(16));
 					}
 
 					//Resolve Padding of %4
@@ -567,10 +569,16 @@ public class Model : Block
 					result.Add(vertex.TriFlag);
 				}
 
-				foreach (var vertex in Vertices)
-				{
-					result.AddRange(vertex.TexCoords.GetVec2UV());
-				}
+				if (subMDLType == SubModelType.DEFORMABLE)
+					foreach (var uv in UVs)
+					{
+						result.AddRange(uv.GetVec2UV());
+					}
+				else
+					foreach (var vertex in Vertices)
+					{
+						result.AddRange(vertex.TexCoords.GetVec2UV());
+					}
 			}
 			else if (_mdlType == ModelType.SHADOW)
 			{
@@ -581,7 +589,6 @@ public class Model : Block
 				foreach (var vertex in Vertices)
 				{
 					result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
-					result.AddRange(vertex.VertexParams.ToLEBE(16));
 				}
 
 				//Resolve Padding of %4
@@ -744,9 +751,17 @@ public class Model : Block
 				writer.Write(BitConverter.GetBytes((Single)Unknow2));
 			}
 
+			if(LT!=null&&LT.Length>0)
+            {
+				foreach (var u in LT)
+					writer.Write((byte)u);
+
+				if (writer.BaseStream.Position % 4 != 0)
+					writer.BaseStream.Position++;
+            }
+
 			foreach (var submodel in SubModels)
 			{
-				//File.WriteAllBytes("testeSUBmodels.bin", submodel.ToArray());
 				writer.Write(submodel.ToArray());
 			}
 			return Data;
@@ -760,7 +775,6 @@ public class Model : Block
 		model.Type = Input.ReadUInt(32);
 		model.Size = Input.ReadUInt(32);
 		model.ObjectID = Input.ReadUInt(32);
-		//model.Data = Input.ReadBytes(0, (int)Size);
 
 		Input.Position = 0xC;
 
