@@ -45,7 +45,27 @@ public class Model : Block
 			Bone4 = id4;
 		}
 	}
+	public struct ModelUV
+    {
+		public Vector2 UV;
 
+		[DisplayName("X")]
+		[Description("Modify the vertex uv coordinates.")]
+		[Category("Texture Coordinates")]
+		public decimal _x
+		{
+			get => (decimal)UV.X;
+			set => UV.X = (float)value;
+		}
+		[DisplayName("Y")]
+		[Description("Modify the vertex uv coordinates.")]
+		[Category("Texture Coordinates")]
+		public decimal _y
+		{
+			get => (decimal)UV.Y;
+			set => UV.Y = (float)value;
+		}
+	}
 	public struct ModelVertex
 	{
 		public Vector3 Position;
@@ -190,8 +210,9 @@ public class Model : Block
 		Model mdlRef;
 
 		public ModelVertex[] Vertices;
-		public Vector2[] UVs;
 		public ModelTriangle[] Triangles;
+		public ModelUV[] UVs;
+
 		public SubModelType subMDLType = SubModelType.DEFORMABLE;
 
 		public Model.ModelType _mdlType;
@@ -262,6 +283,14 @@ public class Model : Block
 		{
 			get => Vertices;
 			set => Vertices = value;
+		}
+		[DisplayName("UVs")]
+		[Description("Modify the model uvs.")]
+		[Category("Model")]
+		public ModelUV[] _uvs
+		{
+			get => UVs;
+			set => UVs = value;
 		}
 		internal static SubModel Read(Stream Input, Model model, Index ccstoc)
 		{
@@ -399,11 +428,11 @@ public class Model : Block
 				}
 				else
 				{
-					subModel.UVs = new Vector2[subModel.UVCount];
+					subModel.UVs = new ModelUV[subModel.UVCount];
 					Input.Position -= subModel.UVCount * 4;
 					for (int i = 0; i < subModel.UVCount; i++)
 					{
-						subModel.UVs[i] = Helper3D.ReadVec2UV(Input);
+						subModel.UVs[i].UV = Helper3D.ReadVec2UV(Input);
 					}
 				}
 			}
@@ -522,17 +551,19 @@ public class Model : Block
 				_mdlType == ModelType.DEFORMABLE_GEN2_5_S)
 			{
 					result.AddRange(MaterialID.ToLEBE(32));
-					result.AddRange(UVCount.ToLEBE(32));
-					result.AddRange(VertexCount.ToLEBE(32));
+				//	result.AddRange(UVCount.ToLEBE(32));
+				//	result.AddRange(VertexCount.ToLEBE(32));
 
-				if(subMDLType==SubModelType.RIGID)
-					result.AddRange(ObjectID.ToLEBE(32));
+				//if(subMDLType==SubModelType.RIGID)
+				//	result.AddRange(ObjectID.ToLEBE(32));
 
 
 				//Vértice BoneIDs e Weights
 				if (subMDLType == SubModelType.DEFORMABLE)
 				{
-					foreach(var vertex in Vertices)
+                    result.AddRange(UVCount.ToLEBE(32));
+                    result.AddRange(VertexCount.ToLEBE(32));
+                    foreach (var vertex in Vertices)
 					{
 						byte[] vertexBIN = vertex.Position.GetVec3Half(mdlRef.VertexScale);
 						result.AddRange(vertexBIN);
@@ -550,6 +581,9 @@ public class Model : Block
 				}
 				else if (subMDLType == SubModelType.RIGID)
 				{
+					result.AddRange(VertexCount.ToLEBE(32));
+					result.AddRange(UVCount.ToLEBE(32));
+					result.AddRange(ObjectID.ToLEBE(32));
 					foreach (var vertex in Vertices)
 					{
 						result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
@@ -572,7 +606,7 @@ public class Model : Block
 				if (subMDLType == SubModelType.DEFORMABLE)
 					foreach (var uv in UVs)
 					{
-						result.AddRange(uv.GetVec2UV());
+						result.AddRange(uv.UV.GetVec2UV());
 					}
 				else
 					foreach (var vertex in Vertices)
@@ -756,7 +790,7 @@ public class Model : Block
 				foreach (var u in LT)
 					writer.Write((byte)u);
 
-				if (writer.BaseStream.Position % 4 != 0)
+				while (writer.BaseStream.Position % 4 != 0)
 					writer.BaseStream.Position++;
             }
 
