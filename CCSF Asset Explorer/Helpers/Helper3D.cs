@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.IO;
-using OpenTK;
 
 public struct Vector3H
 {

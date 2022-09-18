@@ -57,9 +57,6 @@
     <ApplicationIcon>410218.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK">
-      <HintPath>..\..\TesteOPENTK\TesteOPENTK\bin\Debug\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -142,6 +139,7 @@
       <DependentUpon>Principal.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\IOextent.cs" />
+    <Compile Include="Helpers\Math.cs" />
     <Compile Include="ImgLib\Common\BinaryReaderExtensions.cs" />
     <Compile Include="ImgLib\Common\Endianness.cs" />
     <Compile Include="ImgLib\Common\GenericDictionary.cs" />

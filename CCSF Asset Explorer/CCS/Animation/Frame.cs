@@ -7,7 +7,6 @@ using static IOextent;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Text;
-using OpenTK;
 
 public class Frame : Block
 {

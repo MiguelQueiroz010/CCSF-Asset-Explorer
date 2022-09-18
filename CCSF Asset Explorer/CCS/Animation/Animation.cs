@@ -7,7 +7,6 @@ using static IOextent;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Text;
-using OpenTK;
 
 #region Tracks of Values
 public class Vec3Position_Track

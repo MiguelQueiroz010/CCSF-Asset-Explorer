@@ -6,7 +6,6 @@ using System.IO;
 using static IOextent;
 using System.ComponentModel;
 using System.Text;
-using OpenTK;
 public class HitGroup
 {
     public Vector3[] Vertices = null;

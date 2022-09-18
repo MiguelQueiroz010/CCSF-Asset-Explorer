@@ -6,7 +6,6 @@ using System.IO;
 using static IOextent;
 using System.Text;
 using System.ComponentModel;
-using OpenTK;
 
 public class Clump : Block
 {
@@ -35,7 +34,7 @@ public class Clump : Block
 
         public uint ID, Index;
 
-        public Matrix4 PoseMatrix, FinalMatrix;
+        //public Matrix4 PoseMatrix, FinalMatrix;
 
         public Vector3 BindPosition;
         public Vector3 BindRotation, BindScale,

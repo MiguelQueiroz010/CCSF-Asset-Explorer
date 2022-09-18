@@ -12,7 +12,6 @@ using Rainbow.ImgLib;
 using System.Text;
 using System.ComponentModel;
 using System.Reflection;
-using OpenTK;
 
 public enum FileType
 {

@@ -6,7 +6,6 @@ using System.IO;
 using static IOextent;
 using System.ComponentModel;
 using System.Text;
-using OpenTK;
 public struct BBox
 {
     public Vector3 Minimum;// = Vector3.Zero;

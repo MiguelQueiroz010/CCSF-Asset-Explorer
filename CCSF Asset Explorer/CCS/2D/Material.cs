@@ -6,7 +6,6 @@ using System.IO;
 using static IOextent;
 using System.Text;
 using System.ComponentModel;
-using OpenTK;
 
 public class Material : Block
 {
