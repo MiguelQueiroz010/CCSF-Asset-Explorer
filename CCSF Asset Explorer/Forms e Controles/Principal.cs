@@ -15,11 +15,13 @@ namespace CCSF_Asset_Explorer
 {
     public partial class Principal : Form
     {
+        #region Variables
         Size oldPIC2size;
         Point oldPIC2loc;
 
         SearchCheck sc;
 
+        #endregion
         #region Options Variables
         //General
         public string DefaultTextureVE = "";
@@ -172,6 +174,7 @@ namespace CCSF_Asset_Explorer
         }
         public void RefreshControls()
         {
+            searchAndCheckToolStripMenuItem.Enabled = !searchAndCheckToolStripMenuItem.Enabled;
             saveToolStripMenuItem.Enabled = !saveToolStripMenuItem.Enabled;
             saveAllToolStripMenuItem.Enabled = !saveAllToolStripMenuItem.Enabled;
             closeToolStripMenuItem.Enabled = !closeToolStripMenuItem.Enabled;
@@ -347,29 +350,57 @@ namespace CCSF_Asset_Explorer
                         break;
                     case 2: //Block
                         var ccsnode = (ccstab.resourceView.SelectedNode as CCSNode);
-                        fext = ".bin";
-                        open.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
-                        if (open.ShowDialog() == DialogResult.OK)
-                        {
-                            openpath = open.FileName;
-                            var replaceBlock = Block.ReadAllBlocks(File.OpenRead(open.FileName), false, false
-                                 , ccstab.CCSFile.CCS_Header, true);
-                            for (int i = 0; i < ccstab.CCSFile.Blocks.Count; i++)
-                            {
-                                if (ccstab.CCSFile.Blocks[i] == ccsnode.Block)
-                                {
-                                    if (replaceBlock[0].ObjectID != ccstab.CCSFile.Blocks[i].ObjectID)
-                                    {
-                                        MessageBox.Show("Different Object Block identified, error!!");
-                                        return;
-                                    }
-                                    ccstab.CCSFile.Blocks[i] = replaceBlock[0];
-                                    
-                                }
-                            }
 
-                            ccsnode.Block = replaceBlock[0];
-                            replaced = true;
+                        if (ccsnode.Block.BlockType == "Model"&&
+                            MessageBox.Show("Want to import model parts?", "Model Converter", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        {
+                            var folder = new FolderBrowserDialog();
+                            folder.Description = "Select models part containing folder.";
+                            if (folder.ShowDialog() == DialogResult.OK)
+                            {
+                                var files = Directory.EnumerateFiles(folder.SelectedPath, "*.obj");
+                                Model mdl = ccsnode.Block as Model;
+                                if(new DirectoryInfo(folder.SelectedPath).Name==mdl.ObjectName)
+                                {
+                                    for(int i =0;i< mdl.SubModels.Length;i++)
+                                    {
+                                        if (mdl.SubModels[i].subMDLType != Model.SubModel.SubModelType.DEFORMABLE)
+                                        {
+                                            string fname = mdl.SubModels[i].subMDLType == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : mdl.SubModels[i].ObjectName;
+                                            mdl.SubModels[i].SetfromOBJECT3D(new StreamReader(files.Where(x => Path.GetFileName(x) == $"{fname}.obj").ToArray()[0]));
+                                        }
+                                    }
+                                    ccsnode.Block = mdl;
+                                }
+                                
+                            }
+                        }
+                        else
+                        {
+                            fext = ".bin";
+                            open.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
+                            if (open.ShowDialog() == DialogResult.OK)
+                            {
+                                openpath = open.FileName;
+                                var replaceBlock = Block.ReadAllBlocks(File.OpenRead(open.FileName), false, false
+                                     , ccstab.CCSFile.CCS_Header, true, ccstab.CCSFile);
+                                for (int i = 0; i < ccstab.CCSFile.Blocks.Count; i++)
+                                {
+                                    if (ccstab.CCSFile.Blocks[i] == ccsnode.Block)
+                                    {
+                                        if (replaceBlock[0].ObjectID != ccstab.CCSFile.Blocks[i].ObjectID)
+                                        {
+                                            MessageBox.Show("Different Object Block identified, error!!");
+                                            return;
+                                        }
+                                        ccstab.CCSFile.Blocks[i] = replaceBlock[0];
+
+                                    }
+                                }
+
+                                ccsnode.Block = replaceBlock[0];
+                                replaced = true;
+                            }
                         }
                         break;
                 }
@@ -442,15 +473,48 @@ namespace CCSF_Asset_Explorer
 
                         break;
                     case 2: //Block
-                        file = ccstab.GetSelectedFile();
-                        fext = ".bin";
-
-                        save.FileName = ccstab.resourceView.SelectedNode.Text + $"_{(ccstab.resourceView.SelectedNode as CCSNode).Block.ObjectID}";
-                        save.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
-                        if (save.ShowDialog() == DialogResult.OK)
+                        if ((ccstab.resourceView.SelectedNode as CCSNode).Block.BlockType == "Model"&&
+                            MessageBox.Show("Want to export model parts?","Model Converter",MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         {
-                            File.WriteAllBytes(save.FileName, (ccstab.resourceView.SelectedNode as CCSNode).Block.DataArray);
-                            savepath = save.FileName;
+                            var browser = new FolderBrowserDialog();
+                            browser.Description = "Select a folder where extracted model parts will be.";
+                            if (browser.ShowDialog() == DialogResult.OK)
+                            {
+                                Model mdl = (ccstab.resourceView.SelectedNode as CCSNode).Block as Model;
+
+                                string path = browser.SelectedPath + $@"/{mdl.ObjectName}";
+                                if (!Directory.Exists(path))
+                                    Directory.CreateDirectory(path);
+                                path += @"/";
+
+                                
+                                foreach (var submdl in mdl.SubModels)
+                                {
+                                    var writer = new StringBuilder();
+                                    writer.AppendLine("#CCSF ASSET EXPLORER - MODEL CONVERTER\r\n" +
+                                        "#BIT.RAIDEN - 2022\r\n");
+                                    submdl.GetOBJECT3D(writer, out var writerMat,out var mtlNAM,
+                                        out Bitmap tex, out var texNAM);
+                                    tex.Save(path + $"{texNAM}.png");
+                                    File.WriteAllText(path+$"{(submdl._type == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : submdl.ObjectName)}.obj", writer.ToString());
+                                    File.WriteAllText(path+$"{mtlNAM}.mtl", writerMat.ToString());
+                                }
+                                savepath = path;
+                            }
+                            
+                        }
+                        else 
+                        { 
+                            file = ccstab.GetSelectedFile();
+                            fext = ".bin";
+                            save.FileName = ccstab.resourceView.SelectedNode.Text + $"_{(ccstab.resourceView.SelectedNode as CCSNode).Block.ObjectID}";
+                            save.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
+
+                                if (save.ShowDialog() == DialogResult.OK)
+                                {
+                                    File.WriteAllBytes(save.FileName, (ccstab.resourceView.SelectedNode as CCSNode).Block.DataArray);
+                                    savepath = save.FileName;
+                                }
                         }
                         break;
                 }
@@ -629,6 +693,8 @@ namespace CCSF_Asset_Explorer
         {
             if (tabControl1.TabCount > 0)
             {
+                searchAndCheckToolStripMenuItem.Enabled = true;
+
                 var k = new List<string>();
                 foreach (var file in GetSelectedTab().CCSFile.CCS_TOC.Files)
                     foreach (var objectx in file.Objects)
@@ -650,8 +716,9 @@ namespace CCSF_Asset_Explorer
 
         private void searchAndCheckToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            sc = new SearchCheck();
-            sc.Show();
+            sc = new SearchCheck(this);
+            if(!sc.Visible)
+                sc.Show();
         }
 
         private void uncheckAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -717,6 +784,20 @@ namespace CCSF_Asset_Explorer
         {
             Console.Clear();
         }
+        private void setTextureViewerEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var open = new OpenFileDialog();
+            open.Filter = "Windows Program(*.exe)|*.exe";
+            if (open.ShowDialog() == DialogResult.OK)
+            {
+                DefaultTextureVE = open.FileName;
+            }
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new Options(this).ShowDialog();
+        }
         #region Drag'n Drop
         private void Principal_DragEnter(object sender, DragEventArgs e)
         {
@@ -734,19 +815,5 @@ namespace CCSF_Asset_Explorer
 
         #endregion
 
-        private void setTextureViewerEditorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var open = new OpenFileDialog();
-            open.Filter = "Windows Program(*.exe)|*.exe";
-            if(open.ShowDialog()==DialogResult.OK)
-            {
-                DefaultTextureVE = open.FileName;
-            }
-        }
-
-        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new Options(this).ShowDialog();
-        }
     }
 }

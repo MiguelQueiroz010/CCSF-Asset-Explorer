@@ -11,7 +11,18 @@ using OpenTK;
 
 public class Object : Block
 {
-    internal Model GetModel(Block[] blocks) => blocks.Where(x => x.ObjectID == ModelID).ToArray()[0] as Model;
+    internal Model[] GetModel(Block[] blocks) => blocks.Where(x => x.ObjectID == ModelID).ToArray() as Model[];
+
+    public Clump ParentClump;
+
+    [DisplayName("Linked Model")]
+    [Description("See the linked model for the bone.")]
+    [Category("Object")]
+    public Model[] _mdl
+    {
+        get => GetModel(_ccsf.Blocks.ToArray());
+        set => _ccsf.Blocks[_ccsf.IndexOf(_mdl[0])] = value[0];
+    }
 
     public uint ParentObjectID;
     public uint ModelID;

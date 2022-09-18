@@ -43,8 +43,15 @@ namespace CCSF_Asset_Explorer
                     editcheck.Checked = true;
                 }
                 pathBox.Text = _principal.DefaultTextureVE;
-                appiconBox.Image = Program.ExtractIconFromFilePath(_principal.DefaultTextureVE).ToBitmap();
-                appName.Text = new FileInfo(_principal.DefaultTextureVE).Name;
+                if (_principal.DefaultTextureVE != "")
+                {
+                    var icon = Program.ExtractIconFromFilePath(_principal.DefaultTextureVE);
+                    if (icon != null)
+                    {
+                        appiconBox.Image = icon.ToBitmap();
+                        appName.Text = new FileInfo(_principal.DefaultTextureVE).Name;
+                    }
+                }
             }
 
             #endregion

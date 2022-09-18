@@ -534,6 +534,11 @@ namespace CCSF_Asset_Explorer
                     ClearTextureBox();
                     _principal.removeToolStripMenuItem.Enabled = true;
                     removeBt.Enabled = true;
+                    //if ((resourceView.SelectedNode as CCSNode).Block.GetBlockType() == "Animation")
+                    //{
+                    //    var anim = (resourceView.SelectedNode as CCSNode).Block as Animation;
+                    //    new FramesBox(anim).ShowDialog();
+                    //}
                     break;
             }
 

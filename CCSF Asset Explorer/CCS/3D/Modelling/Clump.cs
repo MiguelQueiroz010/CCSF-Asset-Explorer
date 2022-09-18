@@ -14,8 +14,19 @@ public class Clump : Block
     {
         public Header _ccsHeader;
         public Index _ccsTOC;
-        internal Object GetObject(Block[] Blocks) => Blocks.Where(x => x.ObjectID == ID).ToArray()[0] as Object;
+        public CCSF _CCSf;
 
+        internal Object[] GetObject() => _CCSf.Blocks.Where(x => x.GetObjectName()==_oname).ToArray() as Object[];
+        internal Model GetModel(Object obj) => _CCSf.Blocks.Where(x => x.ObjectID == obj.ModelID).ToArray()[0] as Model;
+
+        [DisplayName("Linked Object")]
+        [Description("See the linked object for the model bone.")]
+        [Category("Bone")]
+        public Object[] _obj
+        {
+            get => GetObject();
+            set => _CCSf.Blocks[_CCSf.IndexOf(_obj[0])] = value[0];
+        }
         public struct BoneVis
         {
             public int HeadID;
@@ -26,8 +37,9 @@ public class Clump : Block
 
         public Matrix4 PoseMatrix, FinalMatrix;
 
-        public Vector3 BindPosition, BindRotation, BindScale;
-        public Vector3 PosePosition, PoseRotation, PoseScale;
+        public Vector3 BindPosition;
+        public Vector3 BindRotation, BindScale,
+            PosePosition, PoseRotation, PoseScale;
 
         public Quaternion PoseQuat;
 
@@ -150,12 +162,13 @@ public class Clump : Block
         {
             get => _ccsTOC.GetObjectName((uint)BoneVisBone.TailID);
         }
-        public static Node ReadNode(Stream Input, Header header, int i, Index ccstoc, uint[] IDs)
+        public static Node ReadNode(Stream Input, Header header, int i, Index ccstoc, CCSF ccsf, uint[] IDs, Clump clump)
         {
             Node result = new Node();
             result._ccsHeader = header;
             result.ID = IDs[i];
             result._ccsTOC = ccstoc;
+            result._CCSf = ccsf;
             if (header.Version <= Header.CCSFVersion.GEN1)
             {
                 result.BindPosition = Vector3.Zero;
@@ -173,8 +186,8 @@ public class Clump : Block
             else
             {
                 Vector3 pos = Helper3D.ReadVec3Position(Input);
-                Vector3 rot = Helper3D.ReadVec3Rotation(Input);
-                Vector3 scale = Helper3D.ReadVec3Scale(Input);
+                Vector3 rot = Helper3D.ReadVec3(Input);
+                Vector3 scale = Helper3D.ReadVec3(Input);
 
                 result.BindPosition = pos;
                 result.BindRotation = rot;
@@ -187,6 +200,7 @@ public class Clump : Block
                 result.BoneVisBone.TailID = i;
             }
 
+            
             return result;
         }
 
@@ -196,7 +210,7 @@ public class Clump : Block
             if (_ccsHeader.Version > Header.CCSFVersion.GEN1)
             {
                 result.AddRange(BindPosition.GetVec3Position());
-                result.AddRange(BindRotation.GetVec3Rotation());
+                result.AddRange(BindRotation.GetVec3());
                 result.AddRange(BindScale.GetVec3());
             }
 
@@ -236,9 +250,10 @@ public class Clump : Block
             return Data;
         }
     }
-    public override Block ReadBlock(Stream Input, Header header)
+    public override Block ReadBlock(Stream Input, Header header, CCSF file)
     {
         Clump result = new Clump();
+        result._ccsf = file;
         result.Type = Input.ReadUInt(32);
         result.Size = Input.ReadUInt(32) * 4;
         result.ObjectID = Input.ReadUInt(32);
@@ -249,7 +264,7 @@ public class Clump : Block
           Select(c => Input.ReadUInt(32)).ToArray();
 
         result.Nodes = Enumerable.Range(0, (int)result.NodeCount).Select(x =>
-          Node.ReadNode(Input, header, x, _ccsToc, ids)).ToArray();
+          Node.ReadNode(Input, header, x, _ccsToc, file, ids, result)).ToArray();
 
         return result;
     }

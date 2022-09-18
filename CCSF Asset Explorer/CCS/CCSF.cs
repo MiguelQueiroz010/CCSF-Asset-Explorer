@@ -64,7 +64,7 @@ public class CCSF
         InternalFile = new MemoryStream(InternalData);
 
         //Read Blocks
-        Blocks = Block.ReadAllBlocks(InternalFile, logBlockReadWrite);
+        Blocks = Block.ReadAllBlocks(InternalFile, logBlockReadWrite, false, null, false, this);
 
         //Init Header and Toc Index sections
         CCS_Header = Blocks[0] as Header;
@@ -88,9 +88,33 @@ public class CCSF
                                 foreach (var filex in CCS_TOC.Files)
                                     foreach (var objx in file.Objects)
                                         if (submdl.ObjectID != 0xFFFFFFFF)
-                                            if (objx.Index == submdl.ObjectID)
+                                            if (objx.Index == submdl.ObjectID && !submdl.useclumpref)
+                                            {
                                                 submdl.ObjectName = objx.ObjectName;
+                                            }
+                                            else if(submdl.useclumpref)
+                                            {
+                                                Clump refcmp = null;
+                                                try
+                                                {
+                                                    foreach (var xobj in file.Objects)
+                                                        if (xobj.ObjectName.StartsWith("CMP"))
+                                                            refcmp = xobj.Blocks.Where(x => x.BlockType == "Clump").Where
+                                                            (c => (c as Clump).Nodes.Any(n => n.ID == submdl.ObjectID)).ToArray()[0] as Clump
+                                                            ;
+                                                
+
+                                                if (refcmp != null)
+                                                {
+                                                    submdl.cmpRef = refcmp;
+                                                    submdl.ObjectName = refcmp.Nodes[submdl.ObjectID]._oname;
+                                                }
+                                                }
+                                                catch (Exception) { }
+                                            }
                     }
+
+
 
         //Set frame type
         foreach (var file in CCS_TOC.Files)
@@ -98,6 +122,7 @@ public class CCSF
                 if (obj.Blocks.Any(x => x.Type == 0xcccc0005))
                     CCS_TOC.isFrameScene = false;
     }
+    internal int IndexOf(Block block) => Blocks.IndexOf(block);
 
     internal void ToTreeView(TreeView treeView, bool forceResource = false, bool forceFrame = false)
     {

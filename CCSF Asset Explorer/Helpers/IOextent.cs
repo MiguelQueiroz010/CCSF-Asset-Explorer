@@ -16,10 +16,6 @@ using System.IO;
 /// Novembro/2021
 public static class IOextent
 {
-    public static void ReplaceBlock(this Block block, string blockpath)
-    {
-        block = Block.ReadAllBlocks(File.OpenRead(blockpath), false, false, block._ccsHeader, true)[0];
-    }
     #region Leitores de Dados
 
     #region BITS

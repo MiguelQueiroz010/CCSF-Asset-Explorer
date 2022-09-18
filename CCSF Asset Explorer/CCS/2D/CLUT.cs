@@ -86,20 +86,29 @@ public class CLUT : Block
         result.AddRange(Unknow2.ToLEBE(32));
         result.AddRange(ColorCount.ToLEBE(32));
 
-        result.AddRange(GetColorData(Palette));
+        result.AddRange(GetColorData(Palette, false));
         return result.ToArray();
     }
-
+    public static byte HalfAlpha(byte alpha)
+    {
+        alpha = (byte)((alpha * 128) / 255);
+        return alpha;
+    }
+    public static byte FullAlpha(byte alpha)
+    {
+        alpha = (byte)((alpha * 255) / 128);
+        return alpha;
+    }
     public static Color ReadColor(byte[] color, bool convertalpha = true)
     {
         return Color.FromArgb(
-            convertalpha ? (byte)((color[3] * 255) /128): color[3], //A
+            convertalpha ? FullAlpha(color[3]): color[3], //A
             color[0], //R
             color[1], //G
             color[2]);//B
     }
 
-    public byte[] GetColorData(Color[] colors)
+    public byte[] GetColorData(Color[] colors, bool convert=true)
     {
         var result = new List<byte>();
         foreach(var color in colors)
@@ -107,9 +116,8 @@ public class CLUT : Block
             result.Add(color.R);
             result.Add(color.G);
             result.Add(color.B);
-            result.Add(color.A);
+            result.Add(convert ? HalfAlpha(color.A) : color.A);
         }
-
         return result.ToArray();
     }
 }

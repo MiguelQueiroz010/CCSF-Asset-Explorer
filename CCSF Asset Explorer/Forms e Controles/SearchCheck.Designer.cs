@@ -30,32 +30,33 @@ namespace CCSF_Asset_Explorer
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SearchCheck));
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.searchText = new System.Windows.Forms.TextBox();
+            this.objectCombo = new System.Windows.Forms.ComboBox();
             this.secheck_bt = new System.Windows.Forms.Button();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.checkFromObj = new System.Windows.Forms.CheckBox();
+            this.textSearch = new System.Windows.Forms.CheckBox();
             this.blockCombo = new System.Windows.Forms.ComboBox();
             this.blkseparator = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.blocklbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // textBox1
+            // searchText
             // 
-            this.textBox1.Location = new System.Drawing.Point(71, 42);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(163, 20);
-            this.textBox1.TabIndex = 1;
+            this.searchText.Location = new System.Drawing.Point(71, 42);
+            this.searchText.Name = "searchText";
+            this.searchText.Size = new System.Drawing.Size(163, 20);
+            this.searchText.TabIndex = 1;
             // 
-            // comboBox1
+            // objectCombo
             // 
-            this.comboBox1.Enabled = false;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(71, 102);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(163, 21);
-            this.comboBox1.TabIndex = 3;
+            this.objectCombo.Enabled = false;
+            this.objectCombo.FormattingEnabled = true;
+            this.objectCombo.Location = new System.Drawing.Point(71, 102);
+            this.objectCombo.Name = "objectCombo";
+            this.objectCombo.Size = new System.Drawing.Size(163, 21);
+            this.objectCombo.TabIndex = 3;
+            this.objectCombo.SelectedIndexChanged += new System.EventHandler(this.objectCombo_SelectedIndexChanged);
             // 
             // secheck_bt
             // 
@@ -65,28 +66,31 @@ namespace CCSF_Asset_Explorer
             this.secheck_bt.TabIndex = 4;
             this.secheck_bt.Text = "Search";
             this.secheck_bt.UseVisualStyleBackColor = true;
+            this.secheck_bt.Click += new System.EventHandler(this.secheck_bt_Click);
             // 
-            // checkBox1
+            // checkFromObj
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(47, 79);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(83, 17);
-            this.checkBox1.TabIndex = 5;
-            this.checkBox1.Text = "Check from:";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkFromObj.AutoSize = true;
+            this.checkFromObj.Location = new System.Drawing.Point(47, 79);
+            this.checkFromObj.Name = "checkFromObj";
+            this.checkFromObj.Size = new System.Drawing.Size(83, 17);
+            this.checkFromObj.TabIndex = 5;
+            this.checkFromObj.Text = "Check from:";
+            this.checkFromObj.UseVisualStyleBackColor = true;
+            this.checkFromObj.CheckedChanged += new System.EventHandler(this.checkFromObj_CheckedChanged);
             // 
-            // checkBox2
+            // textSearch
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Checked = true;
-            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox2.Location = new System.Drawing.Point(47, 19);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(63, 17);
-            this.checkBox2.TabIndex = 6;
-            this.checkBox2.Text = "Search:";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.textSearch.AutoSize = true;
+            this.textSearch.Checked = true;
+            this.textSearch.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.textSearch.Location = new System.Drawing.Point(47, 19);
+            this.textSearch.Name = "textSearch";
+            this.textSearch.Size = new System.Drawing.Size(63, 17);
+            this.textSearch.TabIndex = 6;
+            this.textSearch.Text = "Search:";
+            this.textSearch.UseVisualStyleBackColor = true;
+            this.textSearch.CheckedChanged += new System.EventHandler(this.textSearch_CheckedChanged);
             // 
             // blockCombo
             // 
@@ -137,11 +141,11 @@ namespace CCSF_Asset_Explorer
             this.Controls.Add(this.label2);
             this.Controls.Add(this.blkseparator);
             this.Controls.Add(this.blockCombo);
-            this.Controls.Add(this.checkBox2);
-            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.textSearch);
+            this.Controls.Add(this.checkFromObj);
             this.Controls.Add(this.secheck_bt);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.objectCombo);
+            this.Controls.Add(this.searchText);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SearchCheck";
@@ -152,11 +156,11 @@ namespace CCSF_Asset_Explorer
         }
 
         #endregion
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.TextBox searchText;
+        private System.Windows.Forms.ComboBox objectCombo;
         private System.Windows.Forms.Button secheck_bt;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.CheckBox checkFromObj;
+        private System.Windows.Forms.CheckBox textSearch;
         private System.Windows.Forms.ComboBox blockCombo;
         private System.Windows.Forms.Label blkseparator;
         private System.Windows.Forms.Label label2;

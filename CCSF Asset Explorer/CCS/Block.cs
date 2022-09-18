@@ -23,10 +23,8 @@ public class CustomTypeConverter : TypeConverter
         return new StandardValuesCollection(Names);
     }
 }
-
 public class Block
 {
-
     public uint Type;//0xCC type
     public uint ObjectID;
     public byte[] Data;
@@ -37,6 +35,7 @@ public class Block
     private uint BlockOffset;
     public Header _ccsHeader;
     public Index _ccsToc;
+    public CCSF _ccsf;
 
     [DisplayName("Block Type")]
     [Description("Define the block type.")]
@@ -60,7 +59,9 @@ public class Block
     }
     [Description("Get the data modified from property to property.")]
     [Category("Base Block")]
-    public virtual byte[] DataArray { get
+    public virtual byte[] DataArray 
+    {
+        get
         {
             //var m = new BinaryWriter(new MemoryStream(this.Data));
             //m.BaseStream.Position = 0x8;
@@ -68,7 +69,7 @@ public class Block
             return this.Data;
         }
             
-            }
+    }
     
     public byte[] BlockData(Stream Input, long offst)
     {
@@ -91,6 +92,7 @@ public class Block
     //Lower level sections
     public const int SECTION_OBJECT = 0x0100;
     public const int SECTION_OBJECT_KEYFRAME = 0x0101;
+    public const int SECTION_OBJECT_CONTROLLER = 0x0102;
     public const int SECTION_MATERIAL = 0x0200;
     public const int SECTION_MATERIAL_KEYFRAME = 0x0201;
     public const int SECTION_MATERIAL_CONTROLLER = 0x0202;
@@ -141,8 +143,10 @@ public class Block
             {SECTION_STREAM, "Stream"},
             {SECTION_OBJECT, "Object"},
             {SECTION_OBJECT_KEYFRAME, "Object[KEYFRAME]"},
+            {SECTION_OBJECT_CONTROLLER, "Object[CONTROLLER]"},
             {SECTION_MATERIAL, "Material"},
             {SECTION_MATERIAL_KEYFRAME, "Material[KEYFRAME]"},
+            {SECTION_MATERIAL_CONTROLLER, "Material[CONTROLLER]"},
             {SECTION_TEXTURE, "Texture"},
             {SECTION_CLUT, "CLUT"},
             {SECTION_CSP, "CSP"},
@@ -198,10 +202,13 @@ public class Block
     }
     public string GetObjectName()
     {
-        foreach (var file in this._ccsToc.Files)
-            foreach (var objectx in file.Objects)
-                if (objectx.Index+1 == this.ObjectID)
-                    return objectx.ObjectName;
+        if (this._ccsToc != null)
+        {
+            foreach (var file in this._ccsToc.Files)
+                foreach (var objectx in file.Objects)
+                    if (objectx.Index + 1 == this.ObjectID)
+                        return objectx.ObjectName;
+        }
         return "NO OBJECT";
     }
     public virtual void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
@@ -227,6 +234,12 @@ public class Block
         Type = Input.ReadUInt(0, 32),
         ObjectID = Input.ReadUInt(8, 32),
         Size = Input.ReadUInt(4, 32) * 4
+    }; 
+    public virtual Block ReadBlock(Stream Input,string typename) => new Block()
+    {
+        Type = Input.ReadUInt(0, 32),
+        ObjectID = Input.ReadUInt(8, 32),
+        Size = Input.ReadUInt(4, 32) * 4
     };
     public virtual Block ReadBlock(Stream Input, Header header) => new Block()
     {
@@ -234,8 +247,19 @@ public class Block
         ObjectID = Input.ReadUInt(8, 32),
         Size = Input.ReadUInt(4, 32) * 4
     };
-
-    public static List<Block> ReadAllBlocks(Stream Input, bool logAllBlocks = false, bool logExport = false, Header cch = null, bool readone = false)
+    public virtual Block ReadBlock(Stream Input, Header header, Animation anim) => new Block()
+    {
+        Type = Input.ReadUInt(0, 32),
+        ObjectID = Input.ReadUInt(8, 32),
+        Size = Input.ReadUInt(4, 32) * 4
+    };
+    public virtual Block ReadBlock(Stream Input, Header header, CCSF file) => new Block()
+    {
+        Type = Input.ReadUInt(0, 32),
+        ObjectID = Input.ReadUInt(8, 32),
+        Size = Input.ReadUInt(4, 32) * 4
+    };
+    public static List<Block> ReadAllBlocks(Stream Input, bool logAllBlocks = false, bool logExport = false, Header cch = null, bool readone = false, CCSF ccsfile = null, Animation anm = null)
     {
         Console.WriteLine("Iniciando leitura de dados...\r\n");
 
@@ -273,15 +297,7 @@ public class Block
 
             switch (BlockType & 0xFFFF)
             {
-                #region Keyframe Types
-                case SECTION_OBJECT_KEYFRAME: //BONE_KEYFRAME
-                    blocks.Add(new Object_KF().ReadBlock(mem, CCSHeader));
-                    break;
-                case SECTION_CAMERA_KEYFRAME: //Camera KEYFRAME
-                    blocks.Add(new Camera_KF().ReadBlock(mem, CCSHeader));
-                    break;
-                #endregion
-
+                #region Header Types
                 case SECTION_HEADER: //Header
                     header = new Header().ReadBlock(mem);
                     CCSHeader = header as Header;
@@ -301,10 +317,96 @@ public class Block
                     CCSToc = index as Index;
                     blocks.Add(index);
                     break;
-
+                #endregion
+                #region 3D
+                #region Collisions
+                case SECTION_BBOX: //BOUNDARY BOX
+                    blocks.Add(new BoundingBox().ReadBlock(mem));
+                    break;
+                #endregion
+                #region Modelling
                 case SECTION_OBJECT: //BONE
                     blocks.Add(new Object().ReadBlock(mem, CCSHeader));
                     break;
+                case SECTION_MODEL_CONTAINER: //MODEL
+                    var blockModel = new Model().ReadBlock(mem, CCSHeader);
+                    Model mdl = blockModel as Model;
+
+                    if (mdl.MDLType == Model.ModelType.DEFORMABLE ||
+                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2 ||
+                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5_S)
+                    {
+                        //Fix Block size subtract with 3
+                        Input.Position = oldOffset;
+
+                        //Old try
+                        //SizeBlock = (SizeBlock / 4) - 0xF;
+                        //SizeBlock *= 4;
+
+                        SizeBlock = GetBlockSize(Input);
+                        Input.Position = oldOffset;
+
+                        BlockData = Input.ReadBytes((int)SizeBlock);
+                        mem = new MemoryStream(BlockData);
+                    }
+                    else if (mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5
+                        && mdl.DrawFlags != 0)
+                    {
+                        //Fix Block strange size
+                        Input.Position = oldOffset;
+
+                        //Old try
+                        //if(mdl.DrawFlags==0x440)
+                        //    SizeBlock = (SizeBlock / 4) - 0xF;
+                        //else if(mdl.DrawFlags == 0x240)
+                        //    SizeBlock = (SizeBlock / 4) - 0x1e;
+
+                        SizeBlock = GetBlockSize(Input);
+                        Input.Position = oldOffset;
+
+                        BlockData = Input.ReadBytes((int)SizeBlock);
+                        mem = new MemoryStream(BlockData);
+                    }
+                    else
+                    {
+                        Input.Position = oldOffset;
+
+                        BlockData = Input.ReadBytes((int)SizeBlock);
+                        mem = new MemoryStream(BlockData);
+                    }
+
+                    Model Block = new Model();
+                    Block._ccsToc = CCSToc;
+                    if (mdl.MDLType == Model.ModelType.DEFORMABLE ||
+                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2 ||
+                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5 ||
+                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5_S
+                        && mdl.DrawFlags != 0)
+                        Block.ErrorSizeLogic = true;
+                    blocks.Add(Block.ReadBlock(mem, CCSHeader));
+                    break;
+
+                case SECTION_CLUMP: //CLUMP
+                    var clump = new Clump();
+                    clump._ccsToc = CCSToc;
+                    blocks.Add(clump.ReadBlock(mem, CCSHeader, ccsfile));
+                    break;
+                #endregion
+                #region Light and Environment
+                case SECTION_LIGHT_AMBIENT:
+                    blocks.Add(new Light().ReadBlock(mem));
+                    break;
+                #endregion
+                #region Others
+                case SECTION_DUMMYPOS:
+                    blocks.Add(new Dummy().ReadBlock(mem,"Position"));
+                    break;
+                case SECTION_DUMMYPOSROT:
+                    blocks.Add(new Dummy().ReadBlock(mem, "Rotation"));
+                    break;
+                #endregion  
+                #endregion
+                #region 2D
                 case SECTION_TEXTURE: //TEXTURE
                     //Fix Block size sum with 0x32
                     Input.Position = oldOffset;
@@ -338,93 +440,47 @@ public class Block
                     blocks.Add(new Material().ReadBlock(mem, CCSHeader));
                     break;
 
-                case SECTION_MODEL_CONTAINER: //MODEL
-                    var blockModel = new Model().ReadBlock(mem, CCSHeader);
-                    Model mdl = blockModel as Model;
-
-                    if (mdl.MDLType==Model.ModelType.DEFORMABLE ||
-                    mdl.MDLType==Model.ModelType.DEFORMABLE_GEN2 ||
-                    mdl.MDLType==Model.ModelType.DEFORMABLE_GEN2_5_S)
-                    {
-                        //Fix Block size subtract with 3
-                        Input.Position = oldOffset;
-
-                        //Old try
-                        //SizeBlock = (SizeBlock / 4) - 0xF;
-                        //SizeBlock *= 4;
-
-                        SizeBlock = GetBlockSize(Input);
-                        Input.Position = oldOffset;
-
-                        BlockData = Input.ReadBytes((int)SizeBlock);
-                        mem = new MemoryStream(BlockData);
-                    }
-                    else if(mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5 
-                        && mdl.DrawFlags != 0)
-                    {
-                        //Fix Block strange size
-                        Input.Position = oldOffset;
-
-                        //Old try
-                        //if(mdl.DrawFlags==0x440)
-                        //    SizeBlock = (SizeBlock / 4) - 0xF;
-                        //else if(mdl.DrawFlags == 0x240)
-                        //    SizeBlock = (SizeBlock / 4) - 0x1e;
-
-                        SizeBlock = GetBlockSize(Input);
-                        Input.Position = oldOffset;
-
-                        BlockData = Input.ReadBytes((int)SizeBlock);
-                        mem = new MemoryStream(BlockData);
-                    }
-                    else
-                    {
-                        Input.Position = oldOffset;
-
-                        BlockData = Input.ReadBytes((int)SizeBlock);
-                        mem = new MemoryStream(BlockData);
-                    }
-
-                    Model Block = new Model();
-                    Block._ccsToc = CCSToc;
-                    if (mdl.MDLType == Model.ModelType.DEFORMABLE ||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5 ||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5_S
-                        && mdl.DrawFlags != 0)
-                        Block.ErrorSizeLogic = true;
-                    blocks.Add(Block.ReadBlock(mem, CCSHeader));
+                #endregion
+                #region Animation
+                #region Keyframe Types
+                case SECTION_OBJECT_KEYFRAME: //BONE_KEYFRAME
+                    blocks.Add(new Object_KF().ReadBlock(mem, CCSHeader));
                     break;
-
-                case SECTION_CLUMP: //CLUMP
-                    var clump = new Clump();
-                    clump._ccsToc = CCSToc;
-                    blocks.Add(clump.ReadBlock(mem, CCSHeader));
+                case SECTION_CAMERA_KEYFRAME: //Camera KEYFRAME
+                    blocks.Add(new Camera_KF().ReadBlock(mem, CCSHeader));
                     break;
-                case SECTION_EXTERNAL: //External
-                    blocks.Add(new External().ReadBlock(mem, CCSHeader));
+                #endregion
+                #region Controllers Types
+                case SECTION_OBJECT_CONTROLLER: //BONE_CONTROLLER
+                    blocks.Add(new Object_CT().ReadBlock(mem, CCSHeader, anm));
                     break;
-                case SECTION_BINARYBLOB: //BINARY BLOB
-                    
-                    Input.Position = oldOffset;
-
-                    SizeBlock = GetBlockSize(Input);
-
-                    Input.Position = oldOffset;
-
-                    BlockData = Input.ReadBytes((int)SizeBlock);
-                    mem = new MemoryStream(BlockData);
-
-                    blocks.Add(new Block().ReadBlock(mem));
+                case SECTION_MATERIAL_CONTROLLER: //MATERIAL_CONTROLLER
+                    blocks.Add(new Material_CT().ReadBlock(mem, CCSHeader, anm));
                     break;
+                #endregion
 
+                case SECTION_ANIMATION_CONTAINER:
+                    blocks.Add(new Animation().ReadBlock(mem));
+                    break;
                 case SECTION_FRAME: //FINAL MARK
-                    Block final = new Block().ReadBlock(mem);
-                    if(Input.Position == Input.Length)
-                        if (final.ObjectID==0xFFFFFFFF)
+                    var final = new Frame().ReadBlock(mem);
+                    if (Input.Position == Input.Length)
+                        if (Convert.ToInt32((final as Frame).IndexOrFlag) < 0)
                             End = true;
                     blocks.Add(final);
                     break;
+                #endregion
+                #region Scripting
+                case SECTION_MORPHER: //External Link
+                    blocks.Add(new Morpher().ReadBlock(mem, CCSHeader));
+                    break;
+                case SECTION_EXTERNAL: //External Link
+                    blocks.Add(new External().ReadBlock(mem, CCSHeader));
+                    break;
+                case SECTION_BINARYBLOB: //BINARY BLOB
+                    blocks.Add(new BinaryBlob().ReadBlock(mem));
+                    break;
+                #endregion
 
                 default:
                     blocks.Add(new Block().ReadBlock(mem));
@@ -434,6 +490,7 @@ public class Block
             //Leitura de Dados de Blocos
             blocks.Last()._ccsHeader = CCSHeader;
             blocks.Last()._ccsToc = CCSToc;
+            blocks.Last()._ccsf = ccsfile;
             blocks.Last().BlockOffset = (uint)oldOffset;
             blocks.Last().Data = Input.ReadBytes((int)blocks.Last().BlockOffset, (int)(Input.Position - blocks.Last().BlockOffset));
 

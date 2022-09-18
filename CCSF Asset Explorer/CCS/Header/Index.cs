@@ -70,18 +70,18 @@ public class FileEntry
             {
                 #region Textures
                 case FileType.Bitmap:
-                    CLUT[] CLUTs = null;
+                    CLUT CLUT = null;
                     Texture TEX = Objects.Where(x => x.ObjectName.StartsWith("TEX")).ToArray()[0].Blocks[0] as Texture;
                     ObjectEntry[] objCLUTs = Objects.Where(x => x.ObjectName.StartsWith("CLT")).ToArray();
                     foreach (var obj in objCLUTs)
                     {
-                        CLUTs = obj.Blocks.Where(y => y.ObjectID == TEX.CLUTID && y.GetBlockType() == "CLUT").Cast<CLUT>().ToArray();
+                        if(obj.Blocks[0].ObjectID==TEX.CLUTID)
+                            CLUT = obj.Blocks[0] as CLUT;
                     }
 
-                    if (CLUTs != null)
-                        if (CLUTs.Count() > 0)
-                        {
-                            var bitmap = TEX.ToBitmap(CLUTs[0]);
+                    if (CLUT != null)
+                    { 
+                            var bitmap = TEX.ToBitmap(CLUT);
                             FileData.AddRange(ImageToByteArray(bitmap));
                         }
                     break;
@@ -291,7 +291,7 @@ public class Index : Block
             objstr.ObjIndex = index;
             return objstr;
         }
-        public static void SetBlocksInternalIndexes(List<ObjectStream> objs, Header cch)
+        public static void SetBlocksInternalIndexes(List<ObjectStream> objs, Header cch, CCSF _ccsf)
         {
             var blocks = new List<byte>();
             foreach (var obj in objs)
@@ -303,7 +303,7 @@ public class Index : Block
             byte[] allblock = blocks.ToArray();
             File.WriteAllBytes("tt", allblock);
 
-            var Blocks = Block.ReadAllBlocks(new MemoryStream(allblock), true, false, cch);
+            var Blocks = Block.ReadAllBlocks(new MemoryStream(allblock), true, false, cch, false, _ccsf);
 
             //Set links
             foreach (var objx in objs)
@@ -454,7 +454,7 @@ public class Index : Block
         }
 
         //Blocks indexes
-        ObjectStream.SetBlocksInternalIndexes(FileObjs, cch);
+        ObjectStream.SetBlocksInternalIndexes(FileObjs, cch, _ccsf);
 
         foreach (var obj in FileObjs)
         {

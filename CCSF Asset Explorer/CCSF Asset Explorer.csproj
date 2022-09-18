@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,7 +25,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -38,6 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -71,21 +72,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CCS\3D\Collisions\HitGroups.cs" />
+    <Compile Include="CCS\3D\Environment\Light.cs" />
     <Compile Include="CCS\Block.cs" />
+    <Compile Include="CCS\3D\Collisions\BoundingBox.cs" />
+    <Compile Include="CCS\Animation\Controllers\Material_CT.cs" />
+    <Compile Include="CCS\Animation\Controllers\Object_CT .cs" />
+    <Compile Include="CCS\Animation\Frame.cs" />
     <Compile Include="CCS\CCSF.cs" />
     <Compile Include="CCS\CCSNode.cs" />
-    <Compile Include="CCS\Camera.cs" />
-    <Compile Include="CCS\Keyframes\Camera_KF.cs" />
-    <Compile Include="CCS\Keyframes\Object_KF .cs" />
-    <Compile Include="CCS\External.cs" />
-    <Compile Include="CCS\Object.cs" />
-    <Compile Include="CCS\Clump.cs" />
-    <Compile Include="CCS\Material.cs" />
-    <Compile Include="CCS\CLUT.cs" />
-    <Compile Include="CCS\Header.cs" />
-    <Compile Include="CCS\Index.cs" />
-    <Compile Include="CCS\Model.cs" />
-    <Compile Include="CCS\Texture.cs" />
+    <Compile Include="CCS\3D\Camera.cs" />
+    <Compile Include="CCS\Animation\Animation.cs" />
+    <Compile Include="CCS\Animation\Keyframes\Camera_KF.cs" />
+    <Compile Include="CCS\Animation\Keyframes\Object_KF .cs" />
+    <Compile Include="CCS\3D\Others\Dummy.cs" />
+    <Compile Include="CCS\Scripting\BinaryBlob.cs" />
+    <Compile Include="CCS\Scripting\Morpher.cs" />
+    <Compile Include="CCS\Scripting\External.cs" />
+    <Compile Include="CCS\3D\Modelling\Object.cs" />
+    <Compile Include="CCS\3D\Modelling\Clump.cs" />
+    <Compile Include="CCS\2D\Material.cs" />
+    <Compile Include="CCS\2D\CLUT.cs" />
+    <Compile Include="CCS\Header\Header.cs" />
+    <Compile Include="CCS\Header\Index.cs" />
+    <Compile Include="CCS\3D\Modelling\Model.cs" />
+    <Compile Include="CCS\2D\Texture.cs" />
     <Compile Include="Forms e Controles\Atalhos.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +108,12 @@
     </Compile>
     <Compile Include="Forms e Controles\CCSTab.Designer.cs">
       <DependentUpon>CCSTab.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms e Controles\FramesBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms e Controles\FramesBox.Designer.cs">
+      <DependentUpon>FramesBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms e Controles\Options.cs">
       <SubType>Form</SubType>
@@ -210,6 +227,9 @@
     <EmbeddedResource Include="Forms e Controles\CCSTab.resx">
       <DependentUpon>CCSTab.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms e Controles\FramesBox.resx">
+      <DependentUpon>FramesBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms e Controles\Options.resx">
       <DependentUpon>Options.cs</DependentUpon>
     </EmbeddedResource>
@@ -273,5 +293,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

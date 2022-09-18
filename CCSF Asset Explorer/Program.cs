@@ -49,6 +49,8 @@ namespace CCSF_Asset_Explorer
         /// <returns></returns>
         public static Icon ExtractIconFromFilePath(string executablePath)
         {
+            if (!System.IO.File.Exists(executablePath))
+                return null;
             Icon result = (Icon)null;
 
             try

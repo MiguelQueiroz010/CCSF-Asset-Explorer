@@ -47,29 +47,43 @@ public class Model : Block
 	}
 	public struct ModelUV
     {
-		public Vector2 UV;
+		public int U, V;
 
 		[DisplayName("X")]
 		[Description("Modify the vertex uv coordinates.")]
 		[Category("Texture Coordinates")]
-		public decimal _x
+		public int _x
 		{
-			get => (decimal)UV.X;
-			set => UV.X = (float)value;
+			get => U;
+			set => U = value;
 		}
 		[DisplayName("Y")]
 		[Description("Modify the vertex uv coordinates.")]
 		[Category("Texture Coordinates")]
-		public decimal _y
+		public int _y
 		{
-			get => (decimal)UV.Y;
-			set => UV.Y = (float)value;
+			get => V;
+			set => V = value;
 		}
+		internal static ModelUV Read(Stream input) => new ModelUV()
+		{
+			U = (int)input.ReadUInt(16),
+			V = (int)input.ReadUInt(16)
+		};
+		    
+		internal byte[] GetUV()
+        {
+			var b = new List<byte>();
+			b.AddRange(((uint)U).ToLEBE(16));
+			b.AddRange(((uint)V).ToLEBE(16));
+			return b.ToArray();
+        }
+		
 	}
 	public struct ModelVertex
 	{
-		public Vector3 Position;
-		public Vector3 Position2;
+		public Vector3H Position;
+		public Vector3H Position2;
 		public Vector3 Position3;   //Last Recode Compatibility
 		public Vector3 Position4;   //Last Recode Compatibility
 
@@ -93,48 +107,48 @@ public class Model : Block
 		[Category("Spatial Position")]
 		public decimal _x
 		{
-			get => (decimal)Position.X;
-			set => Position.X = (float)value;
+			get => Position.X;
+			set => Position.X = value;
 		}
 		[DisplayName("Y")]
 		[Description("Modify the vertex position coordinates.")]
 		[Category("Spatial Position")]
 		public decimal _y
 		{
-			get => (decimal)Position.Y;
-			set => Position.Y = (float)value;
+			get => Position.Y;
+			set => Position.Y = value;
 		}
 		[DisplayName("Z")]
 		[Description("Modify the vertex position coordinates.")]
 		[Category("Spatial Position")]
 		public decimal _z
 		{
-			get => (decimal)Position.Z;
-			set => Position.Z = (float)value;
+			get => Position.Z;
+			set => Position.Z = value;
 		}
 		[DisplayName("X")]
 		[Description("Modify the vertex position coordinates. [2]")]
 		[Category("Spatial Position 2")]
 		public decimal _x2
 		{
-			get => (decimal)Position2.X;
-			set => Position2.X = (float)value;
+			get => Position2.X;
+			set => Position2.X = value;
 		}
 		[DisplayName("Y")]
 		[Description("Modify the vertex position coordinates. [2]")]
 		[Category("Spatial Position 2")]
 		public decimal _y2
 		{
-			get => (decimal)Position2.Y;
-			set => Position2.Y = (float)value;
+			get => Position2.Y;
+			set => Position2.Y = value;
 		}
 		[DisplayName("Z")]
 		[Description("Modify the vertex position coordinates. [2]")]
 		[Category("Spatial Position 2")]
 		public decimal _z2
 		{
-			get => (decimal)Position2.Z;
-			set => Position2.Z = (float)value;
+			get => Position2.Z;
+			set => Position2.Z = value;
 		}
 		[DisplayName("X")]
 		[Description("Modify the vertex normal.")]
@@ -207,7 +221,9 @@ public class Model : Block
 		public uint VertexCount;
 		public uint TriangleCount;
 
-		Model mdlRef;
+		public Model mdlRef;
+		public Clump cmpRef;
+		public bool useclumpref = false;
 
 		public ModelVertex[] Vertices;
 		public ModelTriangle[] Triangles;
@@ -235,7 +251,14 @@ public class Model : Block
 		[Category("Model Base")]
 		public string _ObjectName
 		{
-			get => _CCStoc.GetObjectName(ObjectID);
+			get => ObjectName;
+		}
+		[DisplayName("Sub Model Type")]
+		[Description("See the sub-model type.")]
+		[Category("Model Base")]
+		public SubModelType _type
+		{
+			get => subMDLType;
 		}
 		[DisplayName("Linked Material Index")]
 		[Description("Define the material index for the Sub-Model.")]
@@ -254,11 +277,12 @@ public class Model : Block
 		}
 
 		[DisplayName("UV Count")]
-		[Description("See the uv texture coordinates count for the Sub-Model.")]
+		[Description("See the uv texture coordinates count for the Sub-Model(deformable).")]
 		[Category("Model")]
 		public uint _uvcount
 		{
-			get => UVCount;
+			get => UVs != null && UVs.Length>0 ? (uint)UVs.Length:
+				0;
 		}
 
 		[DisplayName("Vertex Count")]
@@ -266,7 +290,7 @@ public class Model : Block
 		[Category("Model")]
 		public uint _vertexcount
 		{
-			get => VertexCount;
+			get => (uint)Vertices.Length;
 		}
 		[DisplayName("Triangle Count")]
 		[Description("See the triangles/faces count for the Sub-Model.")]
@@ -292,10 +316,11 @@ public class Model : Block
 			get => UVs;
 			set => UVs = value;
 		}
-		internal static SubModel Read(Stream Input, Model model, Index ccstoc)
+		internal static SubModel Read(Stream Input, Model model, Index ccstoc, Clump cref)
 		{
 			SubModel subModel = new SubModel();
 			subModel._CCStoc = ccstoc;
+			subModel.cmpRef = cref;
 			subModel.mdlRef = model;
 			subModel._mdlType = model.MDLType;
 			if (model.MDLType==ModelType.DEFORMABLE ||
@@ -319,7 +344,9 @@ public class Model : Block
 					subModel.VertexCount = subModel.UVCount;
 					subModel.UVCount = 0;
 
-					subModel.ObjectID = Input.ReadUInt(32);
+					uint ltindex = Input.ReadUInt(32);
+					subModel.ObjectID = model.LT[ltindex];
+					subModel.useclumpref = true;
 				}
 
 				//Vértice BoneIDs e Weights
@@ -340,16 +367,16 @@ public class Model : Block
 						float weight1 = (Vertex.VertexParams & 0x1ff) * Helper3D.WEIGHT_SCALE;
 						float weight2 = 0;
 
-						bool dualFlag = ((Vertex.VertexParams >> 9) & 0x1) == 0;
+						//bool dualFlag = ((Vertex.VertexParams >> 9) & 0x1) == 0;
 
-						if (dualFlag)
-						{
-							subModel.Vertices[i].Position2 = Helper3D.ReadVec3Half(Input, model.VertexScale);
-							subModel.Vertices[i].SecondVertexParams = Input.ReadUInt(16);
+						//if (dualFlag)
+						//{
+						//	subModel.Vertices[i].Position2 = Helper3D.ReadVec3Half(Input, model.VertexScale);
+						//	subModel.Vertices[i].SecondVertexParams = Input.ReadUInt(16);
 
-							weight2 = (subModel.Vertices[i].SecondVertexParams & 0x1ff) * Helper3D.WEIGHT_SCALE;
-							boneID2 = (subModel.Vertices[i].SecondVertexParams >> 10);
-						}
+						//	weight2 = (subModel.Vertices[i].SecondVertexParams & 0x1ff) * Helper3D.WEIGHT_SCALE;
+						//	boneID2 = (subModel.Vertices[i].SecondVertexParams >> 10);
+						//}
 
 						if (model.LT != null && 
 							boneID1 < model.LTCount &&
@@ -386,7 +413,7 @@ public class Model : Block
 				var TrianglesList = new List<ModelTriangle>();
 				byte lastFlag = 1;
 				int sCount = 0;
-				for (int i = 0; i < subModel.VertexCount; i++)
+				for (int i = 0,t=1;  i < subModel.VertexCount; i++)
 				{
 					subModel.Vertices[i].Normal = Helper3D.ReadVec3Normal8(Input);
 					byte triFlag = (byte)Input.ReadByte();
@@ -414,12 +441,17 @@ public class Model : Block
 						}
 					}
 				}
+                //for (int t = 1; t < subModel.VertexCount-1; t++)
+                //{
+                //	//TODO: CCSModel: Gen1 CCS Files don't care about vertex winding order (everything is drawn double sided)
+                //	// Can we derive proper order from normal direction? Probably not.
+                //	TrianglesList.Add(new ModelTriangle(t+2,t+1,t));
+                //}
+                subModel.TriangleCount = (uint)TrianglesList.Count();
+                subModel.Triangles = TrianglesList.ToArray();
 
-				subModel.TriangleCount = (uint)TrianglesList.Count();
-				subModel.Triangles = TrianglesList.ToArray();
-
-				//Coordenadas de UV
-				if (subModel.subMDLType == SubModelType.RIGID)
+                //Coordenadas de UV
+                if (subModel.subMDLType == SubModelType.RIGID)
 				{
 					for (int i = 0; i < subModel.VertexCount; i++)
 					{
@@ -429,10 +461,9 @@ public class Model : Block
 				else
 				{
 					subModel.UVs = new ModelUV[subModel.UVCount];
-					Input.Position -= subModel.UVCount * 4;
 					for (int i = 0; i < subModel.UVCount; i++)
 					{
-						subModel.UVs[i].UV = Helper3D.ReadVec2UV(Input);
+						subModel.UVs[i] = ModelUV.Read(Input);
 					}
 				}
 			}
@@ -545,18 +576,16 @@ public class Model : Block
 		internal byte[] ToArray()
         {
 			var result = new List<byte>();
+			UVCount = UVs != null ? (uint)UVs.Length : 0;
+			VertexCount = (uint)Vertices.Length;
+			TriangleCount = (uint)Vertices.Length;
+
 			if (_mdlType == ModelType.DEFORMABLE ||
 				_mdlType == ModelType.DEFORMABLE_GEN2 ||
 				_mdlType == ModelType.DEFORMABLE_GEN2_5 ||
 				_mdlType == ModelType.DEFORMABLE_GEN2_5_S)
 			{
-					result.AddRange(MaterialID.ToLEBE(32));
-				//	result.AddRange(UVCount.ToLEBE(32));
-				//	result.AddRange(VertexCount.ToLEBE(32));
-
-				//if(subMDLType==SubModelType.RIGID)
-				//	result.AddRange(ObjectID.ToLEBE(32));
-
+				result.AddRange(MaterialID.ToLEBE(32));
 
 				//Vértice BoneIDs e Weights
 				if (subMDLType == SubModelType.DEFORMABLE)
@@ -567,7 +596,8 @@ public class Model : Block
 					{
 						byte[] vertexBIN = vertex.Position.GetVec3Half(mdlRef.VertexScale);
 						result.AddRange(vertexBIN);
-						result.AddRange(vertex.VertexParams.ToLEBE(16));
+						if(vertex.ContainsParams)
+							result.AddRange(vertex.VertexParams.ToLEBE(16));
 
                         //bool dualFlag = ((vertex.VertexParams >> 9) & 0x1) == 0;
 
@@ -583,7 +613,9 @@ public class Model : Block
 				{
 					result.AddRange(VertexCount.ToLEBE(32));
 					result.AddRange(UVCount.ToLEBE(32));
-					result.AddRange(ObjectID.ToLEBE(32));
+					uint ltindex = (uint)mdlRef.LT.ToList().IndexOf(ObjectID);
+					result.AddRange(ltindex.ToLEBE(32));
+
 					foreach (var vertex in Vertices)
 					{
 						result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
@@ -606,7 +638,7 @@ public class Model : Block
 				if (subMDLType == SubModelType.DEFORMABLE)
 					foreach (var uv in UVs)
 					{
-						result.AddRange(uv.UV.GetVec2UV());
+						result.AddRange(uv.GetUV());
 					}
 				else
 					foreach (var vertex in Vertices)
@@ -616,8 +648,10 @@ public class Model : Block
 			}
 			else if (_mdlType == ModelType.SHADOW)
 			{
+				TriangleCount = Triangles != null ? (uint)Triangles.Count() : 0;
+
 				result.AddRange(VertexCount.ToLEBE(32));
-				result.AddRange(TriangleCount.ToLEBE(32));
+				result.AddRange((TriangleCount * 3).ToLEBE(32));
 
 				//Vértices
 				foreach (var vertex in Vertices)
@@ -688,17 +722,106 @@ public class Model : Block
 
 			return result.ToArray();
         }
-		internal void GetOBJECT3D(StringBuilder Writer, bool exportMaterial = true)
+		internal void GetOBJECT3D(StringBuilder Writer,  out StringBuilder matBuilder, out string mtlname, out Bitmap texture, out string texname)
         {
+			Material mat = null;
+			Texture tex = null;
+			texture = null;
+
+			try
+			{
+				mat = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == this.MaterialID).ToArray()[0] as Material;
+				tex = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == mat.TextureID).ToArray()[0] as Texture;
+				CLUT clt = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == tex.CLUTID).ToArray()[0] as CLUT;
+				texture = tex.ToBitmap(clt);
+			}
+			catch (NullReferenceException) { }
+
+			if (mat!=null && tex!=null)
+			{
+				Writer.AppendLine($"mtllib MAT_{mat.ObjectID}.mtl");
+			}
+
+			Writer.AppendLine($"o {(_type == Model.SubModel.SubModelType.DEFORMABLE ? mdlRef.ObjectName : ObjectName)}");
+			mtlname = "";
+			texname = "";
+			matBuilder = null;
+			//Vertices, UVs and Normals
 			foreach (var vertex in Vertices)
+			{
 				Writer.Append($"v {vertex.Position.X} {vertex.Position.Y} {vertex.Position.Z}\r\n" +
 					$"vt {vertex.TexCoords.X} {vertex.TexCoords.Y}\r\n" +
 					$"vn {vertex.Normal.X} {vertex.Normal.Y} {vertex.Normal.Z}\r\n");//Vertices
+			}
+			//Material
+			if (mat != null && tex != null)
+			{
+				Writer.AppendLine($"usemtl {mat.ObjectName}");
+				Writer.AppendLine($"s off");
 
+				mtlname = $"MAT_{mat.ObjectID}";
+				texname = tex.ObjectName;
+
+				matBuilder = new StringBuilder();
+				matBuilder.AppendLine($"newmtl {mat.ObjectName}");
+				matBuilder.AppendLine($"Ka 1.0 1.0 1.0");
+				matBuilder.AppendLine($"Kd 1.0 1.0 1.0");
+				matBuilder.AppendLine($"Ks 0.0 0.0 0.0");
+
+				matBuilder.AppendLine($"map_Kd {tex.ObjectName}.png");
+
+			}
+			//Faces
 			foreach (var triangle in Triangles)
-				Writer.Append($"f {triangle.ID1 + 1}/{triangle.ID1 + 1} {triangle.ID2 + 1}/{triangle.ID2 + 1} " +
-					$"{triangle.ID3 + 1}/{triangle.ID3 + 1}\r\n");//Triangles
+				Writer.AppendLine($"f {triangle.ID1 +1}/{triangle.ID1 +1} {triangle.ID2+1}/{triangle.ID2 +1} " +
+					$"{triangle.ID3 + 1}/{triangle.ID3 + 1}");//Triangles
 		}
+		internal void SetfromOBJECT3D(StreamReader reader)
+        {
+			string entireOBJ = reader.ReadToEnd();
+			string[] entries = entireOBJ.Split(new string[] {"\r\n", "#CCSF ASSET EXPLORER - MODEL CONVERTER",
+				"#BIT.RAIDEN - 2022",
+				$"o {mdlRef.ObjectName}"
+				}, StringSplitOptions.RemoveEmptyEntries);
+			var verticeList = new List<string>();
+			var normalList = new List<string>();
+			var uvList = new List<string>();
+			foreach (var str in entries)
+			{
+				if (str.StartsWith("v "))
+					verticeList.Add(str);
+				else if (str.StartsWith("vn "))
+					normalList.Add(str);
+				else if (str.StartsWith("vt "))
+					uvList.Add(str);
+			}
+
+			var vertices = new List<ModelVertex>();
+			for (int v = 0; v< verticeList.Count; v++)
+            {
+				string[] vertexx = verticeList[v].Split(new string[] {"v "," "}, StringSplitOptions.RemoveEmptyEntries);
+				string[] vertexNormal = normalList.Count > 0 ? normalList[v].Split(new string[] {"vn "," "}, StringSplitOptions.RemoveEmptyEntries): null;
+				string[] uv = uvList.Count > 0 ? uvList[v].Split(new string[] { "vt ", " " }, StringSplitOptions.RemoveEmptyEntries) : null;
+
+				var vertex = new ModelVertex()
+				{
+					Normal = vertexNormal!=null ? new Vector3(Convert.ToSingle(vertexNormal[0]),
+					Convert.ToSingle(vertexNormal[1]),
+					Convert.ToSingle(vertexNormal[2])) : Vector3.Zero,
+
+					Position = new Vector3H(Convert.ToDecimal(vertexx[0]),
+					Convert.ToDecimal(vertexx[1]),
+					Convert.ToDecimal(vertexx[2])),
+
+					TexCoords = uv != null ? new Vector2(Convert.ToSingle(uv[0]),
+					Convert.ToSingle(uv[1])): Vector2.Zero
+				};
+				vertices.Add(vertex);
+
+			}
+			VertexCount = (uint)vertices.Count;
+			Vertices = vertices.ToArray();
+        }
 	}
     #endregion
 
@@ -716,6 +839,7 @@ public class Model : Block
 
 	public float Unknow1, Unknow2;
 
+	public Clump clumpRef;
 	public SubModel[] SubModels;
 
 	[DisplayName("Vertex Scale")]
@@ -756,6 +880,15 @@ public class Model : Block
 	{
 		get => SubModelCount;
 	}
+	[DisplayName("Link Table")]
+	[Description("Array of objects index for deformable.")]
+	[Category("Model Container")]
+	public string[] _lts
+	{
+		get => Enumerable.Range(0, (int)LTCount).Select
+			(x=> _ccsToc.GetObjectName(LT[x])).ToArray();
+
+	}
 	[DisplayName("Sub-Models")]
 	[Description("Array of sub-models.")]
 	[Category("Model Container")]
@@ -768,44 +901,13 @@ public class Model : Block
 	{
 		get
 		{
-			var writer = new BinaryWriter(new MemoryStream(Data));
-
-			writer.BaseStream.Position = 0xC;
-
-			writer.Write(BitConverter.GetBytes(VertexScale));
-			writer.Write((ushort)MDLType);
-			writer.Write((ushort)SubModelCount);
-			writer.Write((ushort)DrawFlags);
-			writer.Write((ushort)UnkFlags);
-			writer.Write(LTCount);
-
-			if(_ccsHeader.Version >= Header.CCSFVersion.GEN2)
-            {
-				writer.Write(BitConverter.GetBytes((Single)Unknow1));
-				writer.Write(BitConverter.GetBytes((Single)Unknow2));
-			}
-
-			if(LT!=null&&LT.Length>0)
-            {
-				foreach (var u in LT)
-					writer.Write((byte)u);
-
-				while (writer.BaseStream.Position % 4 != 0)
-					writer.BaseStream.Position++;
-            }
-
-			foreach (var submodel in SubModels)
-			{
-				writer.Write(submodel.ToArray());
-			}
-			return Data;
+			return ToArray();
 		}
 	}
 	public override Block ReadBlock(Stream Input, Header header)
     {
 		_ccsHeader = header;
 		Model model = new Model();
-
 		model.Type = Input.ReadUInt(32);
 		model.Size = Input.ReadUInt(32);
 		model.ObjectID = Input.ReadUInt(32);
@@ -852,13 +954,55 @@ public class Model : Block
 		}
 
 		model.SubModels = Enumerable.Range(0, (int)model.SubModelCount).Select(
-			x => SubModel.Read(Input, model, _ccsToc)).ToArray();
+			x => SubModel.Read(Input, model, _ccsToc, clumpRef)).ToArray();
 
 
 		return model;
     }
 	public override byte[] ToArray()
 	{
+		SubModelCount = (uint)SubModels.Length;
+		
+
+		var LTb = new List<byte>();
+		var SubMDLb = new List<byte>();
+
+#region Generate Fields
+		//LT
+		if(MDLType == ModelType.DEFORMABLE ||
+		   MDLType == ModelType.DEFORMABLE_GEN2 ||
+		   MDLType == ModelType.DEFORMABLE_GEN2_5 ||
+		   MDLType == ModelType.DEFORMABLE_GEN2_5_S)
+		{
+			LTCount = LT != null ? (uint)LT.Length : 0;
+			//Lookup Table
+			foreach (var b in LT)
+				LTb.Add((byte)b);
+			while (LTb.Count % 0x4 != 0)
+				LTb.Add(0);
+		}
+
+		//SubModels
+		foreach (var submdl in SubModels)
+			SubMDLb.AddRange(submdl.ToArray());
+
+#endregion
+
+#region Size Calculation
+		Size = 0x14;
+		if (_ccsHeader.Version >= Header.CCSFVersion.GEN2)
+			Size += 8;
+		Size += (uint)LTb.Count;
+		Size += (uint)SubMDLb.Count;
+
+		//Deformable type 0x3c thing
+		if (MDLType == ModelType.DEFORMABLE ||
+		   MDLType == ModelType.DEFORMABLE_GEN2 ||
+		   MDLType == ModelType.DEFORMABLE_GEN2_5 ||
+		   MDLType == ModelType.DEFORMABLE_GEN2_5_S)
+			Size += (uint)(0x3c * SubModelCount);
+#endregion
+
 		var result = new List<byte>();
 		result.AddRange(Type.ToLEBE(32));
 		result.AddRange((Size / 4).ToLEBE(32));
@@ -877,46 +1021,15 @@ public class Model : Block
 			result.AddRange(BitConverter.GetBytes((Single)Unknow1));
 			result.AddRange(BitConverter.GetBytes((Single)Unknow2));
 		}
-		if (MDLType == ModelType.DEFORMABLE ||
-			MDLType == ModelType.DEFORMABLE_GEN2 ||
-			MDLType == ModelType.DEFORMABLE_GEN2_5 ||
-			MDLType == ModelType.DEFORMABLE_GEN2_5_S)
-		{
-			//Lookup Table
-			foreach (var b in LT)
-				result.Add((byte)b);
-			while (result.Count % 0x4 != 0)
-				result.Add(0);
-		}
 
-		//SubModels
-		foreach (var submdl in SubModels)
-			result.AddRange(submdl.ToArray());
-
+		result.AddRange(LTb.ToArray());
+		result.AddRange(SubMDLb.ToArray());
 		return result.ToArray();
 	}
 
     public override void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
     {
 		ObjectID = (uint)Object.ObjIndex;
-		//for (int s = 0; s < SubModelCount; s++)
-		//{
-		//	if(SubModels[s].ObjectID!= 0xFFFFFFFF)
-		//		SubModels[s].ObjectID = (uint)AllObjects.Where(x => x.ObjName == SubModels[s].ObjectName).ToArray()[0].ObjIndex;
-
-		//	bool stop = false;
-		//	foreach (var obj in AllObjects)
-		//		if (obj.ObjName == SubModels[s].MaterialObjName)
-		//			for (int b = 0; stop != true &&
-		//				b < obj.Blocks.Count; b++)
-		//			{
-		//				if (obj.Blocks[b].ReadUInt(0, 32) == 0xcccc0200)
-		//				{
-		//					SubModels[s].MaterialID = obj.Blocks[b].ReadUInt(8, 32);
-		//					stop = true;
-		//				}
-		//			}
-		//}
 	}
 
 }

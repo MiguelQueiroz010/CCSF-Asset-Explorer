@@ -175,6 +175,15 @@ public class Texture : Block
 
     public bool SetfromPNG(Image input, out byte[] CLTcolors)
     {
+        bool changedRes = false;
+
+        if (input.Width != Width||
+            input.Height != Height)
+            changedRes = true;
+
+        if (changedRes)
+            Console.WriteLine("Importing different texture resolution!!");
+
         Width = (uint)input.Width;
         Height = (uint)input.Height;
 
@@ -185,6 +194,7 @@ public class Texture : Block
         Bitmap bit = new Bitmap(input);
 
         int colorcount = 0;
+
         #region Obter cores no eixo cartesiano 2D        
         for (int y = 0; y < bit.Height; y++)
         {
@@ -241,10 +251,7 @@ public class Texture : Block
                     coresbyte[i] = cores[i / 4].R;
                     coresbyte[i + 1] = cores[i / 4].G;
                     coresbyte[i + 2] = cores[i / 4].B;
-                    int alpha = cores[i / 4].A;
-                    alpha *= 128;
-                    alpha /= 255;
-                    coresbyte[i + 3] = (byte)alpha;
+                    coresbyte[i + 3] = cores[i / 4].A;
                 }
 
             }
