@@ -10,6 +10,7 @@ using System.Text;
 
 public class BinaryBlob : Block
 {
+    //TESTE
     public override byte[] DataArray
     {
         get
