@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Drawing.Design;
 public class CustomTypeConverter : TypeConverter
 {
+    //João Ninguem
     public static string[] Names = null;
     public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
     {
