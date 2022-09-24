@@ -359,7 +359,7 @@ public class Index : Block
 
     public FileEntry[] Files;
 
-    public ulong UnkEndData;
+    public byte[] UnkEndData;
 
     //Rebuild only
     private byte[] FilesNam, ObjectsNam;
@@ -501,10 +501,8 @@ public class Index : Block
         result.AddRange(new byte[0x20]);
         result.AddRange(ObjectsNam);
 
-        //Strange '3'
-        uint three = 3;
-        result.AddRange(three.ToLEBE(32));
-        result.AddRange(new byte[4]);
+        //Strange SETUP block
+        result.AddRange(UnkEndData);
 
         return result.ToArray();
     }
@@ -539,7 +537,7 @@ public class Index : Block
             n => n.Ftype != FileType.Bitmap
 ).ToArray();
 
-        TOC.UnkEndData = Input.ReadULong((int)(Input.ReadUInt(4, 32) * 4) - 8);
+        TOC.UnkEndData = Input.ReadBytes((int)(Input.ReadUInt(4, 32) * 4) - 8);
         return TOC;
     }
 

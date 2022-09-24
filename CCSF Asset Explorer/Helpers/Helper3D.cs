@@ -300,10 +300,10 @@ public static class Helper3D
     }
 	public static Vector4 FromColor(Color col)
     {
-		float a = col.A / COLOR_SCALE;
+		float a = (float)col.A;
 		if (col.A >= 0x7f) a = 0xff;
 		else a = (float)(0x80);
-		return new Vector4(col.R / COLOR_SCALE, col.G / COLOR_SCALE, col.B / COLOR_SCALE, a);
+		return new Vector4(col.R, col.G, col.B, a);
     }
 	public static Vector4 ReadVec4RGBA32(Stream bStream)
 	{
@@ -314,17 +314,17 @@ public static class Helper3D
 		if (uA >= 0x7f) uA = 0xff;
 		else uA = (byte)(uA << 1);
 
-		return new Vector4(uR * COLOR_SCALE, uG * COLOR_SCALE, uB * COLOR_SCALE, uA * COLOR_SCALE);
+		return new Vector4(uR, uG, uB, uA);
 	}
 
 	public static byte[] GetVec4RGBA32(this Vector4 vec4)
 	{
 		var result = new List<byte>();
 
-		result.Add((byte)(vec4.X / COLOR_SCALE));
-		result.Add((byte)(vec4.Y / COLOR_SCALE));
-		result.Add((byte)(vec4.Z / COLOR_SCALE));
-		byte uA = (byte)(vec4.W / COLOR_SCALE);
+		result.Add((byte)(vec4.X));
+		result.Add((byte)(vec4.Y));
+		result.Add((byte)(vec4.Z));
+		byte uA = (byte)(vec4.W);
 		if (uA == 0xFE) 
 			uA = 0x80;
 		else 

@@ -178,8 +178,8 @@ public class Model : Block
 		[Category("Vertex")]
 		public Color _color
 		{
-			get => System.Drawing.Color.FromArgb((int)(Color.W * Helper3D.COLOR_SCALE), (int)(Color.X * Helper3D.COLOR_SCALE), (int)(Color.Y * Helper3D.COLOR_SCALE), 
-				(int)(Color.Z * Helper3D.COLOR_SCALE));
+			get => System.Drawing.Color.FromArgb((int)(Color.W), (int)(Color.X), (int)(Color.Y), 
+				(int)(Color.Z));
 			set => Color = Helper3D.FromColor(value);
 		}
 		internal static ModelVertex ReadVertex(Stream Input, float VertexScale, int boneID, bool containsParams = false) => new ModelVertex()
