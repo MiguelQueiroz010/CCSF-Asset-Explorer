@@ -37,8 +37,8 @@ public class External : Block
 
             writer.BaseStream.Position = 0xC;
 
-            writer.Write(ReferenceParent);
-            writer.Write(ReferenceObject);
+            writer.Write(ReferenceParent-1);
+            writer.Write(ReferenceObject+1);
 
             return Data;
         }
@@ -50,7 +50,7 @@ public class External : Block
         ObjectID = Input.ReadUInt(32),
         Data = Input.ReadBytes(0, (int)Size),
 
-        ReferenceParent = Input.ReadUInt(32),
-        ReferenceObject = Input.ReadUInt(32)
+        ReferenceParent = (Input.ReadUInt(32)+1),
+        ReferenceObject = (Input.ReadUInt(32)-1)
     };
 }

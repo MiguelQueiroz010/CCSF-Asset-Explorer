@@ -174,6 +174,7 @@ namespace CCSF_Asset_Explorer
         }
         public void RefreshControls()
         {
+            editToolStripMenuItem.Visible = !editToolStripMenuItem.Visible;
             searchAndCheckToolStripMenuItem.Enabled = !searchAndCheckToolStripMenuItem.Enabled;
             saveToolStripMenuItem.Enabled = !saveToolStripMenuItem.Enabled;
             saveAllToolStripMenuItem.Enabled = !saveAllToolStripMenuItem.Enabled;
@@ -187,6 +188,9 @@ namespace CCSF_Asset_Explorer
             tabControl1.Visible = !tabControl1.Visible;
             tableLayoutPanel1.Visible = !tableLayoutPanel1.Visible;
             pictureBox2.Visible = !pictureBox2.Visible;
+            fileEntryToolStripMenuItem.Enabled = !fileEntryToolStripMenuItem.Enabled;
+            objectEntryToolStripMenuItem.Enabled = !objectEntryToolStripMenuItem.Enabled;
+            blockToolStripMenuItem.Enabled = !blockToolStripMenuItem.Enabled;
         }
         async void Open(bool drag=false, string[] filenames = null)
         {
@@ -274,8 +278,8 @@ namespace CCSF_Asset_Explorer
             pictureBox2.Size = oldPIC2size;
             pictureBox2.Location = oldPIC2loc;
             pictureBox2.BackColor = Color.Transparent;
-            pictureBox2.SizeMode = PictureBoxSizeMode.CenterImage;
-            pictureBox2.Image = Properties.Resources.damusx8_f0941559_bbf9_4edc_825b_08674ca1bfe4;
+            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox2.Image = Properties.Resources.a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq;
         }
         public void Salvar()
         {
@@ -347,6 +351,9 @@ namespace CCSF_Asset_Explorer
                             replaced = file.Replace(open.FileName);
                             openpath = open.FileName;
                         }
+                        break;
+                    case 1: //Object
+
                         break;
                     case 2: //Block
                         var ccsnode = (ccstab.resourceView.SelectedNode as CCSNode);
@@ -469,6 +476,44 @@ namespace CCSF_Asset_Explorer
                         {
                             File.WriteAllBytes(save.FileName, file.GetFile(fext == ".png" ? true : false));
                             savepath = save.FileName;
+                        }
+
+                        break;
+                    case 1: //Object[Group of Blocks]
+                        var obj = ccstab.resourceView.SelectedNode as CCSNode;
+                        var folderSave = new FolderBrowserDialog();
+                        folderSave.Description = "Choose where to save the Objects folder.";
+                        if (folderSave.ShowDialog() == DialogResult.OK)
+                        {
+                            string pathSave = folderSave.SelectedPath + $@"/{obj.Text}";
+                            if (!Directory.Exists(pathSave))
+                                Directory.CreateDirectory(pathSave);
+                            int count = 1;
+                            string lastone = "";
+                            foreach(CCSNode block in obj.Nodes)
+                            {
+                                if (lastone != "")
+                                {
+                                    if (lastone== pathSave + $@"/{block.Text}.bin")
+                                    {
+                                        File.WriteAllBytes(pathSave + $@"/{block.Text}_{count}.bin", block.Block.DataArray);
+                                        count++;
+                                        lastone = pathSave + $@"/{block.Text}_{count}.bin";
+                                    }
+                                    else
+                                    {
+                                        File.WriteAllBytes(pathSave + $@"/{block.Text}.bin", block.Block.DataArray);
+                                        lastone = pathSave + $@"/{block.Text}.bin";
+                                    }
+                                }
+                                else
+                                {
+                                    File.WriteAllBytes(pathSave + $@"/{block.Text}.bin", block.Block.DataArray);
+                                    lastone = pathSave + $@"/{block.Text}.bin";
+
+                                }
+                            }
+                            savepath = folderSave.SelectedPath;
                         }
 
                         break;
@@ -798,6 +843,25 @@ namespace CCSF_Asset_Explorer
         {
             new Options(this).ShowDialog();
         }
+        private void fileEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void objectEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void blockToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void pictureBox2_Paint(object sender, PaintEventArgs e)
+        {
+            e.Graphics.DrawImage(Properties.Resources.Capa1, 26, 45, 648, 390);
+        }
+
         #region Drag'n Drop
         private void Principal_DragEnter(object sender, DragEventArgs e)
         {
@@ -811,9 +875,15 @@ namespace CCSF_Asset_Explorer
         }
 
 
+
         #endregion
 
         #endregion
+
+        private void pictureBox2_LoadCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            
+        }
 
     }
 }

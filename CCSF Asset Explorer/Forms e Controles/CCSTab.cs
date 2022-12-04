@@ -187,7 +187,13 @@ namespace CCSF_Asset_Explorer
         public Block GetFrameRoot() => frameView.SelectedNode.Level == 0 ? (frameView.SelectedNode as CCSNode).Block :
             frameView.SelectedNode.Level == 1 ? (frameView.SelectedNode.Parent as CCSNode).Block : null;
         public FileEntry GetSelectedFile() => !CCSFile.CCS_TOC.Files.Where(x => x.FileName == @"%\").ToArray()[0]
-                        .Objects.Any(o => o.ObjectName == resourceView.SelectedNode.Text) ? (
+                        .Objects.Any(o => o.ObjectName == (resourceView.SelectedNode.Level == 0 ?
+            resourceView.SelectedNode.Text :
+
+            resourceView.SelectedNode.Level == 1 ?
+            resourceView.SelectedNode.Parent.Text : null)
+                        ) ? 
+            (
             resourceView.SelectedNode.Level == 0 ?
             CCSFile.CCS_TOC.GetFile(resourceView.SelectedNode.Text) :
 
@@ -197,7 +203,28 @@ namespace CCSF_Asset_Explorer
             resourceView.SelectedNode.Level == 2 ?
             CCSFile.CCS_TOC.GetFile(resourceView.SelectedNode.Parent.Parent.Text) :
             null
-            ) : CCSFile.CCS_TOC.GetFile(@"%\"); //substituir por caso de root object
+            ) : CCSFile.CCS_TOC.GetFile(@"%\")
+           
+        ; //substituir por caso de root object
+        public ObjectEntry GetSelectedObject() => resourceView.Visible ?
+            //Resource View
+            (resourceView.SelectedNode.Level == 1 ?
+            (resourceView.SelectedNode as CCSNode).Object :
+
+            resourceView.SelectedNode.Level == 2 ?
+            (resourceView.SelectedNode.Parent as CCSNode).Object :
+
+            null) : 
+            //FrameView
+            frameView.Visible ?
+
+            (frameView.SelectedNode.Level == 1 ?
+            (frameView.SelectedNode as CCSNode).Object :
+
+            null) 
+            
+            : null;
+            
         public CCSTab(CCSF file)
         {
             foreach (Form form in Application.OpenForms)
@@ -319,9 +346,6 @@ namespace CCSF_Asset_Explorer
                         break;
                     default:
                         propPanel.Controls.Remove(textureBox);
-                        //propPanel.RowStyles[1] = old1;
-
-                        //propPanel.RowStyles[2].Height = 0;
 
                         break;
                 }

@@ -134,7 +134,8 @@ public class CCSF
             foreach (var block in Blocks.TakeWhile(x => x.Type != 0xccccff01).Skip(2))
                 resourcenode.Nodes.Add(new CCSNode(block.GetBlockType())
                 {
-                    Block = block
+                    Block = block,
+                    Object = CCS_TOC.GetObject(block)
                 });
             treeView.Nodes.Add(resourcenode);
 
@@ -155,6 +156,7 @@ public class CCSF
                     frame = new CCSNode("Frame Group");
                     framegroup = new List<Block>();
                     frame.Block = block;
+                    frame.Object = CCS_TOC.GetObject(block);
                     framec++;
                 }
                 else

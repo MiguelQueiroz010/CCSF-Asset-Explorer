@@ -121,14 +121,35 @@
   <data name="410218" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\410218.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="YhSG" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\YhSG.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="unnamed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\unnamed.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Capa" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Capa.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="istockphoto_905186144_170667a" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\istockphoto-905186144-170667a.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="damusx8_f0941559_bbf9_4edc_825b_08674ca1bfe4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\damusx8-f0941559-bbf9-4edc-825b-08674ca1bfe4.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FMvz" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FMvz.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sigma_another_tale_22859624_210820211143" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\sigma-another-tale-22859624-210820211143.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="tenor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\tenor.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="FMvz" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\FMvz.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="_200w_s" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\200w_s.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -136,22 +157,7 @@
   <data name="sasuke_demonio_gif_9" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sasuke-demonio-gif-9.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="unnamed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\unnamed.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="sigma_another_tale_22859624_210820211143" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\sigma-another-tale-22859624-210820211143.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="YhSG" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\YhSG.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="damusx8_f0941559_bbf9_4edc_825b_08674ca1bfe4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\damusx8-f0941559-bbf9-4edc-825b-08674ca1bfe4.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Capa" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Capa.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Capa1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Capa1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

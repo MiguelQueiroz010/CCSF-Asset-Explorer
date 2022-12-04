@@ -51,6 +51,9 @@ namespace CCSF_Asset_Explorer
             this.clearConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.objectEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.blockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchAndCheckToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extractToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,12 +77,12 @@ namespace CCSF_Asset_Explorer
             this.opLBL = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -266,13 +269,42 @@ namespace CCSF_Asset_Explorer
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
+            this.editToolStripMenuItem.Visible = false;
             // 
             // addToolStripMenuItem
             // 
+            this.addToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileEntryToolStripMenuItem,
+            this.objectEntryToolStripMenuItem,
+            this.blockToolStripMenuItem});
             this.addToolStripMenuItem.Enabled = false;
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
             this.addToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.addToolStripMenuItem.Text = "Add";
+            // 
+            // fileEntryToolStripMenuItem
+            // 
+            this.fileEntryToolStripMenuItem.Enabled = false;
+            this.fileEntryToolStripMenuItem.Name = "fileEntryToolStripMenuItem";
+            this.fileEntryToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.fileEntryToolStripMenuItem.Text = "File Entry";
+            this.fileEntryToolStripMenuItem.Click += new System.EventHandler(this.fileEntryToolStripMenuItem_Click);
+            // 
+            // objectEntryToolStripMenuItem
+            // 
+            this.objectEntryToolStripMenuItem.Enabled = false;
+            this.objectEntryToolStripMenuItem.Name = "objectEntryToolStripMenuItem";
+            this.objectEntryToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.objectEntryToolStripMenuItem.Text = "Object Entry";
+            this.objectEntryToolStripMenuItem.Click += new System.EventHandler(this.objectEntryToolStripMenuItem_Click);
+            // 
+            // blockToolStripMenuItem
+            // 
+            this.blockToolStripMenuItem.Enabled = false;
+            this.blockToolStripMenuItem.Name = "blockToolStripMenuItem";
+            this.blockToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.blockToolStripMenuItem.Text = "Block";
+            this.blockToolStripMenuItem.Click += new System.EventHandler(this.blockToolStripMenuItem_Click);
             // 
             // searchAndCheckToolStripMenuItem
             // 
@@ -398,10 +430,10 @@ namespace CCSF_Asset_Explorer
             // tabControl1
             // 
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 24);
+            this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(693, 434);
+            this.tabControl1.Size = new System.Drawing.Size(693, 458);
             this.tabControl1.TabIndex = 1;
             this.tabControl1.Visible = false;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
@@ -427,9 +459,9 @@ namespace CCSF_Asset_Explorer
             this.commandLBL.AutoSize = true;
             this.commandLBL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.commandLBL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.commandLBL.Location = new System.Drawing.Point(28, 1);
+            this.commandLBL.Location = new System.Drawing.Point(32, 1);
             this.commandLBL.Name = "commandLBL";
-            this.commandLBL.Size = new System.Drawing.Size(327, 32);
+            this.commandLBL.Size = new System.Drawing.Size(318, 32);
             this.commandLBL.TabIndex = 3;
             this.commandLBL.Text = "Open one or multiple CCS/TMP or drag\'n drop them.";
             this.commandLBL.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -438,7 +470,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.opLBL.AutoSize = true;
             this.opLBL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.opLBL.Location = new System.Drawing.Point(362, 1);
+            this.opLBL.Location = new System.Drawing.Point(357, 1);
             this.opLBL.Name = "opLBL";
             this.opLBL.Size = new System.Drawing.Size(158, 32);
             this.opLBL.TabIndex = 2;
@@ -449,10 +481,10 @@ namespace CCSF_Asset_Explorer
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar1.Location = new System.Drawing.Point(527, 4);
+            this.progressBar1.Location = new System.Drawing.Point(522, 4);
             this.progressBar1.MarqueeAnimationSpeed = 50;
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(162, 26);
+            this.progressBar1.Size = new System.Drawing.Size(167, 26);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 1;
             this.progressBar1.Value = 100;
@@ -460,12 +492,13 @@ namespace CCSF_Asset_Explorer
             // 
             // tableLayoutPanel1
             // 
+            this.tableLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.tableLayoutPanel1.ColumnCount = 4;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 324F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 164F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 168F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 173F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.progressBar1, 3, 0);
@@ -479,40 +512,42 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1.Size = new System.Drawing.Size(693, 34);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox2.Image = global::CCSF_Asset_Explorer.Properties.Resources.a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq;
+            this.pictureBox2.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(693, 458);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox2.TabIndex = 3;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.pictureBox2_LoadCompleted);
+            this.pictureBox2.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox2_Paint);
+            // 
             // pictureBox1
             // 
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Image = global::CCSF_Asset_Explorer.Properties.Resources.sigma_another_tale_22859624_210820211143;
             this.pictureBox1.Location = new System.Drawing.Point(4, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(17, 26);
+            this.pictureBox1.Size = new System.Drawing.Size(21, 26);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox2.Image = global::CCSF_Asset_Explorer.Properties.Resources.damusx8_f0941559_bbf9_4edc_825b_08674ca1bfe4;
-            this.pictureBox2.Location = new System.Drawing.Point(230, 165);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(99, 150);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.pictureBox2.TabIndex = 3;
-            this.pictureBox2.TabStop = false;
             // 
             // Principal
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImage = global::CCSF_Asset_Explorer.Properties.Resources.Capa;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.ClientSize = new System.Drawing.Size(693, 458);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.tabControl1);
-            this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -530,8 +565,8 @@ namespace CCSF_Asset_Explorer
             this.menuStrip1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -585,6 +620,9 @@ namespace CCSF_Asset_Explorer
         private System.Windows.Forms.ToolStripMenuItem animationsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem fileEntryToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem objectEntryToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem blockToolStripMenuItem;
     }
 }
 
