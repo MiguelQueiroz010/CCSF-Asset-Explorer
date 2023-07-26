@@ -24,11 +24,11 @@ public class Morpher : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
+            //var writer = new BinaryWriter(new MemoryStream(Data));
 
-            writer.BaseStream.Position = 0xC;
+            //writer.BaseStream.Position = 0xC;
 
-            writer.Write(LinkedModelIndex);
+            //writer.Write(LinkedModelIndex);
 
             return Data;
         }

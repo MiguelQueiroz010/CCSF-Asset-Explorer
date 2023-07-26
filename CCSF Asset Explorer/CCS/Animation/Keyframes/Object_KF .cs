@@ -111,18 +111,18 @@ public class Object_KF : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
+   //         var writer = new BinaryWriter(new MemoryStream(Data));
 
-            writer.BaseStream.Position = 0xC;
+   //         writer.BaseStream.Position = 0xC;
 
-			writer.Write(Unknow.ToLEBE(32));
+			//writer.Write(Unknow.ToLEBE(32));
 
-			writer.Write(Position.GetVec3());
-            writer.Write(Rotation.GetVec3());
-            writer.Write(Scale.GetVec3());
+			//writer.Write(Position.GetVec3());
+   //         writer.Write(Rotation.GetVec3());
+   //         writer.Write(Scale.GetVec3());
 
-            writer.Write(BitConverter.GetBytes(Opacity));
-			writer.Write(Flag.ToLEBE(32));
+   //         writer.Write(BitConverter.GetBytes(Opacity));
+			//writer.Write(Flag.ToLEBE(32));
 
 			return Data;
         }

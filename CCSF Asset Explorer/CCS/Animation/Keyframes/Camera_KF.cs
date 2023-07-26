@@ -92,13 +92,13 @@ public class Camera_KF : Block
 	{
 		get
 		{
-			var writer = new BinaryWriter(new MemoryStream(Data));
+			//var writer = new BinaryWriter(new MemoryStream(Data));
 
-			writer.BaseStream.Position = 0xC;
+			//writer.BaseStream.Position = 0xC;
 
-			writer.Write(Position.GetVec3());
-			writer.Write(Rotation.GetVec3());
-			writer.Write(Scale.GetVec3());
+			//writer.Write(Position.GetVec3());
+			//writer.Write(Rotation.GetVec3());
+			//writer.Write(Scale.GetVec3());
 
 			return Data;
 		}

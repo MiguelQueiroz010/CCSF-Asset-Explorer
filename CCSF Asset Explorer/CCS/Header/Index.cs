@@ -54,7 +54,7 @@ public class FileEntry
     }
     public ObjectEntry GetObject(string name) => Objects.Where(x => x.ObjectName == name).ToArray()[0];
     public ObjectEntry[] GetObjects(string startswith) => Objects.Where(x => x.ObjectName.StartsWith(startswith)).ToArray();
-    
+
 
     public byte[] ImageToByteArray(Image imageIn)
     {
@@ -64,8 +64,8 @@ public class FileEntry
     public byte[] GetFile(bool Convert = false, bool root = false)
     {
         var FileData = new List<byte>();
-        if(Convert==true)
-            switch (Ftype) 
+        if (Convert == true)
+            switch (Ftype)
             {
                 #region Textures
                 case FileType.Bitmap:
@@ -74,15 +74,15 @@ public class FileEntry
                     ObjectEntry[] objCLUTs = Objects.Where(x => x.ObjectName.StartsWith("CLT")).ToArray();
                     foreach (var obj in objCLUTs)
                     {
-                        if(obj.Blocks[0].ObjectID==TEX.CLUTID)
+                        if (obj.Blocks[0].ObjectID == TEX.CLUTID)
                             CLUT = obj.Blocks[0] as CLUT;
                     }
 
                     if (CLUT != null)
-                    { 
-                            var bitmap = TEX.ToBitmap(CLUT);
-                            FileData.AddRange(ImageToByteArray(bitmap));
-                        }
+                    {
+                        var bitmap = TEX.ToBitmap(CLUT);
+                        FileData.AddRange(ImageToByteArray(bitmap));
+                    }
                     break;
                 #endregion
                 default:
@@ -92,7 +92,7 @@ public class FileEntry
                     {
                         //Object Name
                         byte[] name = new byte[0x20];
-                        byte[] namex = Encoding.Default.GetBytes("[OBJ]"+obj.ObjectName);
+                        byte[] namex = Encoding.Default.GetBytes("[OBJ]" + obj.ObjectName);
                         Array.Copy(namex, name, namex.Length);
                         FileData.AddRange(name);
 
@@ -143,10 +143,10 @@ public class FileEntry
         }
         return FileData.ToArray();
     }
-    
+
     public bool Replace(string freplace)
     {
-        switch(Ftype)
+        switch (Ftype)
         {
             case FileType.Bitmap:
                 var obj = Objects.Where(x => x.ObjectName.StartsWith("TEX")).ToArray()
@@ -178,7 +178,7 @@ public class FileEntry
     }
     internal string GetExtension(FileType fileType)
     {
-        switch(fileType)
+        switch (fileType)
         {
             case FileType.Bitmap:
                 return ".png";
@@ -197,7 +197,7 @@ public class FileEntry
     {
         if (link)
             return FileType.Link;
-        switch(Extension.ToLower())
+        switch (Extension.ToLower())
         {
             case ".max":
                 return FileType.Max;
@@ -213,9 +213,9 @@ public class FileEntry
     }
     internal static FileEntry Read(int index, byte[] _fileName, ObjectEntry[] AllObjects) => new FileEntry()
     {
-        Index = index+1,
-        FileName = _fileName.All(x=> x==0) ? @"%\" : _fileName.TakeWhile(x=>x!= 0).ToArray().ConvertTo(Encoding.Default),
-        Objects = AllObjects.Where(x=> index == -1 ? x.FileIndex == 0 : x.FileIndex-1 == index).ToArray(),
+        Index = index + 1,
+        FileName = _fileName.All(x => x == 0) ? @"%\" : _fileName.TakeWhile(x => x != 0).ToArray().ConvertTo(Encoding.Default),
+        Objects = AllObjects.Where(x => index == -1 ? x.FileIndex == 0 : x.FileIndex - 1 == index).ToArray(),
         Link = (_fileName.All(x => x == 0) ? @"%\" : _fileName.TakeWhile(x => x != 0).ToArray().ConvertTo(Encoding.Default)).StartsWith("#"),
         Ftype = GetFileType(Path.GetExtension(_fileName.All(x => x == 0) ? @"%\" : _fileName.TakeWhile(x => x != 0).ToArray().ConvertTo(Encoding.Default)),
             (_fileName.All(x => x == 0) ? @"%\" : _fileName.TakeWhile(x => x != 0).ToArray().ConvertTo(Encoding.Default)).StartsWith("#"))
@@ -251,7 +251,7 @@ public class ObjectEntry
         set
         {
             Blocks = value;
-            
+
         }
     }
     internal static ObjectEntry Read(byte[] ObjData, uint index)
@@ -294,7 +294,7 @@ public class Index : Block
         {
             var blocks = new List<byte>();
             foreach (var obj in objs)
-                if(obj.Blocks.Count>0)
+                if (obj.Blocks.Count > 0)
                     for (int i = 0; i < obj.Blocks.Count; i++)
                         blocks.AddRange(obj.Blocks[i]);
             blocks.AddRange(new Block(0xCCCCFF01, 0xFFFFFFFF).ToArray());
@@ -327,7 +327,7 @@ public class Index : Block
                                     mat.TextureOBJ = objs.Where(x => x.ObjName.StartsWith("TEX")).Where(c => c.Blocks.Where(r => r.ReadUInt(8, 32) == mat.TextureID).Count() > 0).ToArray()[0].ObjName;
                                 }
                         break;
-                        
+
                         //case "MDL":
                         //foreach (var bx in Blocks)
                         //    for (int k = 0; k < objx.Blocks.Count; k++)
@@ -340,13 +340,13 @@ public class Index : Block
 
                         //break;
                 }
-                
+
             }
 
             //Set indexes
             foreach (var obj in objs)
                 foreach (var b in Blocks)
-                    for(int k = 0;k<obj.Blocks.Count;k++)
+                    for (int k = 0; k < obj.Blocks.Count; k++)
                         if (Array.Equals(b.Data, obj.Blocks[k]))
                         {
                             b.SetIndexes(obj, objs.ToArray());
@@ -358,6 +358,7 @@ public class Index : Block
     public uint FilesCount, ObjectsCount;
 
     public FileEntry[] Files;
+    public ObjectEntry[] Objects;
 
     public byte[] UnkEndData;
 
@@ -375,7 +376,7 @@ public class Index : Block
     {
         foreach (var file in this._ccsToc.Files)
             foreach (var objectx in file.Objects)
-                if (objectx.WMDLIndex+1 == index)
+                if (objectx.WMDLIndex + 1 == index)
                     return objectx.ObjectName;
         return "NO OBJECT";
     }
@@ -384,8 +385,8 @@ public class Index : Block
     public Index(string inputFolder, out byte[] blocks, Header cch)
     {
         Type = 0xcccc0002;
-        
-    //TOC GENERATOR
+
+        //TOC GENERATOR
         var FilesNames = new List<byte>();
 
         var FileObjs = new List<ObjectStream>();
@@ -417,12 +418,12 @@ public class Index : Block
                     FileObjs.Add(ObjectStream.Read(fileStream, ObjectIndex, FileIndex));
                     ObjectIndex++;
                 }
-                
+
                 //Files Names
                 if (absFileName.EndsWith("#"))
-                    absFileName = absFileName.Substring(0,absFileName.Length-1);
+                    absFileName = absFileName.Substring(0, absFileName.Length - 1);
                 if (absFileName.StartsWith("ps2dev2"))
-                    absFileName = @"\\" + absFileName.Substring(0,absFileName.Length-10);
+                    absFileName = @"\\" + absFileName.Substring(0, absFileName.Length - 10);
 
                 byte[] FName = new byte[0x20];
                 Array.Copy(Encoding.Default.GetBytes(absFileName), FName, absFileName.Length);
@@ -430,7 +431,7 @@ public class Index : Block
 
                 FileIndex++;
             }
-            else if(filename == "root.bin")
+            else if (filename == "root.bin")
             {
                 //Console.WriteLine("SCaminho: " +file);
                 Console.WriteLine("Caminho inside: " + absFileName);
@@ -448,7 +449,7 @@ public class Index : Block
                     FileObjs.Add(ObjectStream.Read(fileStream, ObjectIndex, 0));
                     ObjectIndex++;
                 }
-                
+
             }
         }
 
@@ -488,22 +489,46 @@ public class Index : Block
     {
         var result = new List<byte>();
         result.AddRange(Type.ToLEBE(32));
-        result.AddRange((Size / 4).ToLEBE(32));
 
-        result.AddRange(FilesCount.ToLEBE(32));
-        result.AddRange(ObjectsCount.ToLEBE(32));
+
+        var subResult = new List<byte>();
+
+        subResult.AddRange(FilesCount.ToLEBE(32));
+        subResult.AddRange(ObjectsCount.ToLEBE(32));
 
         //Root name space [FILES]
-        result.AddRange(new byte[0x20]);
-        result.AddRange(FilesNam);
+        var orderedfiles = Files.OrderBy(x => x.Index).ToList();
+        foreach (var file in orderedfiles)
+        {
+            if (file.FileName != "%\\")
+            {
+                byte[] fname = new byte[0x20];
+                byte[] fbs = Encoding.GetEncoding(932).GetBytes(file.FileName);
+                Array.Copy(fbs, fname, fbs.Length);
+                subResult.AddRange(fname);
+            }
+            else
+            {
+                subResult.AddRange(new byte[0x20]);
+            }
+        }
 
         //Root name space [OBJECTS]
-        result.AddRange(new byte[0x20]);
-        result.AddRange(ObjectsNam);
+        subResult.AddRange(new byte[0x20]);
+        var orderedobjs = Objects.OrderBy(x => x.Index).ToList();
+        foreach (var obj in orderedobjs)
+        {
+            byte[] objname = new byte[0x20];
+            byte[] data = Encoding.GetEncoding(932).GetBytes(obj.ObjectName);
+            Array.Copy(data, objname, data.Length);
+            Array.Copy(BitConverter.GetBytes((UInt16)obj.FileIndex), 0, objname, 0x1e, 2);
+            subResult.AddRange(objname);
 
+        }
         //Strange SETUP block
-        result.AddRange(UnkEndData);
-
+        result.AddRange(((uint)subResult.Count / 4).ToLEBE(32));
+        subResult.AddRange(BitConverter.GetBytes((UInt64)3));
+        result.AddRange(subResult.ToArray());
         return result.ToArray();
     }
 
@@ -517,7 +542,7 @@ public class Index : Block
         TOC.FilesCount = Input.ReadUInt(8, 32);
         TOC.ObjectsCount = Input.ReadUInt(0xC, 32) - 1;
 
-        var Objects = Enumerable.Range(0, (int)(Input.ReadUInt(0xC, 32) - 1)).Select(
+        TOC.Objects = Enumerable.Range(0, (int)(Input.ReadUInt(0xC, 32) - 1)).Select(
                     o => ObjectEntry.Read(Input.ReadBytes((0x30 + ((int)Input.ReadUInt(8, 32) * 0x20) + (o * 0x20)), 0x20),
                         (uint)o)
                     ).OrderBy(a => !a.ObjectName.StartsWith("CLT")
@@ -529,7 +554,7 @@ public class Index : Block
             x => FileEntry.Read(x,
 
                 Input.ReadBytes(0x30 + (x * 0x20), 0x20),
-                Objects
+                TOC.Objects
                 )
             ).OrderBy(
             n => n.FileName != @"%\"
@@ -537,7 +562,7 @@ public class Index : Block
             n => n.Ftype != FileType.Bitmap
 ).ToArray();
 
-        TOC.UnkEndData = Input.ReadBytes((int)(Input.ReadUInt(4, 32) * 4) - 8);
+        TOC.UnkEndData = Input.ReadBytes((int)TOC.Size, 8);
         return TOC;
     }
 

@@ -76,13 +76,13 @@ public class Object : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
+            //var writer = new BinaryWriter(new MemoryStream(Data));
 
-            writer.BaseStream.Position = 0xC;
+            //writer.BaseStream.Position = 0xC;
 
-            writer.Write(ParentObjectID);
-            writer.Write(ModelID);
-            writer.Write(ShadowID);
+            //writer.Write(ParentObjectID);
+            //writer.Write(ModelID);
+            //writer.Write(ShadowID);
 
             return Data;
         }

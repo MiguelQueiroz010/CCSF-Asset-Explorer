@@ -232,19 +232,19 @@ public class Clump : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
+            //var writer = new BinaryWriter(new MemoryStream(Data));
 
-            writer.BaseStream.Position = 0xC;
+            //writer.BaseStream.Position = 0xC;
 
-            writer.Write(NodeCount);
+            //writer.Write(NodeCount);
 
-            //IDs
-            foreach (var node in Nodes)
-                writer.Write(node.ID);
+            ////IDs
+            //foreach (var node in Nodes)
+            //    writer.Write(node.ID);
 
-            //Content
-            foreach (var node in Nodes)
-                writer.Write(node.ToArray());
+            ////Content
+            //foreach (var node in Nodes)
+            //    writer.Write(node.ToArray());
 
             return Data;
         }

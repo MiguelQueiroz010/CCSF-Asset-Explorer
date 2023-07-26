@@ -240,9 +240,19 @@ public class CCSF
         }
         else if(resource)
         {
-            //GetData
+            ////GetData
+            ///
+            //Blocks[1].Data = CCS_TOC.ToArray();
             foreach (var block in Blocks)
                     result.AddRange(block.DataArray);
+
+            //Files and OBJ method
+            //foreach(var file in CCS_TOC.Files)
+            //    foreach (var rootobj in file.Objects)
+            //        foreach (var blockRoot in rootobj.Blocks)
+            //            result.AddRange(blockRoot.DataArray);
+
+
         }
         
         byte[] res = result.ToArray();

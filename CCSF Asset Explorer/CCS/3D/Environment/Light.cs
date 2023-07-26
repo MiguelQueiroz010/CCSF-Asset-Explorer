@@ -24,11 +24,11 @@ public class Light : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
+            //var writer = new BinaryWriter(new MemoryStream(Data));
 
-            writer.BaseStream.Position = 0xC;
+            //writer.BaseStream.Position = 0xC;
 
-            writer.Write(LightType);
+            //writer.Write(LightType);
 
             return Data;
         }

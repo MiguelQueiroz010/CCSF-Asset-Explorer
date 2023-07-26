@@ -900,7 +900,8 @@ public class Model : Block
 	{
 		get
 		{
-			return ToArray();
+			return Data;
+			//return ToArray();
 		}
 	}
 	public override Block ReadBlock(Stream Input, Header header)

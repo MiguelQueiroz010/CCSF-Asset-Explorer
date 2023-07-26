@@ -41,7 +41,7 @@ namespace CCSF_Asset_Explorer
         #region Functions
 
         public PropertyBox propBox;
-        public CCSTab GetSelectedTab() => 
+        public CCSTab GetSelectedTab() =>
             (CCSTab)this.tabControl1.SelectedTab;
 
         public void Config()
@@ -174,6 +174,7 @@ namespace CCSF_Asset_Explorer
         }
         public void RefreshControls()
         {
+            importToolStripMenuItem.Enabled = !importToolStripMenuItem.Enabled;
             editToolStripMenuItem.Visible = !editToolStripMenuItem.Visible;
             searchAndCheckToolStripMenuItem.Enabled = !searchAndCheckToolStripMenuItem.Enabled;
             saveToolStripMenuItem.Enabled = !saveToolStripMenuItem.Enabled;
@@ -184,7 +185,7 @@ namespace CCSF_Asset_Explorer
             saveAsToolStripMenuItem.Enabled = !saveAsToolStripMenuItem.Enabled;
             addToolStripMenuItem.Enabled = !addToolStripMenuItem.Enabled;
             resourceTreeToolStripMenuItem.Enabled = !resourceTreeToolStripMenuItem.Enabled;
-            frameModeSceneToolStripMenuItem.Enabled =!frameModeSceneToolStripMenuItem.Enabled;
+            frameModeSceneToolStripMenuItem.Enabled = !frameModeSceneToolStripMenuItem.Enabled;
             tabControl1.Visible = !tabControl1.Visible;
             tableLayoutPanel1.Visible = !tableLayoutPanel1.Visible;
             pictureBox2.Visible = !pictureBox2.Visible;
@@ -192,11 +193,11 @@ namespace CCSF_Asset_Explorer
             objectEntryToolStripMenuItem.Enabled = !objectEntryToolStripMenuItem.Enabled;
             blockToolStripMenuItem.Enabled = !blockToolStripMenuItem.Enabled;
         }
-        async void Open(bool drag=false, string[] filenames = null)
+        async void Open(bool drag = false, string[] filenames = null)
         {
             oldPIC2size = pictureBox2.Size;
             oldPIC2loc = pictureBox2.Location;
-            if (drag==true)
+            if (drag == true)
             {
                 if (Animations)
                 {
@@ -254,13 +255,13 @@ namespace CCSF_Asset_Explorer
                         await Task.Run(() =>
                         {
                             fileccs = new CCSF(file, readWriteToolStripMenuItem.Checked && consoleToolStripMenuItem.Checked);
-                            
+
                         });
                         var tab = new CCSTab(fileccs);
                         tabControl1.TabPages.Add(tab);
                         progressBar1.PerformStep();
                     }
-                    
+
                 }
             }
 
@@ -286,10 +287,11 @@ namespace CCSF_Asset_Explorer
             var selected = GetSelectedTab();
             File.WriteAllBytes(selected.CCSFile.File_path, selected.CCSFile.Rebuild(selected.frameView.Visible ? selected.frameView :
                 selected.resourceView.Visible ? selected.resourceView : null, selected.resourceView.Visible));
-            MessageBox.Show("Salvo com sucesso!!", "Sistema", MessageBoxButtons.OK,MessageBoxIcon.Information);
+            MessageBox.Show("Salvo com sucesso!!", "Sistema", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         public void SalvarComo()
         {
+            var selected = GetSelectedTab();
             var save = new SaveFileDialog();
             save.Filter = "CyberConnectSystemFile(*.ccs,.tmp)|*.ccs;*.tmp";
             if (!GetSelectedTab().CCSFile.isGziped)
@@ -298,7 +300,8 @@ namespace CCSF_Asset_Explorer
             save.FileName = GetSelectedTab().CCSFile.Name;
             if (save.ShowDialog() == DialogResult.OK)
             {
-                File.WriteAllBytes(save.FileName, GetSelectedTab().CCSFile.Rebuild(GetSelectedTab().frameView.Visible ? GetSelectedTab().frameView : null));
+                File.WriteAllBytes(save.FileName, selected.CCSFile.Rebuild(selected.frameView.Visible ? selected.frameView :
+                selected.resourceView.Visible ? selected.resourceView : null, selected.resourceView.Visible));
                 MessageBox.Show("Salvo com sucesso!!", "Sistema", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -316,7 +319,7 @@ namespace CCSF_Asset_Explorer
                     openpath = open.FileName;
 
                     byte[] blocks = File.ReadAllBytes(open.FileName);
-                    for(int i=0;i<blocks.Length;i++)
+                    for (int i = 0; i < blocks.Length; i++)
                     {
                         string framen = Encoding.Default.GetString(blocks.TakeWhile(x => x != 0x3e).ToArray());
                         int framindx = Convert.ToInt32(framen.Substring(7, framen.Length - 7));
@@ -358,7 +361,7 @@ namespace CCSF_Asset_Explorer
                     case 2: //Block
                         var ccsnode = (ccstab.resourceView.SelectedNode as CCSNode);
 
-                        if (ccsnode.Block.BlockType == "Model"&&
+                        if (ccsnode.Block.BlockType == "Model" &&
                             MessageBox.Show("Want to import model parts?", "Model Converter", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         {
                             var folder = new FolderBrowserDialog();
@@ -367,9 +370,9 @@ namespace CCSF_Asset_Explorer
                             {
                                 var files = Directory.EnumerateFiles(folder.SelectedPath, "*.obj");
                                 Model mdl = ccsnode.Block as Model;
-                                if(new DirectoryInfo(folder.SelectedPath).Name==mdl.ObjectName)
+                                if (new DirectoryInfo(folder.SelectedPath).Name == mdl.ObjectName)
                                 {
-                                    for(int i =0;i< mdl.SubModels.Length;i++)
+                                    for (int i = 0; i < mdl.SubModels.Length; i++)
                                     {
                                         if (mdl.SubModels[i].subMDLType != Model.SubModel.SubModelType.DEFORMABLE)
                                         {
@@ -379,7 +382,7 @@ namespace CCSF_Asset_Explorer
                                     }
                                     ccsnode.Block = mdl;
                                 }
-                                
+
                             }
                         }
                         else
@@ -418,7 +421,7 @@ namespace CCSF_Asset_Explorer
         void ExtractOne()
         {
             var ccstab = (tabControl1.SelectedTab as CCSTab);
-            
+
             string savepath = "";
             if (ccstab.CCSFile.CCS_TOC.isFrameScene && ccstab.frameView.Visible)
             {
@@ -427,7 +430,7 @@ namespace CCSF_Asset_Explorer
                 {
                     List<CCSNode> frames = new List<CCSNode>();
                     foreach (CCSNode node in check)
-                        if(node.Level==1)
+                        if (node.Level == 1)
                             frames.Add((node.Parent as CCSNode));
 
                     frames = frames.Distinct().ToList();
@@ -490,11 +493,11 @@ namespace CCSF_Asset_Explorer
                                 Directory.CreateDirectory(pathSave);
                             int count = 1;
                             string lastone = "";
-                            foreach(CCSNode block in obj.Nodes)
+                            foreach (CCSNode block in obj.Nodes)
                             {
                                 if (lastone != "")
                                 {
-                                    if (lastone== pathSave + $@"/{block.Text}.bin")
+                                    if (lastone == pathSave + $@"/{block.Text}.bin")
                                     {
                                         File.WriteAllBytes(pathSave + $@"/{block.Text}_{count}.bin", block.Block.DataArray);
                                         count++;
@@ -518,8 +521,8 @@ namespace CCSF_Asset_Explorer
 
                         break;
                     case 2: //Block
-                        if ((ccstab.resourceView.SelectedNode as CCSNode).Block.BlockType == "Model"&&
-                            MessageBox.Show("Want to export model parts?","Model Converter",MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if ((ccstab.resourceView.SelectedNode as CCSNode).Block.BlockType == "Model" &&
+                            MessageBox.Show("Want to export model parts?", "Model Converter", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         {
                             var browser = new FolderBrowserDialog();
                             browser.Description = "Select a folder where extracted model parts will be.";
@@ -532,43 +535,43 @@ namespace CCSF_Asset_Explorer
                                     Directory.CreateDirectory(path);
                                 path += @"/";
 
-                                
+
                                 foreach (var submdl in mdl.SubModels)
                                 {
                                     var writer = new StringBuilder();
                                     writer.AppendLine("#CCSF ASSET EXPLORER - MODEL CONVERTER\r\n" +
                                         "#BIT.RAIDEN - 2022\r\n");
-                                    submdl.GetOBJECT3D(writer, out var writerMat,out var mtlNAM,
+                                    submdl.GetOBJECT3D(writer, out var writerMat, out var mtlNAM,
                                         out Bitmap tex, out var texNAM);
                                     tex.Save(path + $"{texNAM}.png");
-                                    File.WriteAllText(path+$"{(submdl._type == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : submdl.ObjectName)}.obj", writer.ToString());
-                                    File.WriteAllText(path+$"{mtlNAM}.mtl", writerMat.ToString());
+                                    File.WriteAllText(path + $"{(submdl._type == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : submdl.ObjectName)}.obj", writer.ToString());
+                                    File.WriteAllText(path + $"{mtlNAM}.mtl", writerMat.ToString());
                                 }
                                 savepath = path;
                             }
-                            
+
                         }
-                        else 
-                        { 
+                        else
+                        {
                             file = ccstab.GetSelectedFile();
                             fext = ".bin";
                             save.FileName = ccstab.resourceView.SelectedNode.Text + $"_{(ccstab.resourceView.SelectedNode as CCSNode).Block.ObjectID}";
                             save.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
 
-                                if (save.ShowDialog() == DialogResult.OK)
-                                {
-                                    File.WriteAllBytes(save.FileName, (ccstab.resourceView.SelectedNode as CCSNode).Block.DataArray);
-                                    savepath = save.FileName;
-                                }
+                            if (save.ShowDialog() == DialogResult.OK)
+                            {
+                                File.WriteAllBytes(save.FileName, (ccstab.resourceView.SelectedNode as CCSNode).Block.DataArray);
+                                savepath = save.FileName;
+                            }
                         }
                         break;
                 }
             }
 
             if (savepath != "")
-                MessageBox.Show($"Saved sucessfully to: {savepath}.","Export");
+                MessageBox.Show($"Saved sucessfully to: {savepath}.", "Export");
         }
-        void Fechar(bool all=false)
+        void Fechar(bool all = false)
         {
             if (all)
             {
@@ -578,17 +581,17 @@ namespace CCSF_Asset_Explorer
             else
             {
                 tabControl1.TabPages.Remove(tabControl1.SelectedTab);
-                if(tabControl1.TabCount<=0)
+                if (tabControl1.TabCount <= 0)
                     RefreshControls();
             }
         }
 
         #endregion
         #region Events and Buttons
-        private void abrirToolStripMenuItem_Click(object sender, EventArgs e) => 
+        private void abrirToolStripMenuItem_Click(object sender, EventArgs e) =>
             Open(false);
 
-        private void fecharClick(object sender, EventArgs e) => 
+        private void fecharClick(object sender, EventArgs e) =>
             Fechar(false);
 
         private void fecharTodosClick(object sender, EventArgs e) =>
@@ -605,15 +608,15 @@ namespace CCSF_Asset_Explorer
             if (saveFolder.ShowDialog() == DialogResult.OK)
             {
                 GetSelectedTab().CCSFile.ExtractAll(saveFolder.SelectedPath,
-                    MessageBox.Show("Want to convert the formats?","Conversion",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question)== DialogResult.Yes ? true : false);
+                    MessageBox.Show("Want to convert the formats?", "Conversion",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes ? true : false);
             }
         }
 
         private void repackAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var inputFolder = new FolderBrowserDialog();
-            if(inputFolder.ShowDialog()==DialogResult.OK)
+            if (inputFolder.ShowDialog() == DialogResult.OK)
             {
                 var savePath = new SaveFileDialog();
                 savePath.Filter = "CyberConnectSystemFile(*.ccs,.tmp)|*.ccs;*.tmp";
@@ -632,7 +635,7 @@ namespace CCSF_Asset_Explorer
         }
         private void saveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach(CCSTab tab in tabControl1.TabPages)
+            foreach (CCSTab tab in tabControl1.TabPages)
             {
                 File.WriteAllBytes(tab.CCSFile.File_path, tab.CCSFile.Rebuild());
             }
@@ -680,6 +683,45 @@ namespace CCSF_Asset_Explorer
             }
             else if (selected.resourceView.Visible)
             {
+                var objectremove = new List<CCSNode>();
+                foreach (CCSNode node in selected.resourceView.Nodes)
+                {
+                    
+                    foreach (CCSNode objectnode in node.Nodes)
+                    {
+                        if (objectnode.Checked)
+                        {
+                            int c = 0;
+                            foreach (Block block in objectnode.Object.Blocks)
+                            {
+                                if(c>0)
+                                    selected.CCSFile.Blocks.Remove(block);
+                                c++;
+                            }
+                            objectremove.Add(objectnode);
+                        }
+                        
+                    }
+                }
+
+                //Remove the OBJs
+                //if (objectremove != null && objectremove.Count>0)
+                //{
+                //    foreach (CCSNode remobj in objectremove)
+                //    {
+                //            if (selected.CCSFile.CCS_TOC.Objects.Contains(remobj.Object))
+                //            {
+                //                var objlist = selected.CCSFile.CCS_TOC.Objects.ToList();
+                //                objlist.Remove(remobj.Object);
+
+                //            //Atualizar Info
+                //            selected.CCSFile.CCS_TOC.Objects = objlist.ToArray();
+                //            }
+                //        remobj.Remove();
+                //    }
+
+
+                //}
                 if (selected.resourceView.SelectedNode.Level == 2)//Block level
                 {
                     selected.CCSFile.Blocks.Remove((selected.resourceView.SelectedNode as CCSNode)
@@ -688,7 +730,34 @@ namespace CCSF_Asset_Explorer
                 }
             }
         }
+        public List<CCSNode> GetAllNodes(TreeNode tree, bool childtoo = true)
+        {
+            var list = new List<CCSNode>();
 
+            var nodes = tree.Nodes;
+            int level = 0;
+            bool stop = false;
+            foreach (CCSNode node in nodes)
+            {
+                list.Add(node);
+                while (!stop)
+                {
+
+
+                }
+                if (node.Nodes.Count > 0)
+                {
+
+                    list.Add(node);
+
+
+
+
+                }
+            }
+
+            return list;
+        }
         private void resourceTreeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var selectedTab = GetSelectedTab();
@@ -705,7 +774,7 @@ namespace CCSF_Asset_Explorer
             {
                 selectedTab.resourceViewbt.Text = "Resource Mode";
             }
-            
+
 
         }
 
@@ -762,7 +831,7 @@ namespace CCSF_Asset_Explorer
         private void searchAndCheckToolStripMenuItem_Click(object sender, EventArgs e)
         {
             sc = new SearchCheck(this);
-            if(!sc.Visible)
+            if (!sc.Visible)
                 sc.Show();
         }
 
@@ -818,6 +887,7 @@ namespace CCSF_Asset_Explorer
         private void Principal_FormClosing(object sender, FormClosingEventArgs e)
         {
             CreateConfig();
+            Environment.Exit(0);
         }
         private void animationsToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
         {
@@ -855,7 +925,42 @@ namespace CCSF_Asset_Explorer
 
         private void blockToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var add = new AddBlock();
+            add.comboBox1.Items.AddRange(Block.ObjectTypeNames.Values.ToArray().Skip(4).ToArray());
+            if (add.ShowDialog() == DialogResult.OK)
+            {
 
+            }
+        }
+        private void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var folder = new FolderBrowserDialog()
+            {
+                Description = "Select folder containing Object's blocks and Data Groups of files."
+            };
+            if (folder.ShowDialog() == DialogResult.OK)
+            {
+                var listBlock = new List<Block>();
+                var node = GetSelectedTab().GetSelectedNode();
+                foreach (var blockFile in Directory.EnumerateFiles(folder.SelectedPath))
+                {
+                    Block blk = Block.ReadAllBlocks(File.OpenRead(blockFile), false, false, GetSelectedTab().CCSFile.CCS_Header, true, GetSelectedTab().CCSFile, null)[0];
+                    listBlock.Add(blk);
+                }
+
+                if (GetSelectedTab().resourceView.Visible)
+                {
+                    node.Object.Blocks = listBlock.ToArray();
+                }
+                else if (GetSelectedTab().frameView.Visible)
+                {
+                    //var index = GetSelectedTab().CCSFile.Blocks.IndexOf(new Frame() { ObjectID = (uint)GetSelectedTab().GetSelectedNode().Index+1, Size = 4 });
+                    node.FrameBlocks.AddRange(listBlock);
+                    Salvar();
+                    //GetSelectedTab().CCSFile.Rebuild(GetSelectedTab().frameView, false);//Force to save
+                }
+                MessageBox.Show("Imported and saved successfully!\nOpen and close to see!", "System");
+            }
         }
         private void pictureBox2_Paint(object sender, PaintEventArgs e)
         {
@@ -882,8 +987,9 @@ namespace CCSF_Asset_Explorer
 
         private void pictureBox2_LoadCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            
+
         }
+
 
     }
 }

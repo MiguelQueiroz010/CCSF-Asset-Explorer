@@ -512,16 +512,16 @@ public class Animation : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
+            //var writer = new BinaryWriter(new MemoryStream(Data));
 
-            writer.BaseStream.Position = 0xC;
+            //writer.BaseStream.Position = 0xC;
 
-            writer.Write(FrameCount);
+            //writer.Write(FrameCount);
 
-            foreach(var frame in Frames)
-                writer.Write(frame.DataArray);
+            //foreach(var frame in Frames)
+            //    writer.Write(frame.DataArray);
 
-            writer.Close();
+            //writer.Close();
 
             return this.Data;
         }

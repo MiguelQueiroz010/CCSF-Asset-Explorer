@@ -14,6 +14,7 @@ namespace CCSF_Asset_Explorer
     public partial class PropertyBox : Form
     {
         CCSTab Tab;
+        CCSNode _node;
         public PropertyBox(CCSNode node, CCSTab tab)
         {
             InitializeComponent();
@@ -21,12 +22,11 @@ namespace CCSF_Asset_Explorer
 
             if (Tab.frameView.Visible)
                 this.Text += $"_Frame {node.Parent.Index}";
-            
+            _node = node;
             Populate(node, Tab.frameView.Visible);
         }
         private void Populate(CCSNode node, bool Frame = false)
         {
-            CCSF file = Tab.CCSFile;
             if (Frame == true)
             {
                 propertyGrid1.SelectedObject = node.Block;
@@ -56,6 +56,23 @@ namespace CCSF_Asset_Explorer
 
         private void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
+            //if (_node.File != null)
+            //{
+            //    Tab.CCSFile.CCS_TOC.Files[_node.File.Index] = _node.File;
+            //}
+            //else if (_node.Object != null)
+            //{
+            //    if (_node.Object.ObjectName == null)
+            //        _node.Object.ObjectName = "";
+           //     Tab.CCSFile.CCS_TOC.Files[_node.Object.FileIndex].Objects[Tab.CCSFile.CCS_TOC.Files[_node.Object.FileIndex].Objects.ToList().IndexOf(Tab.CCSFile.CCS_TOC.Files[_node.Object.FileIndex].Objects.ToList().Where(x => x.Index == _node.Object.Index).ToArray()[0])] = _node.Object;
+            //}
+            //else
+            //{
+            //    var findex = Tab.IndexOfFile(_node.Block);
+            //    var objinde = Tab.IndexOfObject(_node.Block);
+            //    var test = "";
+
+            //}
             //Tab.frameView.BeginUpdate();
             //Tab.resourceView.BeginUpdate();
 

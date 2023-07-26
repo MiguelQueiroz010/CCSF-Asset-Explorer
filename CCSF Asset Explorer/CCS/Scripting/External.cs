@@ -33,12 +33,12 @@ public class External : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
+            //var writer = new BinaryWriter(new MemoryStream(Data));
 
-            writer.BaseStream.Position = 0xC;
+            //writer.BaseStream.Position = 0xC;
 
-            writer.Write(ReferenceParent-1);
-            writer.Write(ReferenceObject+1);
+            //writer.Write(ReferenceParent-1);
+            //writer.Write(ReferenceObject+1);
 
             return Data;
         }

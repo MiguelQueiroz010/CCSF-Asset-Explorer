@@ -267,13 +267,16 @@ namespace CCSF_Asset_Explorer
             this.resourceView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.resourceView.CheckBoxes = true;
             this.resourceView.FullRowSelect = true;
+            this.resourceView.HotTracking = true;
             this.resourceView.LineColor = System.Drawing.Color.Empty;
             this.resourceView.Location = new System.Drawing.Point(0, 192);
             this.resourceView.Name = "resourceView";
             this.resourceView.Size = new System.Drawing.Size(321, 204);
             this.resourceView.TabIndex = 2;
             this.resourceView.Visible = false;
+            this.resourceView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.resourceView_AfterCheck);
             this.resourceView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.resourceView_AfterSelect);
             this.resourceView.VisibleChanged += new System.EventHandler(this.resourceView_VisibleChanged);
             // 
@@ -343,7 +346,7 @@ namespace CCSF_Asset_Explorer
             this.label1.ForeColor = System.Drawing.Color.DarkGreen;
             this.label1.Location = new System.Drawing.Point(6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(91, 30);
+            this.label1.Size = new System.Drawing.Size(90, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "CCSF Type:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

@@ -180,6 +180,25 @@ namespace CCSF_Asset_Explorer
 
         public bool isFrameNodesChecked() => frameView.Nodes.Cast<CCSNode>().Any(x => x.Nodes.Cast<CCSNode>().Any(c => c.Checked));
 
+        public CCSNode GetSelectedNode() => frameView.Visible ?
+            frameView.SelectedNode as CCSNode 
+            :
+            resourceView.Visible ?
+            resourceView.SelectedNode as CCSNode
+            : null;
+        public int IndexOfFile(Block _block) => CCSFile.CCS_TOC.Files.ToList().IndexOf(
+            CCSFile.CCS_TOC.Files.Where(x=>
+            x.Objects.Where(z=>z.Blocks.Any(c=>c==_block))
+            .Count()>0 ? true : false)
+            .ToArray()[0]
+            );
+        public int IndexOfObject(Block _block) => CCSFile.CCS_TOC.Files[IndexOfFile(_block)].Objects.ToList().IndexOf(
+            CCSFile.CCS_TOC.GetObject(_block)
+            );
+        public int IndexOfBlock(Block _block) => CCSFile.CCS_TOC.Files[IndexOfFile(_block)].Objects[IndexOfObject(_block)].Blocks.ToList().IndexOf(
+            _block
+
+            );
         public CCSNode GetRootGroup() => frameView.SelectedNode.Level == 0 ? (frameView.SelectedNode as CCSNode) :
             frameView.SelectedNode.Level == 1 ? (frameView.SelectedNode.Parent as CCSNode) : null;
         public List<Block> GetFrameBlocks() => frameView.SelectedNode.Level == 0 ? (frameView.SelectedNode as CCSNode).FrameBlocks :
@@ -315,7 +334,7 @@ namespace CCSF_Asset_Explorer
                         if (SelectedFile.Objects.Any(x => x.Blocks.Any(c => c.Type == 0xcccc0300)) &&
                             SelectedFile.Objects.Any(x => x.Blocks.Any(c => c.Type == 0xcccc0400)))
                         {
-                            var cluts = SelectedFile.Objects.Where(t => t.ObjectName.StartsWith("CLT")).ToArray();
+                            var cluts = SelectedFile.Objects.Where(t => t.ObjectName != null && t.ObjectName.StartsWith("CLT")).ToArray();
                             if (first == true)
                             {
                                 //if (palettesBox.Items.Count > 0)
@@ -328,7 +347,7 @@ namespace CCSF_Asset_Explorer
                             }
 
 
-                            var tex = (SelectedFile.Objects.Where(t => t.ObjectName.StartsWith("TEX")).ToArray()[0].Blocks
+                            var tex = (SelectedFile.Objects.Where(t => t.ObjectName!=null && t.ObjectName.StartsWith("TEX")).ToArray()[0].Blocks
                                [0] as Texture);
                             var clut = CCSFile.Blocks.Where(t => t.ObjectID == tex.CLUTID).ToArray();
 
@@ -534,7 +553,11 @@ namespace CCSF_Asset_Explorer
             SelectedFile = GetSelectedFile();
 
             UpdateButtons(false);
-
+            if (this.resourceView.SelectedNode.Checked)
+            {
+                foreach (CCSNode nodex in this.resourceView.SelectedNode.Checked ? this.resourceView.SelectedNode.Nodes : null)
+                    nodex.Checked = true;
+            }
             if (resourceView.SelectedNode != null)
             {
                 UpdateButtons(true);
@@ -549,8 +572,8 @@ namespace CCSF_Asset_Explorer
 
                 case 1: //Primary - File Objects 
 
-                    _principal.removeToolStripMenuItem.Enabled = false;
-                    removeBt.Enabled = false;
+                    _principal.removeToolStripMenuItem.Enabled = true;
+                    removeBt.Enabled = true;
                     ClearTextureBox();
                     break;
 
@@ -615,5 +638,10 @@ namespace CCSF_Asset_Explorer
         }
         #endregion
 
+        private void resourceView_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            
+            
+        }
     }
 }
