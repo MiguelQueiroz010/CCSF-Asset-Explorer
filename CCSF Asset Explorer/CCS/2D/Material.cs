@@ -125,20 +125,20 @@ public class Material : Block
         return result.ToArray();
     }
 
-    public override void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
-    {
-        ObjectID = (uint)Object.ObjIndex;
-        bool stop = false;
-        foreach(var obj in AllObjects)
-            if(obj.ObjName==TextureOBJ)
-                for (int b = 0; stop != true &&
-                    b < obj.Blocks.Count; b++)
-                {
-                    if (obj.Blocks[b].ReadUInt(0, 32) == 0xcccc0300)
-                    {
-                        TextureID = obj.Blocks[b].ReadUInt(8, 32);
-                        stop = true;
-                    }
-                }
-    }
+    //public override void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
+    //{
+    //    ObjectID = (uint)Object.ObjIndex;
+    //    bool stop = false;
+    //    foreach(var obj in AllObjects)
+    //        if(obj.ObjName==TextureOBJ)
+    //            for (int b = 0; stop != true &&
+    //                b < obj.Blocks.Count; b++)
+    //            {
+    //                if (obj.Blocks[b].ReadUInt(0, 32) == 0xcccc0300)
+    //                {
+    //                    TextureID = obj.Blocks[b].ReadUInt(8, 32);
+    //                    stop = true;
+    //                }
+    //            }
+    //}
 }

@@ -211,9 +211,13 @@ public class Block
         }
         return "NO OBJECT";
     }
-    public virtual void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
+    public virtual void SetIndexes(ObjectEntry Object, ObjectEntry[] AllObjects)
     {
-        ObjectID = (uint)Object.ObjIndex;
+        ObjectID = (uint)Object.Index;
+        var writer = new BinaryWriter(new MemoryStream(this.Data));
+        writer.BaseStream.Position = 0x8;
+        writer.Write((UInt32)ObjectID);
+        writer.Close();
     }
     public static void SetIndexes(byte[] block, Index.ObjectStream Object)
     {

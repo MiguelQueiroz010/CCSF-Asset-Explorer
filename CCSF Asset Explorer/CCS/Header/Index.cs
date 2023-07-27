@@ -349,7 +349,7 @@ public class Index : Block
                     for (int k = 0; k < obj.Blocks.Count; k++)
                         if (Array.Equals(b.Data, obj.Blocks[k]))
                         {
-                            b.SetIndexes(obj, objs.ToArray());
+                            //b.SetIndexes(obj, objs.ToArray());
                             obj.Blocks[k] = b.ToArray();
                         }
         }
@@ -485,7 +485,7 @@ public class Index : Block
         blocks = Blocks.ToArray();
     }
 
-    public override byte[] ToArray()
+    public byte[] ToArray(out List<ObjectEntry> objectEntries)
     {
         var result = new List<byte>();
         result.AddRange(Type.ToLEBE(32));
@@ -494,7 +494,7 @@ public class Index : Block
         var subResult = new List<byte>();
 
         subResult.AddRange(FilesCount.ToLEBE(32));
-        subResult.AddRange(ObjectsCount.ToLEBE(32));
+        subResult.AddRange((ObjectsCount).ToLEBE(32));
 
         //Root name space [FILES]
         var orderedfiles = Files.OrderBy(x => x.Index).ToList();
@@ -516,6 +516,7 @@ public class Index : Block
         //Root name space [OBJECTS]
         subResult.AddRange(new byte[0x20]);
         var orderedobjs = Objects.OrderBy(x => x.Index).ToList();
+        uint i = 1;
         foreach (var obj in orderedobjs)
         {
             byte[] objname = new byte[0x20];
@@ -523,8 +524,13 @@ public class Index : Block
             Array.Copy(data, objname, data.Length);
             Array.Copy(BitConverter.GetBytes((UInt16)obj.FileIndex), 0, objname, 0x1e, 2);
             subResult.AddRange(objname);
+            obj.Index = i;
+            obj.WMDLIndex = i;
+            i++;
 
+            
         }
+        objectEntries = orderedobjs;
         //Strange SETUP block
         result.AddRange(((uint)subResult.Count / 4).ToLEBE(32));
         subResult.AddRange(BitConverter.GetBytes((UInt64)3));

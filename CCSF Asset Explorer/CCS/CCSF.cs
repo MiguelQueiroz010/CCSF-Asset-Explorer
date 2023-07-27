@@ -14,7 +14,7 @@ public class CCSF
     public Header CCS_Header;
     public Index CCS_TOC;
 
-    public string Name => new String(CCS_Header.FileName.TakeWhile(x=> x!='\0').ToArray());
+    public string Name => new String(CCS_Header.FileName.TakeWhile(x => x != '\0').ToArray());
     public string File_path;
     public Header.CCSFVersion Version => CCS_Header.Version;
 
@@ -92,7 +92,7 @@ public class CCSF
                                             {
                                                 submdl.ObjectName = objx.ObjectName;
                                             }
-                                            else if(submdl.useclumpref)
+                                            else if (submdl.useclumpref)
                                             {
                                                 Clump refcmp = null;
                                                 try
@@ -102,13 +102,13 @@ public class CCSF
                                                             refcmp = xobj.Blocks.Where(x => x.BlockType == "Clump").Where
                                                             (c => (c as Clump).Nodes.Any(n => n.ID == submdl.ObjectID)).ToArray()[0] as Clump
                                                             ;
-                                                
 
-                                                if (refcmp != null)
-                                                {
-                                                    submdl.cmpRef = refcmp;
-                                                    submdl.ObjectName = refcmp.Nodes[submdl.ObjectID]._oname;
-                                                }
+
+                                                    if (refcmp != null)
+                                                    {
+                                                        submdl.cmpRef = refcmp;
+                                                        submdl.ObjectName = refcmp.Nodes[submdl.ObjectID]._oname;
+                                                    }
                                                 }
                                                 catch (Exception) { }
                                             }
@@ -127,7 +127,7 @@ public class CCSF
     internal void ToTreeView(TreeView treeView, bool forceResource = false, bool forceFrame = false)
     {
         treeView.BeginUpdate();
-        if(CCS_TOC.isFrameScene && !forceResource || forceFrame)
+        if (CCS_TOC.isFrameScene && !forceResource || forceFrame)
         {
             //Get Resources
             var resourcenode = new CCSNode("Resources");
@@ -143,14 +143,14 @@ public class CCSF
             int framec = 0;
             var frame = new CCSNode();
             var framegroup = new List<Block>();
-            foreach(var block in Blocks.SkipWhile(x=>x.Type != 0xccccff01))
+            foreach (var block in Blocks.SkipWhile(x => x.Type != 0xccccff01))
             {
-                if(block.Type==0xccccff01)
+                if (block.Type == 0xccccff01)
                 {
                     if (frame.Text != "")
                     {
                         frame.FrameBlocks = framegroup;
-                        
+
                         treeView.Nodes.Add(frame);
                     }
                     frame = new CCSNode("Frame Group");
@@ -162,12 +162,12 @@ public class CCSF
                 else
                 {
                     framegroup.Add(block);
-                    frame.Nodes.Add(new CCSNode(block.GetBlockType()) { Block = block});
+                    frame.Nodes.Add(new CCSNode(block.GetBlockType()) { Block = block });
                 }
             }
-            
+
         }
-        else if(!CCS_TOC.isFrameScene || forceResource)
+        else if (!CCS_TOC.isFrameScene || forceResource)
             foreach (var file in CCS_TOC.Files)
             {
                 if (file.FileName != @"%\")
@@ -180,13 +180,14 @@ public class CCSF
                         objNode.Object = obj;
                         foreach (var block in obj.Blocks)
                         {
-                            objNode.Nodes.Add(new CCSNode(block.GetBlockType()) { 
-                            Block = block
+                            objNode.Nodes.Add(new CCSNode(block.GetBlockType())
+                            {
+                                Block = block
                             });
-                            
+
                         }
                         fileNode.Nodes.Add(objNode);
-                    
+
                     }
                     treeView.Nodes.Add(fileNode);
                 }
@@ -203,7 +204,7 @@ public class CCSF
                             });
                         treeView.Nodes.Add(objNode);
                     }
-                
+
                 }
 
             }
@@ -220,8 +221,8 @@ public class CCSF
             result.AddRange(Blocks[1].Data);//TOC
 
             //Resources
-            foreach(CCSNode resourceBlock in treev.Nodes[0].Nodes)
-                    result.AddRange(resourceBlock.Block.DataArray);
+            foreach (CCSNode resourceBlock in treev.Nodes[0].Nodes)
+                result.AddRange(resourceBlock.Block.DataArray);
 
             //FrameGroups
             int f = 0;
@@ -229,8 +230,8 @@ public class CCSF
             {
                 if (f > 0)
                 {
-                    result.AddRange(new Block(0xCCCCFF01, (uint)(f-1)).Data);//FrameID
-                    foreach(var block in frameGroup.FrameBlocks)//Data Blocks
+                    result.AddRange(new Block(0xCCCCFF01, (uint)(f - 1)).Data);//FrameID
+                    foreach (var block in frameGroup.FrameBlocks)//Data Blocks
                         result.AddRange(block.DataArray);
                 }
                 f++;
@@ -238,25 +239,48 @@ public class CCSF
 
             result.AddRange(new Block(0xCCCCFF01, 0xFFFFFFFF).Data);//FrameEND
         }
-        else if(resource)
+        else if (resource)
         {
             ////GetData
             ///
-            //Blocks[1].Data = CCS_TOC.ToArray();
-            foreach (var block in Blocks)
-                    result.AddRange(block.DataArray);
+            Blocks[1].Data = CCS_TOC.ToArray();
+            //foreach (var block in Blocks)
+            //        result.AddRange(block.DataArray);
 
-            //Files and OBJ method
-            //foreach(var file in CCS_TOC.Files)
-            //    foreach (var rootobj in file.Objects)
-            //        foreach (var blockRoot in rootobj.Blocks)
-            //            result.AddRange(blockRoot.DataArray);
+            #region Files Alg
+            //Header and TOC
+            result.AddRange(CCS_Header.DataArray);
+            result.AddRange(CCS_TOC.ToArray(out var objectEntries));
+
+            var subblocks = Blocks.Skip(2);
+
+            //Set Indexes
+            foreach (var block in subblocks)
+            {
+                foreach (var rootobj in objectEntries)
+                    foreach (var blockRoot in rootobj.Blocks)
+                    {
+                        if (blockRoot == block)
+                        {
+                            if (rootobj.FileIndex == 0)
+                            {
+                                rootobj.Index = 0;
+                                rootobj.WMDLIndex = 0;
+                            }
+                            block.SetIndexes(rootobj, objectEntries.ToArray());
+
+                        }
+                    }
+                result.AddRange(block.DataArray);
+            }
 
 
+
+            #endregion
         }
-        
+
         byte[] res = result.ToArray();
-        return isGziped ? FileHelper.zipArray(res, Name+".tmp"): res;
+        return isGziped ? FileHelper.zipArray(res, Name + ".tmp") : res;
     }
 
     internal void ExtractAll(string savePath, bool Convert)
@@ -300,7 +324,7 @@ public class CCSF
                 if (fname.Contains("ps2dev") && fname.EndsWith(@"\"))
                     fname += "script.bin";
 
-                
+
                 //Trocas em tipos de arquivo
                 switch (file.Ftype)
                 {
@@ -322,7 +346,7 @@ public class CCSF
 
                 Console.WriteLine($"Extraindo o arquivo: {file.FileName.Split(new string[] { "\0" }, StringSplitOptions.RemoveEmptyEntries)[0]}");
 
-            
+
 
                 Console.WriteLine($"Salvando: {savepath + Path.GetDirectoryName(file.FileName.Split(new string[] { "\0" }, StringSplitOptions.RemoveEmptyEntries)[0])}");
 
@@ -344,10 +368,10 @@ public class CCSF
         string[] SetupLines = SetupIni.Split(new string[] { "\r\n", "---------------------",
         "-------------------------------"}, StringSplitOptions.RemoveEmptyEntries);
         string[] ObjectList = SetupLines.Skip(3).ToArray();
-        
+
 
         #region Build CCSF
-    //HEADER - TOC
+        //HEADER - TOC
         var version = SetupLines[1].Split(new string[] {
             "Version: "
         }, StringSplitOptions.RemoveEmptyEntries);
@@ -356,20 +380,20 @@ public class CCSF
         Header header = new Header(dirinfo.Name, version[0].GetVersion());
         Index toc = new Index(inputFolder, out byte[] Blocks, header);
 
-    //Merge ALL
+        //Merge ALL
         var ccsf = new List<byte>();
         ccsf.AddRange(header.ToArray());
         ccsf.AddRange(toc.ToArray());
 
         ccsf.AddRange(Blocks);
 
-    //Is frame playable Scene
-    if(!toc.isFrameScene)
-        ccsf.AddRange(new Block(0xCCCC0005, 1).ToArray());
-    //END FILE BLOCK
-        ccsf.AddRange(new Block(0xCCCCFF01,0xFFFFFFFF).ToArray());
+        //Is frame playable Scene
+        if (!toc.isFrameScene)
+            ccsf.AddRange(new Block(0xCCCC0005, 1).ToArray());
+        //END FILE BLOCK
+        ccsf.AddRange(new Block(0xCCCCFF01, 0xFFFFFFFF).ToArray());
 
-    //SAVE
+        //SAVE
         File.WriteAllBytes(savePath, ccsf.ToArray());
         #endregion
     }

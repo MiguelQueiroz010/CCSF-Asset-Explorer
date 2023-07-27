@@ -694,7 +694,7 @@ namespace CCSF_Asset_Explorer
                             int c = 0;
                             foreach (Block block in objectnode.Object.Blocks)
                             {
-                                if(c>0)
+                                //if(c>0)
                                     selected.CCSFile.Blocks.Remove(block);
                                 c++;
                             }
@@ -705,23 +705,23 @@ namespace CCSF_Asset_Explorer
                 }
 
                 //Remove the OBJs
-                //if (objectremove != null && objectremove.Count>0)
-                //{
-                //    foreach (CCSNode remobj in objectremove)
-                //    {
-                //            if (selected.CCSFile.CCS_TOC.Objects.Contains(remobj.Object))
-                //            {
-                //                var objlist = selected.CCSFile.CCS_TOC.Objects.ToList();
-                //                objlist.Remove(remobj.Object);
+                if (objectremove != null && objectremove.Count > 0)
+                {
+                    foreach (CCSNode remobj in objectremove)
+                    {
+                        if (selected.CCSFile.CCS_TOC.Objects.Contains(remobj.Object))
+                        {
+                            var objlist = selected.CCSFile.CCS_TOC.Objects.ToList();
+                            objlist.Remove(remobj.Object);
 
-                //            //Atualizar Info
-                //            selected.CCSFile.CCS_TOC.Objects = objlist.ToArray();
-                //            }
-                //        remobj.Remove();
-                //    }
+                            //Atualizar Info
+                            selected.CCSFile.CCS_TOC.Objects = objlist.ToArray();
+                        }
+                        remobj.Remove();
+                    }
 
 
-                //}
+                }
                 if (selected.resourceView.SelectedNode.Level == 2)//Block level
                 {
                     selected.CCSFile.Blocks.Remove((selected.resourceView.SelectedNode as CCSNode)

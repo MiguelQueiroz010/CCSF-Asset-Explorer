@@ -1027,9 +1027,9 @@ public class Model : Block
 		return result.ToArray();
 	}
 
-    public override void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
-    {
-		ObjectID = (uint)Object.ObjIndex;
-	}
+ //   public override void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
+ //   {
+	//	ObjectID = (uint)Object.ObjIndex;
+	//}
 
 }
