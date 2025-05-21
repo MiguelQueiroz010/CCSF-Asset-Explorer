@@ -346,7 +346,9 @@ namespace CCSF_Asset_Explorer
                         var file = ccstab.GetSelectedFile();
                         string fext = file.FileName.Substring(file.FileName.Length - 4, 4);
 
-                        fext = fext == ".bmp" ? ".png" : fext;
+                        fext = fext == ".tif" ? ".png" :
+                            fext == ".tga" ? ".png" :
+                            fext == ".bmp" ? ".png" : fext;
 
                         open.Filter = $"CCSF Internal File (*{fext})|*{fext}";
                         if (open.ShowDialog() == DialogResult.OK)
@@ -471,7 +473,9 @@ namespace CCSF_Asset_Explorer
                         var file = ccstab.GetSelectedFile();
                         string fext = file.FileName.Substring(file.FileName.Length - 4, 4);
 
-                        fext = fext == ".bmp" ? ".png" : fext;
+                        fext = fext == ".tga" ? ".png" :
+                            fext == ".tif" ? ".png" :
+                            fext == ".bmp" ? ".png" : fext;
 
                         save.FileName = Path.GetFileNameWithoutExtension(file.FileName);
                         save.Filter = $"CCSF Internal File (*{fext})|*{fext}";
@@ -662,72 +666,75 @@ namespace CCSF_Asset_Explorer
 
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var selected = GetSelectedTab();
-            if (selected.frameView.Visible)
+            foreach (CCSTab tab in tabControl1.TabPages)
             {
-                foreach (CCSNode node in selected.GetCheckedNodes(selected.frameView))
+                var selected = tab;
+                if (selected.frameView.Visible)
                 {
-                    if (node.Level == 0)
+                    foreach (CCSNode node in selected.GetCheckedNodes(selected.frameView))
                     {
-                        node.Remove();
-                        if (node.Text != "Resources")
-                            (GetSelectedTab().CCSFile.Blocks[0] as Header).FrameCounter--;
-                    }
-                    else if (node.Level == 1)
-                    {
-                        if (node.Parent.Text != "Resources")
-                            (node.Parent as CCSNode).FrameBlocks.Remove(node.Block);
-                        node.Remove();
+                        if (node.Level == 0)
+                        {
+                            node.Remove();
+                            if (node.Text != "Resources")
+                                (GetSelectedTab().CCSFile.Blocks[0] as Header).FrameCounter--;
+                        }
+                        else if (node.Level == 1)
+                        {
+                            if (node.Parent.Text != "Resources")
+                                (node.Parent as CCSNode).FrameBlocks.Remove(node.Block);
+                            node.Remove();
+                        }
                     }
                 }
-            }
-            else if (selected.resourceView.Visible)
-            {
-                var objectremove = new List<CCSNode>();
-                foreach (CCSNode node in selected.resourceView.Nodes)
-                {
-                    
-                    foreach (CCSNode objectnode in node.Nodes)
+                //else if (selected.resourceView.Visible)
+                //{
+                    var objectremove = new List<CCSNode>();
+                    foreach (CCSNode node in selected.resourceView.Nodes)
                     {
-                        if (objectnode.Checked)
+
+                        foreach (CCSNode objectnode in node.Nodes)
                         {
-                            int c = 0;
-                            foreach (Block block in objectnode.Object.Blocks)
+                            if (objectnode.Checked)
                             {
-                                //if(c>0)
-                                    selected.CCSFile.Blocks.Remove(block);
-                                c++;
+                                int c = 0;
+                                foreach (Block block in objectnode.Object.Blocks)
+                                {
+                                    if (c > 0)
+                                        selected.CCSFile.Blocks.Remove(block);
+                                    c++;
+                                }
+                                objectremove.Add(objectnode);
                             }
-                            objectremove.Add(objectnode);
-                        }
-                        
-                    }
-                }
 
-                //Remove the OBJs
-                if (objectremove != null && objectremove.Count > 0)
-                {
-                    foreach (CCSNode remobj in objectremove)
+                        }
+                    }
+
+                    //Remove the OBJs
+                    //if (objectremove != null && objectremove.Count > 0)
+                    //{
+                    //    foreach (CCSNode remobj in objectremove)
+                    //    {
+                    //        if (selected.CCSFile.CCS_TOC.Objects.Contains(remobj.Object))
+                    //        {
+                    //            var objlist = selected.CCSFile.CCS_TOC.Objects.ToList();
+                    //            objlist.Remove(remobj.Object);
+
+                    //            //Atualizar Info
+                    //            selected.CCSFile.CCS_TOC.Objects = objlist.ToArray();
+                    //        }
+                    //        remobj.Remove();
+                    //    }
+
+
+                    //}
+                    if (selected.resourceView.SelectedNode.Level == 2)//Block level
                     {
-                        if (selected.CCSFile.CCS_TOC.Objects.Contains(remobj.Object))
-                        {
-                            var objlist = selected.CCSFile.CCS_TOC.Objects.ToList();
-                            objlist.Remove(remobj.Object);
-
-                            //Atualizar Info
-                            selected.CCSFile.CCS_TOC.Objects = objlist.ToArray();
-                        }
-                        remobj.Remove();
+                        selected.CCSFile.Blocks.Remove((selected.resourceView.SelectedNode as CCSNode)
+                            .Block);
+                        selected.resourceView.SelectedNode.Remove();
                     }
-
-
-                }
-                if (selected.resourceView.SelectedNode.Level == 2)//Block level
-                {
-                    selected.CCSFile.Blocks.Remove((selected.resourceView.SelectedNode as CCSNode)
-                        .Block);
-                    selected.resourceView.SelectedNode.Remove();
-                }
+                //}
             }
         }
         public List<CCSNode> GetAllNodes(TreeNode tree, bool childtoo = true)

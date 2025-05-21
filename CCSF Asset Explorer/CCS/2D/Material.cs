@@ -77,14 +77,14 @@ public class Material : Block
     {
         get
         {
-            var writer = new BinaryWriter(new MemoryStream(Data));
-            writer.BaseStream.Position = 0xC;
-            writer.Write(TextureID);
-            writer.Write(Alpha);
-            writer.Write(BitConverter.GetBytes((Int16)X));
-            writer.Write(BitConverter.GetBytes((Int16)Y));
-            writer.Write(BitConverter.GetBytes((Int16)SWidth));
-            writer.Write(BitConverter.GetBytes((Int16)SHeight));
+            //var writer = new BinaryWriter(new MemoryStream(Data));
+            //writer.BaseStream.Position = 0xC;
+            //writer.Write(TextureID);
+            //writer.Write(Alpha);
+            //writer.Write(BitConverter.GetBytes((Int16)X));
+            //writer.Write(BitConverter.GetBytes((Int16)Y));
+            //writer.Write(BitConverter.GetBytes((Int16)SWidth));
+            //writer.Write(BitConverter.GetBytes((Int16)SHeight));
             return Data;
         }
     }

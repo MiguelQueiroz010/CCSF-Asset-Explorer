@@ -440,13 +440,13 @@ public class Model : Block
 						}
 					}
 				}
-                //for (int t = 1; t < subModel.VertexCount-1; t++)
-                //{
-                //	//TODO: CCSModel: Gen1 CCS Files don't care about vertex winding order (everything is drawn double sided)
-                //	// Can we derive proper order from normal direction? Probably not.
-                //	TrianglesList.Add(new ModelTriangle(t+2,t+1,t));
-                //}
-                subModel.TriangleCount = (uint)TrianglesList.Count();
+				//for (int t = 1; t < subModel.VertexCount - 1; t++)
+				//{
+				//	//TODO: CCSModel: Gen1 CCS Files don't care about vertex winding order (everything is drawn double sided)
+				//	// Can we derive proper order from normal direction? Probably not.
+				//	TrianglesList.Add(new ModelTriangle(t + 2, t + 1, t));
+				//}
+				subModel.TriangleCount = (uint)TrianglesList.Count();
                 subModel.Triangles = TrianglesList.ToArray();
 
                 //Coordenadas de UV
@@ -836,7 +836,7 @@ public class Model : Block
 	public uint[] LT;
 	public uint LTCount;
 
-	public float Unknow1, Unknow2;
+	public float OutlineColor, OutlineSize;
 
 	public Clump clumpRef;
 	public SubModel[] SubModels;
@@ -849,21 +849,21 @@ public class Model : Block
 		get => (decimal)VertexScale;
 		set => VertexScale = (float)value;
 	}
-	[DisplayName("Unknow 1")]
-	[Description("???")]
+	[DisplayName("Outline Color")]
+	[Description("Color of the outline from the Model.")]
 	[Category("Model Container")]
-	public decimal _unk1
-	{
-		get => (decimal)Unknow1;
-		set => Unknow1 = (float)value;
+	public Color Outline_Color
+    {
+		get => Color.FromArgb(Convert.ToInt32(OutlineColor));
+		set => OutlineColor = Convert.ToSingle(value.ToArgb());
 	}
-	[DisplayName("Unknow 2")]
-	[Description("???")]
+	[DisplayName("Outline Size")]
+	[Description("Size of the outline from the Model.")]
 	[Category("Model Container")]
-	public decimal _unk2
-	{
-		get => (decimal)Unknow2;
-		set => Unknow2 = (float)value;
+	public decimal Outline_Size
+    {
+		get => (decimal)OutlineSize;
+		set => OutlineSize = (float)value;
 	}
 	[DisplayName("Model Container Type")]
 	[Description("See the type of container of models.")]
@@ -924,40 +924,64 @@ public class Model : Block
 
 		model.LTCount = Input.ReadUInt(0x18, 32);
 
-		if (_ccsHeader.Version >= Header.CCSFVersion.GEN2)
+		switch(_ccsHeader.Version)
 		{
-			model.Unknow1 = BitConverter.ToSingle(Input.ReadBytes(0x1c,4),0);
-			model.Unknow2 = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
-			Input.Position = 0x24;
-		}
-		else
-		{
-			Input.Position = 0x1c;
-		}
+			case Header.CCSFVersion.GEN1:
+                model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
+                model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
+                Input.Position = 0x24;
+                break;
+			case Header.CCSFVersion.GEN1_5:
+                model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
+                model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
+                Input.Position = 0x24;
+                break;
+			case Header.CCSFVersion.GEN2:
+                model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
+                model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
+                Input.Position = 0x24;
+                ReadLT(Input, model);
+                break;
+            case Header.CCSFVersion.GEN2_5:
+				model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
+				model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
+				Input.Position = 0x24;
+                ReadLT(Input, model);
+                break;
+			default:
+                Input.Position = 0x1c;
+                break;
+        }
 
 
-		if (model.MDLType == ModelType.DEFORMABLE ||
-			model.MDLType == ModelType.DEFORMABLE_GEN2 ||
-			model.MDLType == ModelType.DEFORMABLE_GEN2_5||
-			model.MDLType == ModelType.DEFORMABLE_GEN2_5_S)
-		{
-			//Lookup Table
-			long oldPos = Input.Position;
-			model.LT = new uint[model.LTCount];
-			for (int i = 0; i < model.LTCount; i++)
-				model.LT[i] = (uint)Input.ReadByte();
-			Input.Position = oldPos + model.LTCount;
-
-			//LookupTable Padding
-			while ((float)((decimal)Input.Position / 4) != (int)(Input.Position / 4))
-				Input.Position++;
-		}
+		
+		Console.WriteLine($"SUBMDL///\nPosição: 0x{Input.Position.ToString("X2")}");
 
 		model.SubModels = Enumerable.Range(0, (int)model.SubModelCount).Select(
 			x => SubModel.Read(Input, model, _ccsToc, clumpRef)).ToArray();
 
 
 		return model;
+    }
+
+	void ReadLT(Stream Input,Model model)
+	{
+        if (model.MDLType == ModelType.DEFORMABLE ||
+             model.MDLType == ModelType.DEFORMABLE_GEN2 ||
+             model.MDLType == ModelType.DEFORMABLE_GEN2_5 ||
+            model.MDLType == ModelType.DEFORMABLE_GEN2_5_S)
+        {
+            //Lookup Table
+            long oldPos = Input.Position;
+            model.LT = new uint[model.LTCount];
+            for (int i = 0; i < model.LTCount; i++)
+                model.LT[i] = (uint)Input.ReadByte();
+            Input.Position = oldPos + model.LTCount;
+
+            //LookupTable Padding
+            while ((float)((decimal)Input.Position / 4) != (int)(Input.Position / 4))
+                Input.Position++;
+        }
     }
 	public override byte[] ToArray()
 	{
@@ -1018,8 +1042,8 @@ public class Model : Block
 
 		if (_ccsHeader.Version >= Header.CCSFVersion.GEN2)
 		{
-			result.AddRange(BitConverter.GetBytes((Single)Unknow1));
-			result.AddRange(BitConverter.GetBytes((Single)Unknow2));
+			result.AddRange(BitConverter.GetBytes((Single)OutlineColor));
+			result.AddRange(BitConverter.GetBytes((Single)OutlineSize));
 		}
 
 		result.AddRange(LTb.ToArray());
@@ -1027,9 +1051,6 @@ public class Model : Block
 		return result.ToArray();
 	}
 
- //   public override void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
- //   {
-	//	ObjectID = (uint)Object.ObjIndex;
-	//}
+
 
 }

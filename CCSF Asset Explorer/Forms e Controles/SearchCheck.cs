@@ -24,7 +24,7 @@ namespace CCSF_Asset_Explorer
 
         public void Start()
         {
-            if(checkFromObj.Checked)
+            if (checkFromObj.Checked)
             {
                 var ccsfile = Main.GetSelectedTab().CCSFile;
                 string[] objects = Enumerable.Range(0, ccsfile.Blocks.Count).Select
@@ -36,14 +36,14 @@ namespace CCSF_Asset_Explorer
                         sort.Add(obj);
 
                 sort.Sort();
-                sort.RemoveAll(x=>x=="NO OBJECT");
+                sort.RemoveAll(x => x == "NO OBJECT");
 
                 objects = sort.ToArray();
 
                 objectCombo.Items.AddRange(objects.ToArray());
                 searchText.Text = "";
             }
-            else if(textSearch.Checked)
+            else if (textSearch.Checked)
             {
                 searchText.Text = "";
                 objectCombo.Items.Clear();
@@ -78,7 +78,7 @@ namespace CCSF_Asset_Explorer
 
         private void objectCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(objectCombo.SelectedItem!="")
+            if (objectCombo.SelectedItem != "")
             {
                 var ccsfile = Main.GetSelectedTab().CCSFile;
                 blockCombo.Items.Clear();
@@ -103,15 +103,22 @@ namespace CCSF_Asset_Explorer
 
         private void secheck_bt_Click(object sender, EventArgs e)
         {
-            if(objectSelected!=null)
+            if (objectSelected != null)
             {
-                var res = Main.GetSelectedTab().resourceView;
-                foreach(CCSNode rnode in res.Nodes)
-                    foreach(CCSNode rnode1 in rnode.Nodes)
-                        foreach(CCSNode node in rnode1.Nodes)
+                foreach (CCSTab tab in Main.tabControl1.TabPages)
                 {
-                            if (objectSelected.Blocks.Contains(node.Block))
-                                node.BackColor = Color.Green;
+                    var res = tab.resourceView;
+                    foreach (CCSNode rnode in res.Nodes)
+                        foreach (CCSNode rnode1 in rnode.Nodes)
+                            foreach (CCSNode node in rnode1.Nodes)
+                            {
+                                if (objectSelected.Blocks.Contains(node.Block))
+                                {
+                                    node.BackColor = Color.Green;
+                                    rnode1.Checked = true;
+                                    node.Checked = true;
+                                }
+                            }
                 }
             }
         }

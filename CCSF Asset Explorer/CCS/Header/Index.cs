@@ -205,6 +205,10 @@ public class FileEntry
                 return FileType.CCpart;
             case ".bmp":
                 return FileType.Bitmap;
+            case ".tga":
+                return FileType.Bitmap;
+            case ".tif":
+                return FileType.Bitmap;
             case ".bin":
                 return FileType.Binary;
             default:

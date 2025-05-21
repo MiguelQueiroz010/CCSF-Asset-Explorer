@@ -241,42 +241,8 @@ public class CCSF
         }
         else if (resource)
         {
-            ////GetData
-            ///
-            Blocks[1].Data = CCS_TOC.ToArray();
-            //foreach (var block in Blocks)
-            //        result.AddRange(block.DataArray);
-
-            #region Files Alg
-            //Header and TOC
-            result.AddRange(CCS_Header.DataArray);
-            result.AddRange(CCS_TOC.ToArray(out var objectEntries));
-
-            var subblocks = Blocks.Skip(2);
-
-            //Set Indexes
-            foreach (var block in subblocks)
-            {
-                foreach (var rootobj in objectEntries)
-                    foreach (var blockRoot in rootobj.Blocks)
-                    {
-                        if (blockRoot == block)
-                        {
-                            if (rootobj.FileIndex == 0)
-                            {
-                                rootobj.Index = 0;
-                                rootobj.WMDLIndex = 0;
-                            }
-                            block.SetIndexes(rootobj, objectEntries.ToArray());
-
-                        }
-                    }
+            foreach (var block in Blocks)
                 result.AddRange(block.DataArray);
-            }
-
-
-
-            #endregion
         }
 
         byte[] res = result.ToArray();

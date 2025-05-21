@@ -22,7 +22,8 @@ namespace CCSF_Asset_Explorer
         {
             Name = "textureBox",
             Size = new System.Drawing.Size(321, 150),
-            SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
+            SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage,
+            BackColor = Color.Black
         };
         FileEntry SelectedFile;
         CLUT SelectedClut;

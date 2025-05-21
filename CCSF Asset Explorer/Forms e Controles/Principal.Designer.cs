@@ -186,7 +186,7 @@ namespace CCSF_Asset_Explorer
             this.resourceTreeToolStripMenuItem,
             this.frameModeSceneToolStripMenuItem});
             this.editModeToolStripMenuItem.Name = "editModeToolStripMenuItem";
-            this.editModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editModeToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.editModeToolStripMenuItem.Text = "Edit Mode";
             // 
             // resourceTreeToolStripMenuItem
@@ -209,14 +209,14 @@ namespace CCSF_Asset_Explorer
             // 
             this.animationsToolStripMenuItem.CheckOnClick = true;
             this.animationsToolStripMenuItem.Name = "animationsToolStripMenuItem";
-            this.animationsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.animationsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.animationsToolStripMenuItem.Text = "Animations";
             this.animationsToolStripMenuItem.CheckStateChanged += new System.EventHandler(this.animationsToolStripMenuItem_CheckStateChanged);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(132, 6);
             // 
             // consoleToolStripMenuItem
             // 
@@ -226,7 +226,7 @@ namespace CCSF_Asset_Explorer
             this.systemToolStripMenuItem1,
             this.clearConsoleToolStripMenuItem});
             this.consoleToolStripMenuItem.Name = "consoleToolStripMenuItem";
-            this.consoleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.consoleToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.consoleToolStripMenuItem.Text = "Console";
             this.consoleToolStripMenuItem.CheckedChanged += new System.EventHandler(this.consoleToolStripMenuItem_CheckedChanged);
             // 
@@ -281,7 +281,7 @@ namespace CCSF_Asset_Explorer
             this.blockToolStripMenuItem});
             this.addToolStripMenuItem.Enabled = false;
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.addToolStripMenuItem.Text = "Add";
             // 
             // fileEntryToolStripMenuItem
@@ -312,7 +312,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.searchAndCheckToolStripMenuItem.Enabled = false;
             this.searchAndCheckToolStripMenuItem.Name = "searchAndCheckToolStripMenuItem";
-            this.searchAndCheckToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.searchAndCheckToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.searchAndCheckToolStripMenuItem.Text = "Search/Check";
             this.searchAndCheckToolStripMenuItem.Click += new System.EventHandler(this.searchAndCheckToolStripMenuItem_Click);
             // 
@@ -320,7 +320,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.extractToolStripMenuItem1.Enabled = false;
             this.extractToolStripMenuItem1.Name = "extractToolStripMenuItem1";
-            this.extractToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.extractToolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
             this.extractToolStripMenuItem1.Text = "Extract";
             this.extractToolStripMenuItem1.Click += new System.EventHandler(this.extractToolStripMenuItem1_Click);
             // 
@@ -328,7 +328,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.replaceToolStripMenuItem.Enabled = false;
             this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
-            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.replaceToolStripMenuItem.Text = "Replace";
             this.replaceToolStripMenuItem.Click += new System.EventHandler(this.replaceToolStripMenuItem_Click);
             // 
@@ -336,7 +336,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.importToolStripMenuItem.Enabled = false;
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.importToolStripMenuItem.Text = "Import and Save";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
@@ -344,7 +344,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.copyToolStripMenuItem.Enabled = false;
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
@@ -352,7 +352,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.pasteToolStripMenuItem.Enabled = false;
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.pasteToolStripMenuItem.Text = "Paste";
             this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
             // 
@@ -360,32 +360,32 @@ namespace CCSF_Asset_Explorer
             // 
             this.removeToolStripMenuItem.Enabled = false;
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(157, 6);
             // 
             // uncheckAllToolStripMenuItem
             // 
             this.uncheckAllToolStripMenuItem.Enabled = false;
             this.uncheckAllToolStripMenuItem.Name = "uncheckAllToolStripMenuItem";
-            this.uncheckAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.uncheckAllToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.uncheckAllToolStripMenuItem.Text = "Uncheck All";
             this.uncheckAllToolStripMenuItem.Click += new System.EventHandler(this.uncheckAllToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(157, 6);
             // 
             // convertToI8ToolStripMenuItem
             // 
             this.convertToI8ToolStripMenuItem.Name = "convertToI8ToolStripMenuItem";
-            this.convertToI8ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.convertToI8ToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.convertToI8ToolStripMenuItem.Text = "Convert to I8";
             this.convertToI8ToolStripMenuItem.Visible = false;
             this.convertToI8ToolStripMenuItem.Click += new System.EventHandler(this.convertToI8ToolStripMenuItem_Click);
@@ -394,7 +394,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.propriedadesToolStripMenuItem.Enabled = false;
             this.propriedadesToolStripMenuItem.Name = "propriedadesToolStripMenuItem";
-            this.propriedadesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.propriedadesToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.propriedadesToolStripMenuItem.Text = "Properties";
             this.propriedadesToolStripMenuItem.Click += new System.EventHandler(this.propriedadesToolStripMenuItem_Click);
             // 
@@ -469,9 +469,9 @@ namespace CCSF_Asset_Explorer
             this.commandLBL.AutoSize = true;
             this.commandLBL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.commandLBL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.commandLBL.Location = new System.Drawing.Point(24, 1);
+            this.commandLBL.Location = new System.Drawing.Point(36, 1);
             this.commandLBL.Name = "commandLBL";
-            this.commandLBL.Size = new System.Drawing.Size(318, 32);
+            this.commandLBL.Size = new System.Drawing.Size(304, 32);
             this.commandLBL.TabIndex = 3;
             this.commandLBL.Text = "Open one or multiple CCS/TMP or drag\'n drop them.";
             this.commandLBL.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -480,7 +480,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.opLBL.AutoSize = true;
             this.opLBL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.opLBL.Location = new System.Drawing.Point(349, 1);
+            this.opLBL.Location = new System.Drawing.Point(347, 1);
             this.opLBL.Name = "opLBL";
             this.opLBL.Size = new System.Drawing.Size(158, 32);
             this.opLBL.TabIndex = 2;
@@ -491,10 +491,10 @@ namespace CCSF_Asset_Explorer
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar1.Location = new System.Drawing.Point(514, 4);
+            this.progressBar1.Location = new System.Drawing.Point(512, 4);
             this.progressBar1.MarqueeAnimationSpeed = 50;
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(175, 26);
+            this.progressBar1.Size = new System.Drawing.Size(177, 26);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 1;
             this.progressBar1.Value = 100;
@@ -506,9 +506,9 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.tableLayoutPanel1.ColumnCount = 4;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 324F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 310F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 164F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 181F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 183F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.progressBar1, 3, 0);
@@ -528,7 +528,7 @@ namespace CCSF_Asset_Explorer
             this.pictureBox1.Image = global::CCSF_Asset_Explorer.Properties.Resources.sigma_another_tale_22859624_210820211143;
             this.pictureBox1.Location = new System.Drawing.Point(4, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(13, 26);
+            this.pictureBox1.Size = new System.Drawing.Size(25, 26);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -596,7 +596,6 @@ namespace CCSF_Asset_Explorer
         private System.Windows.Forms.ToolStripMenuItem repackAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
-        private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem extractToolStripMenuItem1;
@@ -634,6 +633,7 @@ namespace CCSF_Asset_Explorer
         public System.Windows.Forms.ToolStripMenuItem objectEntryToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem blockToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
+        public System.Windows.Forms.TabControl tabControl1;
     }
 }
 
