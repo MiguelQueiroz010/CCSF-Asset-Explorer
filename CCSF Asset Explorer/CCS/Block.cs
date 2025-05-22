@@ -284,11 +284,38 @@ public class Block
 
             Input.Position = oldOffset;
 
+
             byte[] BlockData = Input.ReadBytes((int)SizeBlock);
 
             var mem = new MemoryStream(BlockData);
             uint BlockType = mem.ReadUInt(0, 32);
             mem.Position = 0;
+
+            //if(BlockType == 0xcccc0800)
+            //{
+            //    var data = new List<byte>();
+            //    byte[] readed = mem.ReadBytes(4);
+            //    data.AddRange(readed);
+            //    readed = mem.ReadBytes(4);
+            //    data.AddRange(readed);
+
+            //    bool end = false;
+            //    while (end == false)
+            //    {
+            //        if (readed.ReadUInt(2, 16) != 0xCCCC)
+            //        {
+            //            readed = mem.ReadBytes(4);
+            //            data.AddRange(readed);
+            //        }
+            //        else
+            //            end = true;
+            //    }
+            //    readed = mem.ReadBytes(4);
+            //    data.AddRange(readed);
+            //    BlockData = data.ToArray();
+            //}
+            //mem = new MemoryStream(BlockData);
+            //mem.Position = 0;
 
             string objName = "";
             if (logAllBlocks)
@@ -334,60 +361,7 @@ public class Block
                     break;
                 case SECTION_MODEL_CONTAINER: //MODEL
                     var blockModel = new Model().ReadBlock(mem, CCSHeader);
-                    Model mdl = blockModel as Model;
-
-                    if (mdl.MDLType == Model.ModelType.DEFORMABLE ||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2 ||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5_S)
-                    {
-                        //Fix Block size subtract with 3
-                        Input.Position = oldOffset;
-
-                        //Old try
-                        //SizeBlock = (SizeBlock / 4) - 0xF;
-                        //SizeBlock *= 4;
-
-                        SizeBlock = GetBlockSize(Input);
-                        Input.Position = oldOffset;
-
-                        BlockData = Input.ReadBytes((int)SizeBlock);
-                        mem = new MemoryStream(BlockData);
-                    }
-                    else if (mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5
-                        && mdl.DrawFlags != 0)
-                    {
-                        //Fix Block strange size
-                        Input.Position = oldOffset;
-
-                        //Old try
-                        //if(mdl.DrawFlags==0x440)
-                        //    SizeBlock = (SizeBlock / 4) - 0xF;
-                        //else if(mdl.DrawFlags == 0x240)
-                        //    SizeBlock = (SizeBlock / 4) - 0x1e;
-
-                        SizeBlock = GetBlockSize(Input);
-                        Input.Position = oldOffset;
-
-                        BlockData = Input.ReadBytes((int)SizeBlock);
-                        mem = new MemoryStream(BlockData);
-                    }
-                    else
-                    {
-                        Input.Position = oldOffset;
-
-                        BlockData = Input.ReadBytes((int)SizeBlock);
-                        mem = new MemoryStream(BlockData);
-                    }
-
-                    Model Block = new Model();
-                    Block._ccsToc = CCSToc;
-                    if (mdl.MDLType == Model.ModelType.DEFORMABLE ||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2 ||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5 ||
-                    mdl.MDLType == Model.ModelType.DEFORMABLE_GEN2_5_S
-                        && mdl.DrawFlags != 0)
-                        Block.ErrorSizeLogic = true;
-                    blocks.Add(Block.ReadBlock(mem, CCSHeader));
+                    blocks.Add(blockModel);
                     break;
 
                 case SECTION_CLUMP: //CLUMP

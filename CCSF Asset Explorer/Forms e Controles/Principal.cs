@@ -372,18 +372,18 @@ namespace CCSF_Asset_Explorer
                             {
                                 var files = Directory.EnumerateFiles(folder.SelectedPath, "*.obj");
                                 Model mdl = ccsnode.Block as Model;
-                                if (new DirectoryInfo(folder.SelectedPath).Name == mdl.ObjectName)
-                                {
-                                    for (int i = 0; i < mdl.SubModels.Length; i++)
-                                    {
-                                        if (mdl.SubModels[i].subMDLType != Model.SubModel.SubModelType.DEFORMABLE)
-                                        {
-                                            string fname = mdl.SubModels[i].subMDLType == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : mdl.SubModels[i].ObjectName;
-                                            mdl.SubModels[i].SetfromOBJECT3D(new StreamReader(files.Where(x => Path.GetFileName(x) == $"{fname}.obj").ToArray()[0]));
-                                        }
-                                    }
-                                    ccsnode.Block = mdl;
-                                }
+                                //if (new DirectoryInfo(folder.SelectedPath).Name == mdl.ObjectName)
+                                //{
+                                //    for (int i = 0; i < mdl.SubModels.Length; i++)
+                                //    {
+                                //        if (mdl.SubModels[i].subMDLType != Model.SubModel.SubModelType.DEFORMABLE)
+                                //        {
+                                //            string fname = mdl.SubModels[i].subMDLType == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : mdl.SubModels[i].ObjectName;
+                                //            mdl.SubModels[i].SetfromOBJECT3D(new StreamReader(files.Where(x => Path.GetFileName(x) == $"{fname}.obj").ToArray()[0]));
+                                //        }
+                                //    }
+                                //    ccsnode.Block = mdl;
+                                //}
 
                             }
                         }
@@ -540,17 +540,17 @@ namespace CCSF_Asset_Explorer
                                 path += @"/";
 
 
-                                foreach (var submdl in mdl.SubModels)
-                                {
-                                    var writer = new StringBuilder();
-                                    writer.AppendLine("#CCSF ASSET EXPLORER - MODEL CONVERTER\r\n" +
-                                        "#BIT.RAIDEN - 2022\r\n");
-                                    submdl.GetOBJECT3D(writer, out var writerMat, out var mtlNAM,
-                                        out Bitmap tex, out var texNAM);
-                                    tex.Save(path + $"{texNAM}.png");
-                                    File.WriteAllText(path + $"{(submdl._type == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : submdl.ObjectName)}.obj", writer.ToString());
-                                    File.WriteAllText(path + $"{mtlNAM}.mtl", writerMat.ToString());
-                                }
+                                //foreach (var submdl in mdl.SubModels)
+                                //{
+                                //    var writer = new StringBuilder();
+                                //    writer.AppendLine("#CCSF ASSET EXPLORER - MODEL CONVERTER\r\n" +
+                                //        "#BIT.RAIDEN - 2022\r\n");
+                                //    submdl.GetOBJECT3D(writer, out var writerMat, out var mtlNAM,
+                                //        out Bitmap tex, out var texNAM);
+                                //    tex.Save(path + $"{texNAM}.png");
+                                //    File.WriteAllText(path + $"{(submdl._type == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : submdl.ObjectName)}.obj", writer.ToString());
+                                //    File.WriteAllText(path + $"{mtlNAM}.mtl", writerMat.ToString());
+                                //}
                                 savepath = path;
                             }
 

@@ -18,6 +18,7 @@ public class Header: Block
     };
 
     const int Magic = 0x46534343;
+    public int _version;
     public CCSFVersion Version;
     public string FileName;
 
@@ -32,7 +33,7 @@ public class Header: Block
 
         FileName = Input.ReadBytes(0xC,0x20).ConvertTo(Encoding.Default),
         Version = (CCSFVersion)Input.ReadUInt(0x2c, 32),
-
+        _version = (int)Input.ReadUInt(0x2c, 32),
         FrameCounter = Input.ReadUInt(0x30, 32),
         Unk2 = Input.ReadUInt(0x34, 32),
         Unk3 = Input.ReadUInt(0x38, 32)

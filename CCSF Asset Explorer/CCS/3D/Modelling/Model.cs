@@ -7,1050 +7,670 @@ using static Helper3D;
 using static IOextent;
 using System.Text;
 using System.ComponentModel;
+using static Model.Mesh;
+using static Model;
+using System.IO.Ports;
+using static Clump.Node;
+
+/// <summary>
+/// Model class. Treats with the model data from 0xCCCC0800 blocks.
+/// Code completely documented by https://github.com/Al-Hydra/blender_ccs_importer/blob/main/ccs_lib
+/// zMath3us and HydraBladeZ  // and NCDyson and WarrantyVoider
+/// </summary>
 
 public class Model : Block
 {
-	public enum ModelType: ushort
+    public enum ModelType : int
     {
-		NORMAL = 0x0,
-		NORMAL_GEN2_5 = 0x3800,
-		NORMAL_GEN2_5_s = 0x3801,
-		DEFORMABLE = 0x4,
-		SHADOW = 0x8,
-		MORPHTARGET = 0x600,
-		DEFORMABLE_GEN2 = 0x1004,
-		DEFORMABLE_GEN2_5 = 0x3804,
-		DEFORMABLE_GEN2_5_S = 0x3004,
-		RIGID_GEN2_NO_COLOR = 0x0200,
-		RIGID_GEN2_COLOR = 0x1000,
-		RIGID_GEN2_NO_COLOR2 = 0x1200,
-		MORPHTARGET_GEN2 = 0x400,
-		UNKNOW
-	};
-
-	#region Sub Structures
-	public struct BoneID
-	{
-		public int Bone1; // = 0;
-		public int Bone2; // = 0;
-		public int Bone3;
-		public int Bone4;
-
-		public BoneID(int id1, int id2, int id3 = 0, int id4 = 0)
-		{
-			Bone1 = id1;
-			Bone2 = id2;
-			Bone3 = id3;
-			Bone4 = id4;
-		}
-	}
-	public struct ModelUV
+        Rigid1 = 0,
+        Rigid2 = 1,
+        TrianglesList = 2,
+        Deformable = 4,
+        ShadowMesh = 8
+    };
+    public override Block ReadBlock(Stream Input, Header header)
     {
-		public int U, V;
+        Data = Input.ReadBytes(0, (int)Size);
+        Model ccModel = new Model();
+        _ccsHeader = header;
 
-		[DisplayName("X")]
-		[Description("Modify the vertex uv coordinates.")]
-		[Category("Texture Coordinates")]
-		public int _x
-		{
-			get => U;
-			set => U = value;
-		}
-		[DisplayName("Y")]
-		[Description("Modify the vertex uv coordinates.")]
-		[Category("Texture Coordinates")]
-		public int _y
-		{
-			get => V;
-			set => V = value;
-		}
-		internal static ModelUV Read(Stream input) => new ModelUV()
-		{
-			U = (int)input.ReadUInt(16),
-			V = (int)input.ReadUInt(16)
-		};
-		    
-		internal byte[] GetUV()
+        ccModel.ObjectID = Input.ReadUInt(32);
+        ccModel.VertexScale = Input.ReadSingle();
+        ccModel.Mdl_Type = (int)Input.ReadByte();
+        ccModel.Mdl_Flags = (byte)Input.ReadByte();
+        ccModel.Mesh_Count = Input.ReadUInt(16);
+
+        ccModel.MatFlags1 = (byte)Input.ReadByte();
+        ccModel.MatFlags2 = (byte)Input.ReadByte();
+        ccModel.UnkFlags = Input.ReadUInt(16);
+        ccModel.LT_Count = (byte)Input.ReadByte();
+        ccModel.ExtraFlags = (byte)Input.ReadByte();
+        ccModel.TangentBinormalsFlag = Input.ReadUInt(16);
+
+        if (_ccsHeader._version > 0x110)
         {
-			var b = new List<byte>();
-			b.AddRange(((uint)U).ToLEBE(16));
-			b.AddRange(((uint)V).ToLEBE(16));
-			return b.ToArray();
-        }
-		
-	}
-	public struct ModelVertex
-	{
-		public Vector3H Position;
-		public Vector3H Position2;
-		public Vector3 Position3;   //Last Recode Compatibility
-		public Vector3 Position4;   //Last Recode Compatibility
-
-		public Vector2 TexCoords;
-
-		public Vector4 Color;
-		public Vector3 Normal;
-
-		public BoneID BoneIDs;
-		public Vector4 Weights;
-
-		public byte TriFlag;
-		public float VScale;
-		public uint VertexParams;
-		public uint SecondVertexParams;
-
-		public bool ContainsParams;
-
-		[DisplayName("X")]
-		[Description("Modify the vertex position coordinates.")]
-		[Category("Spatial Position")]
-		public decimal _x
-		{
-			get => Position.X;
-			set => Position.X = value;
-		}
-		[DisplayName("Y")]
-		[Description("Modify the vertex position coordinates.")]
-		[Category("Spatial Position")]
-		public decimal _y
-		{
-			get => Position.Y;
-			set => Position.Y = value;
-		}
-		[DisplayName("Z")]
-		[Description("Modify the vertex position coordinates.")]
-		[Category("Spatial Position")]
-		public decimal _z
-		{
-			get => Position.Z;
-			set => Position.Z = value;
-		}
-		[DisplayName("X")]
-		[Description("Modify the vertex position coordinates. [2]")]
-		[Category("Spatial Position 2")]
-		public decimal _x2
-		{
-			get => Position2.X;
-			set => Position2.X = value;
-		}
-		[DisplayName("Y")]
-		[Description("Modify the vertex position coordinates. [2]")]
-		[Category("Spatial Position 2")]
-		public decimal _y2
-		{
-			get => Position2.Y;
-			set => Position2.Y = value;
-		}
-		[DisplayName("Z")]
-		[Description("Modify the vertex position coordinates. [2]")]
-		[Category("Spatial Position 2")]
-		public decimal _z2
-		{
-			get => Position2.Z;
-			set => Position2.Z = value;
-		}
-		[DisplayName("X")]
-		[Description("Modify the vertex normal.")]
-		[Category("Normal")]
-		public decimal _normalx
-		{
-			get => (decimal)Normal.X;
-			set => Normal.X = (float)value;
-		}
-		[DisplayName("Y")]
-		[Description("Modify the vertex normal.")]
-		[Category("Normal")]
-		public decimal _normaly
-		{
-			get => (decimal)Normal.Y;
-			set => Normal.Y = (float)value;
-		}
-		[DisplayName("Z")]
-		[Description("Modify the vertex normal.")]
-		[Category("Normal")]
-		public decimal _normalz
-		{
-			get => (decimal)Normal.Z;
-			set => Normal.Z = (float)value;
-		}
-		[DisplayName("Color")]
-		[Description("Modify the vertex color.")]
-		[Category("Vertex")]
-		public Color _color
-		{
-			get => System.Drawing.Color.FromArgb((int)(Color.W), (int)(Color.X), (int)(Color.Y), 
-				(int)(Color.Z));
-			set => Color = Helper3D.FromColor(value);
-		}
-		internal static ModelVertex ReadVertex(Stream Input, float VertexScale, int boneID, bool containsParams = false) => new ModelVertex()
-		{
-			VScale = VertexScale,
-			Color = new Vector4(0.5f, 0.5f, 0.5f, 1.0f),
-			Position = ReadVec3Half(Input, VertexScale),
-			ContainsParams = containsParams,
-			VertexParams = containsParams == true ? Input.ReadUInt(16) : 0,
-			Weights = new Vector4(1.0f, 0.0f, 0.0f, 0.0f),
-			BoneIDs = new BoneID(boneID, 0)
-		};
-
-	}
-	public struct ModelTriangle
-	{
-		public int ID1; // = 0;
-		public int ID2; // = 1;
-		public int ID3; // = 2;
-
-		public ModelTriangle(int _id1, int _id2, int _id3)
-		{
-			ID1 = _id1;
-			ID2 = _id2;
-			ID3 = _id3;
-		}
-	}
-
-	public class SubModel
-	{
-		public Index _CCStoc;
-
-		public string ObjectName, MaterialObjName;
-		public uint ObjectID = 0xFFFFFFFF; 
-		public uint MaterialID;
-		public uint UVCount;
-
-		public uint VertexCount;
-		public uint TriangleCount;
-
-		public Model mdlRef;
-		public Clump cmpRef;
-		public bool useclumpref = false;
-
-		public ModelVertex[] Vertices;
-		public ModelTriangle[] Triangles;
-		public ModelUV[] UVs;
-
-		public SubModelType subMDLType = SubModelType.DEFORMABLE;
-
-		public Model.ModelType _mdlType;
-		public enum SubModelType
-        {
-			RIGID,
-			DEFORMABLE
-        };
-
-		[DisplayName("Object Index")]
-		[Description("Define the object index for the Sub-Model.")]
-		[Category("Model Base")]
-		public uint _ObjectIndex
-		{
-			get => ObjectID;
-			set => ObjectID = value;
-		}
-		[DisplayName("Object Name")]
-		[Description("See the object name for the Sub-Model.")]
-		[Category("Model Base")]
-		public string _ObjectName
-		{
-			get => ObjectName;
-		}
-		[DisplayName("Sub Model Type")]
-		[Description("See the sub-model type.")]
-		[Category("Model Base")]
-		public SubModelType _type
-		{
-			get => subMDLType;
-		}
-		[DisplayName("Linked Material Index")]
-		[Description("Define the material index for the Sub-Model.")]
-		[Category("Model Base")]
-		public uint MatIndex
-		{
-			get => MaterialID;
-			set => MaterialID = value;
-		}
-		[DisplayName("Linked Material Name")]
-		[Description("See the linked material name for the Sub-Model.")]
-		[Category("Model Base")]
-		public string MatName
-		{
-			get => _CCStoc.GetObjectName(MaterialID);
-		}
-
-		[DisplayName("UV Count")]
-		[Description("See the uv texture coordinates count for the Sub-Model(deformable).")]
-		[Category("Model")]
-		public uint _uvcount
-		{
-			get => UVs != null && UVs.Length>0 ? (uint)UVs.Length:
-				0;
-		}
-
-		[DisplayName("Vertex Count")]
-		[Description("See the vertex count for the Sub-Model.")]
-		[Category("Model")]
-		public uint _vertexcount
-		{
-			get => (uint)Vertices.Length;
-		}
-		[DisplayName("Triangle Count")]
-		[Description("See the triangles/faces count for the Sub-Model.")]
-		[Category("Model")]
-		public uint _tricount
-		{
-			get => TriangleCount;
-		}
-
-		[DisplayName("Vertices")]
-		[Description("Modify the model vertices.")]
-		[Category("Model")]
-		public ModelVertex[] _vertex
-		{
-			get => Vertices;
-			set => Vertices = value;
-		}
-		[DisplayName("UVs")]
-		[Description("Modify the model uvs.")]
-		[Category("Model")]
-		public ModelUV[] _uvs
-		{
-			get => UVs;
-			set => UVs = value;
-		}
-		internal static SubModel Read(Stream Input, Model model, Index ccstoc, Clump cref)
-		{
-			SubModel subModel = new SubModel();
-			subModel._CCStoc = ccstoc;
-			subModel.cmpRef = cref;
-			subModel.mdlRef = model;
-			subModel._mdlType = model.MDLType;
-			if (model.MDLType==ModelType.DEFORMABLE ||
-				model.MDLType==ModelType.DEFORMABLE_GEN2||
-				model.MDLType==ModelType.DEFORMABLE_GEN2_5 ||
-				model.MDLType==ModelType.DEFORMABLE_GEN2_5_S)
-            {
-				subModel.subMDLType = SubModelType.DEFORMABLE;
-
-				//Console.WriteLine($"Leitor de Modelos/sub, posição: 0x{Input.Position.ToString("X2")}");
-
-				subModel.MaterialID = Input.ReadUInt(32);
-				subModel.UVCount = Input.ReadUInt(32);
-				subModel.VertexCount = Input.ReadUInt(32);
-
-				//SubModel SubType
-				if (subModel.VertexCount == 0)
-				{
-					subModel.subMDLType = SubModelType.RIGID;
-
-					subModel.VertexCount = subModel.UVCount;
-					subModel.UVCount = 0;
-
-					uint ltindex = Input.ReadUInt(32);
-					subModel.ObjectID = model.LT[ltindex];
-					subModel.useclumpref = true;
-				}
-
-				//Vértice BoneIDs e Weights
-				if (subModel.subMDLType == SubModelType.DEFORMABLE)
-				{
-					subModel.Vertices = new ModelVertex[subModel.VertexCount];
-					for (int i = 0; i < subModel.VertexCount; i++)
-					{
-						subModel.Vertices[i].Position = ReadVec3Half(Input, model.VertexScale);
-						subModel.Vertices[i].VertexParams = Input.ReadUInt(16);
-						subModel.Vertices[i].ContainsParams = true;
-
-						var Vertex = subModel.Vertices[i];
-
-						uint boneID1 = Vertex.VertexParams >> 10;
-						uint boneID2 = 0;
-
-						float weight1 = (Vertex.VertexParams & 0x1ff) * Helper3D.WEIGHT_SCALE;
-						float weight2 = 0;
-
-						//bool dualFlag = ((Vertex.VertexParams >> 9) & 0x1) == 0;
-
-						//if (dualFlag)
-						//{
-						//	subModel.Vertices[i].Position2 = Helper3D.ReadVec3Half(Input, model.VertexScale);
-						//	subModel.Vertices[i].SecondVertexParams = Input.ReadUInt(16);
-
-						//	weight2 = (subModel.Vertices[i].SecondVertexParams & 0x1ff) * Helper3D.WEIGHT_SCALE;
-						//	boneID2 = (subModel.Vertices[i].SecondVertexParams >> 10);
-						//}
-
-						if (model.LT != null && 
-							boneID1 < model.LTCount &&
-							boneID2 < model.LTCount)
-						{
-							subModel.Vertices[i].BoneIDs = new BoneID((int)model.LT[boneID1],
-								(int)model.LT[boneID2]);
-						}
-						else
-						{
-							subModel.Vertices[i].BoneIDs = new BoneID((int)boneID1, (int)boneID2);
-						}
-
-						subModel.Vertices[i].Weights = new Vector4(weight1, weight2, 0.0f, 0.0f);
-
-						//Set Color
-						subModel.Vertices[i].Color = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
-					}
-				}
-				else if(subModel.subMDLType==SubModelType.RIGID)
-                {
-					int boneID = 0;//ParentFile.SearchClump(ParentFile.LastObject.ObjectID);
-
-					subModel.Vertices = Enumerable.Range(0, (int)subModel.VertexCount).Select(
-					x => ModelVertex.ReadVertex(Input, model.VertexScale, boneID
-					)).ToArray();
-
-					//Resolve Padding of %4
-					while (Input.Position % 4 != 0)
-						Input.Position++;
-				}
-
-				//Faces/Triângulos
-				var TrianglesList = new List<ModelTriangle>();
-				byte lastFlag = 1;
-				int sCount = 0;
-				for (int i = 0,t=1;  i < subModel.VertexCount; i++)
-				{
-					subModel.Vertices[i].Normal = Helper3D.ReadVec3Normal8(Input);
-					byte triFlag = (byte)Input.ReadByte();
-					subModel.Vertices[i].TriFlag = triFlag;
-					//TODO: CCSModel: Gen1 CCS Files don't care about vertex winding order (everything is drawn double sided)
-					// Can we derive proper order from normal direction? Probably not.
-					if (triFlag == 0)
-					{
-						if ((sCount % 2) == 0)
-						{
-							TrianglesList.Add(new ModelTriangle(i, i - 1, i - 2));
-						}
-						else
-						{
-							TrianglesList.Add(new ModelTriangle(i - 2, i - 1, i));
-						}
-						sCount += 1;
-						lastFlag = triFlag;
-					}
-					else
-					{
-						if (lastFlag == 0)
-						{
-							sCount = 0;
-						}
-					}
-				}
-				//for (int t = 1; t < subModel.VertexCount - 1; t++)
-				//{
-				//	//TODO: CCSModel: Gen1 CCS Files don't care about vertex winding order (everything is drawn double sided)
-				//	// Can we derive proper order from normal direction? Probably not.
-				//	TrianglesList.Add(new ModelTriangle(t + 2, t + 1, t));
-				//}
-				subModel.TriangleCount = (uint)TrianglesList.Count();
-                subModel.Triangles = TrianglesList.ToArray();
-
-                //Coordenadas de UV
-                if (subModel.subMDLType == SubModelType.RIGID)
-				{
-					for (int i = 0; i < subModel.VertexCount; i++)
-					{
-						subModel.Vertices[i].TexCoords = Helper3D.ReadVec2UV(Input);
-					}
-				}
-				else
-				{
-					subModel.UVs = new ModelUV[subModel.UVCount];
-					for (int i = 0; i < subModel.UVCount; i++)
-					{
-						subModel.UVs[i] = ModelUV.Read(Input);
-					}
-				}
-			}
-			else if (model.MDLType == ModelType.SHADOW)
-			{
-				subModel.VertexCount = Input.ReadUInt(32);
-				subModel.TriangleCount = Input.ReadUInt(32);
-
-				//Vértices
-				subModel.Vertices = Enumerable.Range(0, (int)subModel.VertexCount).Select(
-					x => ModelVertex.ReadVertex(Input, model.VertexScale, 0
-					)).ToArray();
-				//Resolve Padding of %4
-				while (Input.Position % 4 != 0)
-					Input.Position++;
-
-				//Faces/Triângulos
-				subModel.Triangles = new ModelTriangle[subModel.TriangleCount / 3];
-				for (int i = 0; i < subModel.TriangleCount / 3; i++)
-					subModel.Triangles[i] = new ModelTriangle()
-					{
-						ID1 = (int)Input.ReadUInt(32),
-						ID2 = (int)Input.ReadUInt(32),
-						ID3 = (int)Input.ReadUInt(32)
-					};
-			}
-			else
-            {
-				//Console.WriteLine($"Leitor de Modelos/sub, posição: 0x{Input.Position.ToString("X2")}");
-
-				subModel.ObjectID = Input.ReadUInt(32);
-				subModel.MaterialID = Input.ReadUInt(32);
-				subModel.VertexCount = Input.ReadUInt(32);
-
-				int boneID = 0;//ParentFile.SearchClump(ParentFile.LastObject.ObjectID);
-
-				//Vértices
-				subModel.Vertices = Enumerable.Range(0, (int)subModel.VertexCount).Select(
-					x => ModelVertex.ReadVertex(Input, model.VertexScale, boneID
-					)).ToArray();
-				//Resolve Padding of %4
-				while (Input.Position % 4 != 0)
-					Input.Position++;
-
-				//Faces/Triângulos
-				var TrianglesList = new List<ModelTriangle>();
-				byte lastFlag = 1;
-				int sCount = 0;
-				for (int i = 0; i < subModel.VertexCount; i++)
-				{
-					subModel.Vertices[i].Normal = Helper3D.ReadVec3Normal8(Input);
-					byte triFlag = (byte)Input.ReadByte();
-					subModel.Vertices[i].TriFlag = triFlag;
-					//TODO: CCSModel: Gen1 CCS Files don't care about vertex winding order (everything is drawn double sided)
-					// Can we derive proper order from normal direction? Probably not.
-					if (triFlag == 0)
-					{
-						if ((sCount % 2) == 0)
-						{
-							TrianglesList.Add(new ModelTriangle(i, i - 1, i - 2));
-						}
-						else
-						{
-							TrianglesList.Add(new ModelTriangle(i - 2, i - 1, i));
-						}
-						sCount += 1;
-						lastFlag = triFlag;
-					}
-					else
-					{
-						if (lastFlag == 0)
-						{
-							sCount = 0;
-						}
-					}
-				}
-
-				subModel.TriangleCount = (uint)TrianglesList.Count();
-				subModel.Triangles = TrianglesList.ToArray();
-
-				//Cores de Vértice
-				if (model.MDLType < ModelType.DEFORMABLE ||
-		model.MDLType == ModelType.RIGID_GEN2_COLOR ||
-		model.MDLType == ModelType.MORPHTARGET_GEN2 ||
-		model.MDLType == ModelType.NORMAL_GEN2_5 ||
-		model.MDLType == ModelType.NORMAL_GEN2_5_s)
-				{
-					for (int i = 0; i < subModel.VertexCount; i++)
-					{
-						subModel.Vertices[i].Color = Helper3D.ReadVec4RGBA32(Input);
-					}
-				}
-
-				//Coordenadas de UV
-				if (model.MDLType != ModelType.MORPHTARGET &&
-					model.MDLType != ModelType.MORPHTARGET_GEN2)
-				{
-					for (int i = 0; i < subModel.VertexCount; i++)
-					{
-						subModel.Vertices[i].TexCoords = Helper3D.ReadVec2UV(Input);
-					}
-				}
-
-
-			}
-
-			return subModel;
-		}
-
-		internal byte[] ToArray()
-        {
-			var result = new List<byte>();
-			UVCount = UVs != null ? (uint)UVs.Length : 0;
-			VertexCount = (uint)Vertices.Length;
-			TriangleCount = (uint)Vertices.Length;
-
-			if (_mdlType == ModelType.DEFORMABLE ||
-				_mdlType == ModelType.DEFORMABLE_GEN2 ||
-				_mdlType == ModelType.DEFORMABLE_GEN2_5 ||
-				_mdlType == ModelType.DEFORMABLE_GEN2_5_S)
-			{
-				result.AddRange(MaterialID.ToLEBE(32));
-
-				//Vértice BoneIDs e Weights
-				if (subMDLType == SubModelType.DEFORMABLE)
-				{
-                    result.AddRange(UVCount.ToLEBE(32));
-                    result.AddRange(VertexCount.ToLEBE(32));
-                    foreach (var vertex in Vertices)
-					{
-						byte[] vertexBIN = vertex.Position.GetVec3Half(mdlRef.VertexScale);
-						result.AddRange(vertexBIN);
-						if(vertex.ContainsParams)
-							result.AddRange(vertex.VertexParams.ToLEBE(16));
-
-                        //bool dualFlag = ((vertex.VertexParams >> 9) & 0x1) == 0;
-
-                        //if (dualFlag)
-                        //{
-                        //    result.AddRange(vertex.Position2.GetVec3Half(vertex.VScale));
-                        //    result.AddRange(vertex.SecondVertexParams.ToLEBE(16));
-                        //}
-
-                    }
-				}
-				else if (subMDLType == SubModelType.RIGID)
-				{
-					result.AddRange(VertexCount.ToLEBE(32));
-					result.AddRange(UVCount.ToLEBE(32));
-					uint ltindex = (uint)mdlRef.LT.ToList().IndexOf(ObjectID);
-					result.AddRange(ltindex.ToLEBE(32));
-
-					foreach (var vertex in Vertices)
-					{
-						result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
-						if(vertex.ContainsParams)
-							result.AddRange(vertex.VertexParams.ToLEBE(16));
-					}
-
-					//Resolve Padding of %4
-					while (result.Count % 4 != 0)
-						result.Add(0);
-				}
-
-				//Faces/Triângulos
-				foreach (var vertex in Vertices)
-				{
-					result.AddRange(vertex.Normal.GetVec3Normal8());
-					result.Add(vertex.TriFlag);
-				}
-
-				if (subMDLType == SubModelType.DEFORMABLE)
-					foreach (var uv in UVs)
-					{
-						result.AddRange(uv.GetUV());
-					}
-				else
-					foreach (var vertex in Vertices)
-					{
-						result.AddRange(vertex.TexCoords.GetVec2UV());
-					}
-			}
-			else if (_mdlType == ModelType.SHADOW)
-			{
-				TriangleCount = Triangles != null ? (uint)Triangles.Count() : 0;
-
-				result.AddRange(VertexCount.ToLEBE(32));
-				result.AddRange((TriangleCount * 3).ToLEBE(32));
-
-				//Vértices
-				foreach (var vertex in Vertices)
-				{
-					result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
-				}
-
-				//Resolve Padding of %4
-				while (result.Count % 4 != 0)
-					result.Add(0);
-
-				//Faces/Triângulos
-				foreach (var triangle in Triangles)
-				{
-					result.AddRange(((uint)(triangle.ID1)).ToLEBE(32));
-					result.AddRange(((uint)(triangle.ID2)).ToLEBE(32));
-					result.AddRange(((uint)(triangle.ID3)).ToLEBE(32));
-				}
-			}
-            else //Verified Normal Type Work!!
-            {
-				result.AddRange(ObjectID.ToLEBE(32));
-				result.AddRange(MaterialID.ToLEBE(32));
-				result.AddRange(VertexCount.ToLEBE(32));
-
-				//Vértices
-				foreach (var vertex in Vertices)
-				{
-					result.AddRange(vertex.Position.GetVec3Half(vertex.VScale));
-					if(vertex.ContainsParams)
-						result.AddRange(vertex.VertexParams.ToLEBE(16));
-				}
-
-				//Resolve Padding of %4
-				while (result.Count % 4 != 0)
-					result.Add(0);
-
-				//Faces/Triângulos
-				foreach (var vertex in Vertices)
-				{
-					result.AddRange(vertex.Normal.GetVec3Normal8());
-					result.Add(vertex.TriFlag);
-				}
-
-				//Cores de Vértice
-				if (_mdlType < ModelType.DEFORMABLE ||
-		_mdlType == ModelType.RIGID_GEN2_COLOR ||
-		_mdlType == ModelType.MORPHTARGET_GEN2 ||
-		_mdlType == ModelType.NORMAL_GEN2_5 ||
-		_mdlType == ModelType.NORMAL_GEN2_5_s)
-				{
-					foreach (var vertex in Vertices)
-					{
-						result.AddRange(vertex.Color.GetVec4RGBA32());
-					}
-				}
-
-				//Coordenadas de UV
-				if (_mdlType != ModelType.MORPHTARGET &&
-					_mdlType != ModelType.MORPHTARGET_GEN2)
-				{
-					foreach (var vertex in Vertices)
-					{
-						result.AddRange(vertex.TexCoords.GetVec2UV());
-					}
-				}
-			}
-
-			return result.ToArray();
-        }
-		internal void GetOBJECT3D(StringBuilder Writer,  out StringBuilder matBuilder, out string mtlname, out Bitmap texture, out string texname)
-        {
-			Material mat = null;
-			Texture tex = null;
-			texture = null;
-
-			try
-			{
-				mat = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == this.MaterialID).ToArray()[0] as Material;
-				tex = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == mat.TextureID).ToArray()[0] as Texture;
-				CLUT clt = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == tex.CLUTID).ToArray()[0] as CLUT;
-				texture = tex.ToBitmap(clt);
-			}
-			catch (NullReferenceException) { }
-
-			if (mat!=null && tex!=null)
-			{
-				Writer.AppendLine($"mtllib MAT_{mat.ObjectID}.mtl");
-			}
-
-			Writer.AppendLine($"o {(_type == Model.SubModel.SubModelType.DEFORMABLE ? mdlRef.ObjectName : ObjectName)}");
-			mtlname = "";
-			texname = "";
-			matBuilder = null;
-			//Vertices, UVs and Normals
-			foreach (var vertex in Vertices)
-			{
-				Writer.Append($"v {vertex.Position.X} {vertex.Position.Y} {vertex.Position.Z}\r\n" +
-					$"vt {vertex.TexCoords.X} {vertex.TexCoords.Y}\r\n" +
-					$"vn {vertex.Normal.X} {vertex.Normal.Y} {vertex.Normal.Z}\r\n");//Vertices
-			}
-			//Material
-			if (mat != null && tex != null)
-			{
-				Writer.AppendLine($"usemtl {mat.ObjectName}");
-				Writer.AppendLine($"s off");
-
-				mtlname = $"MAT_{mat.ObjectID}";
-				texname = tex.ObjectName;
-
-				matBuilder = new StringBuilder();
-				matBuilder.AppendLine($"newmtl {mat.ObjectName}");
-				matBuilder.AppendLine($"Ka 1.0 1.0 1.0");
-				matBuilder.AppendLine($"Kd 1.0 1.0 1.0");
-				matBuilder.AppendLine($"Ks 0.0 0.0 0.0");
-
-				matBuilder.AppendLine($"map_Kd {tex.ObjectName}.png");
-
-			}
-			//Faces
-			foreach (var triangle in Triangles)
-				Writer.AppendLine($"f {triangle.ID1 +1}/{triangle.ID1 +1} {triangle.ID2+1}/{triangle.ID2 +1} " +
-					$"{triangle.ID3 + 1}/{triangle.ID3 + 1}");//Triangles
-		}
-		internal void SetfromOBJECT3D(StreamReader reader)
-        {
-			string entireOBJ = reader.ReadToEnd();
-			string[] entries = entireOBJ.Split(new string[] {"\r\n", "#CCSF ASSET EXPLORER - MODEL CONVERTER",
-				"#BIT.RAIDEN - 2022",
-				$"o {mdlRef.ObjectName}"
-				}, StringSplitOptions.RemoveEmptyEntries);
-			var verticeList = new List<string>();
-			var normalList = new List<string>();
-			var uvList = new List<string>();
-			foreach (var str in entries)
-			{
-				if (str.StartsWith("v "))
-					verticeList.Add(str);
-				else if (str.StartsWith("vn "))
-					normalList.Add(str);
-				else if (str.StartsWith("vt "))
-					uvList.Add(str);
-			}
-
-			var vertices = new List<ModelVertex>();
-			for (int v = 0; v< verticeList.Count; v++)
-            {
-				string[] vertexx = verticeList[v].Split(new string[] {"v "," "}, StringSplitOptions.RemoveEmptyEntries);
-				string[] vertexNormal = normalList.Count > 0 ? normalList[v].Split(new string[] {"vn "," "}, StringSplitOptions.RemoveEmptyEntries): null;
-				string[] uv = uvList.Count > 0 ? uvList[v].Split(new string[] { "vt ", " " }, StringSplitOptions.RemoveEmptyEntries) : null;
-
-				var vertex = new ModelVertex()
-				{
-					Normal = vertexNormal!=null ? new Vector3(Convert.ToSingle(vertexNormal[0]),
-					Convert.ToSingle(vertexNormal[1]),
-					Convert.ToSingle(vertexNormal[2])) : Vector3.Zero,
-
-					Position = new Vector3H(Convert.ToDecimal(vertexx[0]),
-					Convert.ToDecimal(vertexx[1]),
-					Convert.ToDecimal(vertexx[2])),
-
-					TexCoords = uv != null ? new Vector2(Convert.ToSingle(uv[0]),
-					Convert.ToSingle(uv[1])): Vector2.Zero
-				};
-				vertices.Add(vertex);
-
-			}
-			VertexCount = (uint)vertices.Count;
-			Vertices = vertices.ToArray();
-        }
-	}
-    #endregion
-
-    public float VertexScale;
-
-	public ModelType MDLType;
-
-	public uint SubModelCount; 
-
-	public uint DrawFlags;
-	public uint UnkFlags;
-
-	public uint[] LT;
-	public uint LTCount;
-
-	public float OutlineColor, OutlineSize;
-
-	public Clump clumpRef;
-	public SubModel[] SubModels;
-
-	[DisplayName("Vertex Scale")]
-	[Description("Define the vertex scale for the Sub-Models.")]
-	[Category("Model Container")]
-	public decimal _vscale
-	{
-		get => (decimal)VertexScale;
-		set => VertexScale = (float)value;
-	}
-	[DisplayName("Outline Color")]
-	[Description("Color of the outline from the Model.")]
-	[Category("Model Container")]
-	public Color Outline_Color
-    {
-		get => Color.FromArgb(Convert.ToInt32(OutlineColor));
-		set => OutlineColor = Convert.ToSingle(value.ToArgb());
-	}
-	[DisplayName("Outline Size")]
-	[Description("Size of the outline from the Model.")]
-	[Category("Model Container")]
-	public decimal Outline_Size
-    {
-		get => (decimal)OutlineSize;
-		set => OutlineSize = (float)value;
-	}
-	[DisplayName("Model Container Type")]
-	[Description("See the type of container of models.")]
-	[Category("Model Container")]
-	public ModelType _mdltype
-	{
-		get => MDLType;
-	}
-	[DisplayName("Sub-Model Count")]
-	[Description("See the count of sub-models.")]
-	[Category("Model Container")]
-	public uint _submdlcount
-	{
-		get => SubModelCount;
-	}
-	[DisplayName("Link Table")]
-	[Description("Array of objects index for deformable.")]
-	[Category("Model Container")]
-	public string[] _lts
-	{
-		get => Enumerable.Range(0, (int)LTCount).Select
-			(x=> _ccsToc.GetObjectName(LT[x])).ToArray();
-
-	}
-	[DisplayName("Sub-Models")]
-	[Description("Array of sub-models.")]
-	[Category("Model Container")]
-	public SubModel[] _submodels
-	{
-		get => SubModels;
-		set => SubModels = value;
-	}
-	public override byte[] DataArray
-	{
-		get
-		{
-			return Data;
-			//return ToArray();
-		}
-	}
-	public override Block ReadBlock(Stream Input, Header header)
-    {
-		_ccsHeader = header;
-		Model model = new Model();
-		model.Type = Input.ReadUInt(32);
-		model.Size = Input.ReadUInt(32);
-		model.ObjectID = Input.ReadUInt(32);
-
-		Input.Position = 0xC;
-
-		model.VertexScale = new BinaryReader(Input).ReadSingle();
-		model.MDLType = (ModelType)(ushort)Input.ReadUInt(0x10, 16);
-
-		model.SubModelCount = Input.ReadUInt(0x12, 16);
-
-		model.DrawFlags = Input.ReadUInt(0x14, 16);
-		model.UnkFlags = Input.ReadUInt(0x16, 16);
-
-		model.LTCount = Input.ReadUInt(0x18, 32);
-
-		switch(_ccsHeader.Version)
-		{
-			case Header.CCSFVersion.GEN1:
-                model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
-                model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
-                Input.Position = 0x24;
-                break;
-			case Header.CCSFVersion.GEN1_5:
-                model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
-                model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
-                Input.Position = 0x24;
-                break;
-			case Header.CCSFVersion.GEN2:
-                model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
-                model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
-                Input.Position = 0x24;
-                ReadLT(Input, model);
-                break;
-            case Header.CCSFVersion.GEN2_5:
-				model.OutlineColor = BitConverter.ToSingle(Input.ReadBytes(0x1c, 4), 0);
-				model.OutlineSize = BitConverter.ToSingle(Input.ReadBytes(0x20, 4), 0);
-				Input.Position = 0x24;
-                ReadLT(Input, model);
-                break;
-			default:
-                Input.Position = 0x1c;
-                break;
+            byte r = (byte)Input.ReadByte();
+            byte g = (byte)Input.ReadByte();
+            byte b = (byte)Input.ReadByte();
+            byte a = (byte)Input.ReadByte();
+
+            ccModel.OutlineColor = Color.FromArgb(a, r, g, b);
+            ccModel.OutlineWidth = Input.ReadSingle();
         }
 
-
-		
-		Console.WriteLine($"SUBMDL///\nPosição: 0x{Input.Position.ToString("X2")}");
-
-		model.SubModels = Enumerable.Range(0, (int)model.SubModelCount).Select(
-			x => SubModel.Read(Input, model, _ccsToc, clumpRef)).ToArray();
-
-
-		return model;
-    }
-
-	void ReadLT(Stream Input,Model model)
-	{
-        if (model.MDLType == ModelType.DEFORMABLE ||
-             model.MDLType == ModelType.DEFORMABLE_GEN2 ||
-             model.MDLType == ModelType.DEFORMABLE_GEN2_5 ||
-            model.MDLType == ModelType.DEFORMABLE_GEN2_5_S)
+        //LT READER
+        if (ccModel.Mdl_Type >= 4 &&
+            ccModel.Mdl_Type <= 7 &&
+            _ccsHeader._version > 0x111)
         {
-            //Lookup Table
-            long oldPos = Input.Position;
-            model.LT = new uint[model.LTCount];
-            for (int i = 0; i < model.LTCount; i++)
-                model.LT[i] = (uint)Input.ReadByte();
-            Input.Position = oldPos + model.LTCount;
+            ccModel.LookupList = new byte[ccModel.LT_Count];
+            for (int i = 0; i < ccModel.LT_Count; i++)
+            {
+                ccModel.LookupList[i] = (byte)Input.ReadByte();
+            }
 
-            //LookupTable Padding
-            while ((float)((decimal)Input.Position / 4) != (int)(Input.Position / 4))
+            //Alinhar a 4 bytes
+            while (Input.Position % 0x4 != 0)
                 Input.Position++;
         }
+        else
+            ccModel.LookupList = null;
+
+        //MESHS READER
+        if (ccModel.Mesh_Count > 0)
+        {
+            Meshes = new List<Mesh>();
+
+            if ((ccModel.Mdl_Type & (int)ModelType.Deformable) != 0 &&
+       (ccModel.Mdl_Type & (int)ModelType.TrianglesList) == 0)
+            {
+                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+                    .Select(x => new Deformable(Input, ccModel._ccsHeader._version, ccModel.VertexScale,
+                    ccModel.TangentBinormalsFlag)));
+            }
+            else if (ccModel.Mdl_Type == (int)ModelType.ShadowMesh)
+            {
+                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+                    .Select(x => new Shadow(Input, ccModel.VertexScale)));
+            }
+            else if ((ccModel.Mdl_Type & (int)ModelType.TrianglesList) != 0)
+            {
+                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+                    .Select(x => new Unk(Input, ccModel.VertexScale)));
+            }
+            else
+            {
+                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+                    .Select(x => new Rigid(Input, ccModel.VertexScale, ccModel._ccsHeader._version,
+                    ccModel.Mdl_Flags, ccModel.TangentBinormalsFlag
+                    )));
+            }
+        }
+
+        return ccModel;
     }
-	public override byte[] ToArray()
-	{
-		SubModelCount = (uint)SubModels.Length;
-		
 
-		var LTb = new List<byte>();
-		var SubMDLb = new List<byte>();
+    public override byte[] ToArray()
+    {
+        return Data;
+    }
 
-#region Generate Fields
-		//LT
-		if(MDLType == ModelType.DEFORMABLE ||
-		   MDLType == ModelType.DEFORMABLE_GEN2 ||
-		   MDLType == ModelType.DEFORMABLE_GEN2_5 ||
-		   MDLType == ModelType.DEFORMABLE_GEN2_5_S)
-		{
-			LTCount = LT != null ? (uint)LT.Length : 0;
-			//Lookup Table
-			foreach (var b in LT)
-				LTb.Add((byte)b);
-			while (LTb.Count % 0x4 != 0)
-				LTb.Add(0);
-		}
+    public float VertexScale;
+    public int Mdl_Type;
+    public byte Mdl_Flags;
 
-		//SubModels
-		foreach (var submdl in SubModels)
-			SubMDLb.AddRange(submdl.ToArray());
+    public uint Mesh_Count;
+    public byte MatFlags1;
+    public byte MatFlags2;
 
-#endregion
+    public uint UnkFlags;
 
-#region Size Calculation
-		Size = 0x14;
-		if (_ccsHeader.Version >= Header.CCSFVersion.GEN2)
-			Size += 8;
-		Size += (uint)LTb.Count;
-		Size += (uint)SubMDLb.Count;
+    public byte LT_Count;
+    public byte[] LookupList;
+    public byte ExtraFlags;
 
-		//Deformable type 0x3c thing
-		if (MDLType == ModelType.DEFORMABLE ||
-		   MDLType == ModelType.DEFORMABLE_GEN2 ||
-		   MDLType == ModelType.DEFORMABLE_GEN2_5 ||
-		   MDLType == ModelType.DEFORMABLE_GEN2_5_S)
-			Size += (uint)(0x3c * SubModelCount);
-#endregion
+    public uint TangentBinormalsFlag;
 
-		var result = new List<byte>();
-		result.AddRange(Type.ToLEBE(32));
-		result.AddRange((Size / 4).ToLEBE(32));
-		result.AddRange(ObjectID.ToLEBE(32));
+    public Color OutlineColor;
+    public float OutlineWidth;
 
-		result.AddRange(BitConverter.GetBytes(VertexScale));
-		result.AddRange(((uint)MDLType).ToLEBE(16));
+    public List<Mesh> Meshes;
 
-		result.AddRange(SubModelCount.ToLEBE(16));
-		result.AddRange(DrawFlags.ToLEBE(16));
-		result.AddRange(UnkFlags.ToLEBE(16));
-		result.AddRange(LTCount.ToLEBE(32));
+    public class Mesh
+    {
+        public class DeformableVertex
+        {
+            public List<Vector3H> _positions;
+            public List<Vector3H> _normals;
+            public List<float> Weights;
+            public Vector2 _uv;
+            public List<int> BoneId;
+            public byte TF;
+            public bool multiWeight = false;
+        }
+        public class Vertex
+        {
+            public Vector3H _position;
+            public Vector3H _normal, _tangent, _binormal;
+            public Color _color;
 
-		if (_ccsHeader.Version >= Header.CCSFVersion.GEN2)
-		{
-			result.AddRange(BitConverter.GetBytes((Single)OutlineColor));
-			result.AddRange(BitConverter.GetBytes((Single)OutlineSize));
-		}
-
-		result.AddRange(LTb.ToArray());
-		result.AddRange(SubMDLb.ToArray());
-		return result.ToArray();
-	}
+            public Vector2 _uv;
+            public byte TF, TangentTF, BiNormalTF;
 
 
+            public Vertex(Vector3H position, Vector3H normal, Color color,
+                Vector2 uv, byte triangleFlag, float VertexScale = CCS_GLOBAL_SCALE)
+            {
+                _position = position.Multiply((decimal)VertexScale);
+                _normal = normal.Divide(64);
+                _color = color;
+                _uv = uv.Divide(uv, VertexScale);
+                TF = triangleFlag;
+            }
+        }
 
+        public int VertexCount;
+        public Vertex[] Vertices;
+
+        public class Rigid : Mesh
+        {
+            public int ParentIndex;
+            public int MaterialID;
+
+            public float FinalScale;
+
+            public Rigid(Stream Input,
+                float VertexScale = 64.0f,
+            int _version = 0x110,
+            byte _mdlflags = 0,
+            uint tangentBinormalsFlag = 0)
+            {
+                ParentIndex = (int)Input.ReadUInt(32);
+                MaterialID = (int)Input.ReadUInt(32);
+                VertexCount = (int)Input.ReadUInt(32);
+
+                FinalScale = (float)(((VertexScale / 256) / 16) * 0.01);
+
+                Vertices = new Vertex[VertexCount];
+
+                var positionsRead = new List<Vector3H>();
+                var normalsRead = new List<Vector4>();
+
+                var _tangnormalsRead = new List<Vector4>();
+                var _binnormalsRead = new List<Vector4>();
+
+                var uvReads = new List<Vector2>();
+                var colors = new List<Color>();
+
+                for (int i = 0; i < VertexCount; i++)
+                {
+                    Vector3H position = new Vector3H(Input.ReadUInt(16),
+                        Input.ReadUInt(16),
+                        Input.ReadUInt(16));
+                    positionsRead.Add(position);
+
+                    //Align to 4
+                    while (Input.Position % 0x4 != 0)
+                        Input.Position++;
+                }
+
+                for (int i = 0; i < VertexCount; i++)
+                {
+                    Vector3H normal = new Vector3H(Input.ReadByte(),
+                        Input.ReadByte(),
+                        Input.ReadByte());
+                    byte TF = (byte)Input.ReadByte();
+                    normalsRead.Add(new Vector4((float)normal.X,
+                        (float)normal.Y,
+                        (float)normal.Z, TF));
+                }
+
+                for (int i = 0; i < VertexCount; i++)
+                {
+                    Color color = Color.Black;
+                    if ((_mdlflags & 2) == 0)
+                    {
+                        byte r = (byte)Math.Min(255, Input.ReadByte() * 2);
+                        byte g = (byte)Math.Min(255, Input.ReadByte() * 2);
+                        byte b = (byte)Math.Min(255, Input.ReadByte() * 2);
+                        byte a = (byte)Math.Min(255, Input.ReadByte() * 2);
+                        color = Color.FromArgb(a, r, g, b);
+                    }
+                    colors.Add(color);
+                }
+
+                if ((_mdlflags & 4) == 0)
+                    for (int i = 0; i < VertexCount; i++)
+                    {
+                        Vector2 uv = new Vector2();
+                        if (_version > 0x125)
+                        {
+                            uv = new Vector2(Input.ReadUInt(32) / 65536,
+                                Input.ReadUInt(32) / 65536);
+                        }
+                        else
+                        {
+                            uv = new Vector2(Input.ReadUInt(16) / 256,
+                                Input.ReadUInt(16) / 256);
+                        }
+                        uvReads.Add(uv);
+                    }
+
+                if (tangentBinormalsFlag != 0)
+                    for (int i = 0; i < VertexCount; i++)
+                    {
+                        Vector3H _Tangentnormal = new Vector3H(Input.ReadByte(),
+                            Input.ReadByte(),
+                            Input.ReadByte());
+                        byte _TangentTF = (byte)Input.ReadByte();
+
+                        _tangnormalsRead.Add(new Vector4((float)_Tangentnormal.X,
+                            (float)_Tangentnormal.Y,
+                            (float)_Tangentnormal.Z, _TangentTF));
+
+                        Vector3H _Binormal = new Vector3H(Input.ReadByte(),
+                            Input.ReadByte(),
+                            Input.ReadByte());
+                        byte _BiTF = (byte)Input.ReadByte();
+
+                        _binnormalsRead.Add(new Vector4((float)_Binormal.X,
+                            (float)_Binormal.Y,
+                            (float)_Binormal.Z, _BiTF));
+                    }
+                for (int i = 0; i < VertexCount; i++)
+                {
+                    Vertices[i] = new Vertex(positionsRead[i],
+                        new Vector3H((decimal)normalsRead[i].X
+                        , (decimal)normalsRead[i].Y, (decimal)normalsRead[i].Z),
+                        colors[i],
+                        uvReads[i],
+                        (byte)normalsRead[i].W, VertexScale);
+
+                    if (_tangnormalsRead.Count > 0)
+                    {
+                        Vertices[i]._tangent = new Vector3H((decimal)_tangnormalsRead[i].X,
+                            (decimal)_tangnormalsRead[i].Y,
+                            (decimal)_tangnormalsRead[i].Z);
+                        Vertices[i].TangentTF = (byte)_tangnormalsRead[i].W;
+                    }
+                    if (_binnormalsRead.Count > 0)
+                    {
+                        Vertices[i]._binormal = new Vector3H((decimal)_binnormalsRead[i].X,
+                            (decimal)_binnormalsRead[i].Y,
+                            (decimal)_binnormalsRead[i].Z);
+                        Vertices[i].BiNormalTF = (byte)_binnormalsRead[i].W;
+                    }
+                }
+
+            }
+        }
+
+        public class Shadow : Mesh
+        {
+            public int TriangleVerticesCount;
+            public Vector3[] Triangles;
+
+            public Shadow(Stream Input,
+                float VertexScale = 64.0f)
+            {
+                VertexCount = (int)Input.ReadUInt(32);
+                TriangleVerticesCount = (int)Input.ReadUInt(32);
+
+                for (int i = 0; i < VertexCount; i++)
+                {
+                    Vector3H position = new Vector3H(Input.ReadUInt(16),
+                        Input.ReadUInt(16),
+                        Input.ReadUInt(16));
+                    Vertices[i] = new Vertex(position, Vector3H.Zero, Color.Black,
+                        Vector2.Zero, 0, VertexScale);
+                }
+
+                //Alinhar a 4 bytes
+                while (Input.Position % 0x4 != 0)
+                    Input.Position++;
+
+                //Triangle vertices
+                Triangles = new Vector3[TriangleVerticesCount / 3];
+                for (int i = 0; i < TriangleVerticesCount / 3; i++)
+                {
+                    Vector3 triangle = new Vector3(Input.ReadUInt(32),
+                        Input.ReadUInt(32),
+                        Input.ReadUInt(32));
+                    Triangles[i] = triangle;
+                }
+            }
+        }
+
+        public class Deformable : Mesh
+        {
+            public int MaterialID;
+            public int DeformableVerticesCount;
+            public List<DeformableVertex> DefVertices;
+
+            public float FinalScale;
+            public Deformable(Stream Input,
+                int _version = 0x100,
+                float VertexScale = 256.0f,
+                uint tangentBinormalFlag = 0)
+            {
+                MaterialID = (int)Input.ReadUInt(32);
+                VertexCount = (int)Input.ReadUInt(32);
+                DeformableVerticesCount = (int)Input.ReadUInt(32);
+
+                FinalScale = (float)(((VertexScale / 256) / 16) * 0.01);
+
+                if (DeformableVerticesCount == 0)
+                {
+                    uint boneID = Input.ReadUInt(32);
+                    var vpBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(VertexCount * 6))
+                        , Encoding.GetEncoding(932));
+
+                    //Alinhar a 4 bytes
+                    while (Input.Position % 0x4 != 0)
+                        Input.Position++;
+
+                    var vnBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(VertexCount * 4))
+                        , Encoding.GetEncoding(932));
+
+                    for (int i = 0; i < VertexCount; i++)
+                    {
+                        var vertex = new DeformableVertex();
+                        vertex._positions = new List<Vector3H>(1);
+                        vertex._normals = new List<Vector3H>(1);
+                        vertex.Weights = new List<float>(1);
+                        vertex.BoneId = new List<int>(1);
+
+                        vertex._positions[0] = new Vector3H(
+                            (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                            (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                            (decimal)(vpBuffer.ReadInt16() * FinalScale));
+
+                        vertex.BoneId[0] = (int)boneID;
+                        vertex.Weights[0] = 1;
+                        vertex._normals[0] = new Vector3H(
+                            (decimal)(vnBuffer.ReadByte() / 64),
+                            (decimal)(vnBuffer.ReadByte() / 64),
+                            (decimal)(vnBuffer.ReadByte() / 64));
+                        vertex.TF = (byte)vnBuffer.ReadByte();
+                        DefVertices.Add(vertex);
+                    }
+
+                    if (_version > 0x125)
+                        foreach (var v in DefVertices)
+                        {
+                            v._uv = new Vector2(
+                                (float)Input.ReadUInt(32) / 65536,
+                                (float)Input.ReadUInt(32) / 65536);
+                        }
+                    else
+                        foreach (var v in DefVertices)
+                        {
+                            v._uv = new Vector2(
+                                (float)Input.ReadUInt(16) / 256,
+                                (float)Input.ReadUInt(16) / 256);
+                        }
+
+                    if (tangentBinormalFlag != 0)
+                    {
+                        var vtBuffer = new BinaryReader(
+                            new MemoryStream(Input.ReadBytes(VertexCount * 4))
+                            , Encoding.GetEncoding(932));
+                        var vbnBuffer = new BinaryReader(
+                            new MemoryStream(Input.ReadBytes(VertexCount * 4))
+                            , Encoding.GetEncoding(932));
+                    }
+                }
+                else
+                {
+                    if (_version < 0x125)
+                    {
+                        var vpBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(DeformableVerticesCount * 8))
+                        , Encoding.GetEncoding(932));
+
+                        var vnBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(DeformableVerticesCount * 4))
+                        , Encoding.GetEncoding(932));
+
+                        var uvBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(VertexCount * 4))
+                        , Encoding.GetEncoding(932));
+
+                        for (int i = 0; i < VertexCount; i++)
+                        {
+                            var vertex = new DeformableVertex();
+                            vertex._positions = new List<Vector3H>(2);
+                            vertex._normals = new List<Vector3H>(2);
+                            vertex.Weights = new List<float>(2);
+                            vertex.BoneId = new List<int>(2);
+
+                            vertex._positions[0] = new Vector3H(
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale));
+                            var vertParams = vpBuffer.ReadInt16();
+                            vertex.BoneId[0] = vertParams >> 10;
+                            vertex.Weights[0] = (vertParams & 0x1ff) / 256;
+                            vertex._normals[0] = new Vector3H(
+                                (decimal)(vnBuffer.ReadByte() / 64),
+                                (decimal)(vnBuffer.ReadByte() / 64),
+                                (decimal)(vnBuffer.ReadByte() / 64));
+                            vertex.TF = (byte)vnBuffer.ReadByte();
+
+                            if (((vertParams >> 9) & 0x1) == 0)
+                            {
+                                vertex._positions[1] = new Vector3H(
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale));
+                                var secondvertParams = vpBuffer.ReadInt16();
+                                vertex.BoneId[1] = secondvertParams >> 10;
+                                vertex.Weights[1] = (secondvertParams & 0x1ff) / 256;
+                                vertex._normals[1] = new Vector3H(
+                                    (decimal)(vnBuffer.ReadByte() / 64),
+                                    (decimal)(vnBuffer.ReadByte() / 64),
+                                    (decimal)(vnBuffer.ReadByte() / 64));
+                                vertex.TF = (byte)vnBuffer.ReadByte();
+                            }
+
+                            vertex._uv = new Vector2(
+                                (float)uvBuffer.ReadInt16() / 256,
+                                (float)uvBuffer.ReadInt16() / 256);
+
+                            DefVertices.Add(vertex);
+                        }
+                    }
+                    else
+                    {
+
+                        var vpBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(DeformableVerticesCount * 0xC))
+                        , Encoding.GetEncoding(932));
+
+                        var vnBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(DeformableVerticesCount * 4))
+                        , Encoding.GetEncoding(932));
+
+                        var uvBuffer = new BinaryReader(
+                        new MemoryStream(Input.ReadBytes(VertexCount * 8))
+                        , Encoding.GetEncoding(932));
+
+                        if (tangentBinormalFlag != 0)
+                        {
+                            var vtBuffer = new BinaryReader(
+                            new MemoryStream(Input.ReadBytes(DeformableVerticesCount * 4))
+                            , Encoding.GetEncoding(932));
+
+                            var vbnBuffer = new BinaryReader(
+                            new MemoryStream(Input.ReadBytes(DeformableVerticesCount * 4))
+                            , Encoding.GetEncoding(932));
+                        }
+
+                        for (int i = 0; i < VertexCount; i++)
+                        {
+                            var vertex = new DeformableVertex();
+                            vertex._positions = new List<Vector3H>();
+                            vertex._normals = new List<Vector3H>();
+                            vertex.Weights = new List<float>();
+                            vertex.BoneId = new List<int>();
+
+                            uint stopBit = 0;
+                            i = 0;
+                            while (stopBit == 0)
+                            {
+                                vertex._positions.Add(new Vector3H(
+                                    (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                                    (decimal)(vpBuffer.ReadInt16() * FinalScale),
+                                    (decimal)(vpBuffer.ReadInt16() * FinalScale))
+                                    );
+                                vertex.Weights.Add(vpBuffer.ReadInt16() / 256);
+                                stopBit = (uint)(vpBuffer.ReadInt16());
+
+                                vertex.BoneId.Add(vpBuffer.ReadInt16());
+
+                                vertex._normals.Add(new Vector3H(
+                                    (decimal)(vnBuffer.ReadByte() / 64),
+                                    (decimal)(vnBuffer.ReadByte() / 64),
+                                    (decimal)(vnBuffer.ReadByte() / 64)));
+
+                                vertex.TF = (byte)vnBuffer.ReadByte();
+                                i++;
+                            }
+
+                            vertex._uv = new Vector2(
+                                    (float)uvBuffer.ReadInt32() / 65536,
+                                    (float)uvBuffer.ReadInt32() / 65536);
+
+                            DefVertices.Add(vertex);
+                        }
+
+                    }
+
+
+                }
+
+            }
+        }
+
+        public class Unk : Mesh
+        {
+            public int MaterialID;
+            public int SectionCount;
+            public int ClumpIndex;
+            public int _Unk;
+
+            public List<DeformableVertex> vertices;
+            public List<Vector3H> Normals;
+            public List<Vector2> Uvs;
+            public List<Color> Colors;
+            public List<int> BoneIDs;
+            public List<float> Weights;
+            public List<byte> TFs;
+            public List<int> TriangleIndices;
+
+            public Unk(Stream Input,
+                float VertexScale = 64.0f)
+            {
+                MaterialID = (int)Input.ReadUInt(32);
+                SectionCount = (int)Input.ReadUInt(32);
+                _Unk = (int)Input.ReadUInt(32);
+
+                Normals = new List<Vector3H>();
+                vertices = new List<DeformableVertex>();
+                Uvs = new List<Vector2>();
+                Colors = new List<Color>();
+                BoneIDs = new List<int>();
+                TFs = new List<byte>();
+                TriangleIndices = new List<int>();
+                Weights = new List<float>();
+
+                for (int i = 0; i < SectionCount; i++)
+                {
+                    byte sectionFlags = (byte)Input.ReadByte();
+                    byte sectionType = (byte)Input.ReadByte();
+
+                    uint count = Input.ReadUInt(32);
+                    float _vertexScale = Input.ReadSingle();
+
+                    float FinalScale = (float)(((_vertexScale / 256) / 16) * 0.01);
+
+                    //Vertex Normals
+                    if (sectionType == 0)
+                        for (int c = 0; i < count; c++)
+                            Normals.Add(new Vector3H((decimal)(Input.ReadByte() / 64),
+                                (decimal)(Input.ReadByte() / 64),
+                                (decimal)(Input.ReadByte() / 64)));
+                    else if (sectionType == 1)//UVS
+                        for (int c = 0; i < count; c++)
+                            Uvs.Add(new Vector2(Input.ReadUInt(16) / 256,
+                                Input.ReadUInt(16) / 256));
+                    else if (sectionType == 7)//TriangleFlags
+                        for (int c = 0; i < count; c++)
+                            TFs.Add((byte)Input.ReadByte());
+                    else if (sectionType == 8)//TriangleIndices
+                        for (int c = 0; i < count; c++)
+                            TriangleIndices.Add((int)Input.ReadUInt(16));
+                    else if (sectionType == 32)//Vertex Pos and Weights
+                        if (sectionFlags == 33)
+                            for (int c = 0; i < count; c++)
+                            {
+                                var vertex = new DeformableVertex();
+                                vertex._positions = new List<Vector3H>(1);
+                                vertex._normals = new List<Vector3H>(1);
+                                vertex.Weights = new List<float>(1);
+                                vertex.BoneId = new List<int>(1);
+
+                                vertex._positions[0] = new Vector3H(
+                                    (decimal)(Input.ReadUInt(16) * FinalScale),
+                                    (decimal)(Input.ReadUInt(16) * FinalScale),
+                                    (decimal)(Input.ReadUInt(16) * FinalScale));
+
+                                var vertParams = (int)Input.ReadUInt(16);
+                                vertex.BoneId[0] = vertParams >> 10;
+                                vertex.Weights[0] = (vertParams & 0x1ff) / 256;
+
+                                vertices.Add(vertex);
+                            }
+                        else if (sectionFlags == 34)
+                            for (int c = 0; i < count / 2; c++)
+                            {
+                                var vertex = new DeformableVertex();
+                                vertex._positions = new List<Vector3H>(2);
+                                vertex._normals = new List<Vector3H>(2);
+                                vertex.Weights = new List<float>(2);
+                                vertex.BoneId = new List<int>(2);
+
+                                vertex._positions[0] = new Vector3H(
+                                    (decimal)(Input.ReadUInt(16) * FinalScale),
+                                    (decimal)(Input.ReadUInt(16) * FinalScale),
+                                    (decimal)(Input.ReadUInt(16) * FinalScale));
+
+                                var vertParams = (int)Input.ReadUInt(16);
+                                vertex.BoneId[0] = vertParams >> 10;
+                                vertex.Weights[0] = (vertParams & 0x1ff) / 256;
+
+                                vertex._positions[1] = new Vector3H(
+                                    (decimal)(Input.ReadUInt(16) * FinalScale),
+                                    (decimal)(Input.ReadUInt(16) * FinalScale),
+                                    (decimal)(Input.ReadUInt(16) * FinalScale));
+
+                                vertParams = (int)Input.ReadUInt(16);
+                                vertex.BoneId[1] = vertParams >> 10;
+                                vertex.Weights[1] = (vertParams & 0x1ff) / 256;
+
+                                vertices.Add(vertex);
+                            }
+                    else if (sectionType == 33)
+                        ClumpIndex = (int)Input.ReadUInt(32);
+
+                    //Alinhar a 4 bytes
+                    while(Input.Position % 0x4 != 0)
+                        Input.Position++;
+                }
+            }
+        }
+
+    }
 }

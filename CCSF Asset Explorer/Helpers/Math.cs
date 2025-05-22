@@ -44,9 +44,9 @@ public class Vector3
 }
 public class Vector2
 {
-    public static Vector2 Multiply(Vector2 input, float produto) => new Vector2(input.X * produto,
+    internal Vector2 Multiply(Vector2 input, float produto) => new Vector2(input.X * produto,
                 input.Y * produto);
-    public static Vector2 Divide(Vector2 input, float divisor) => new Vector2(input.X / divisor,
+    internal Vector2 Divide(Vector2 input, float divisor) => new Vector2(input.X / divisor,
             input.Y / divisor);
     public Vector2() { }
     public Vector2(float x, float y)

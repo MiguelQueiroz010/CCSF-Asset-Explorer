@@ -267,20 +267,7 @@ public class Clump : Block
 
         return result;
     }
-    //public override void SetIndexes(Index.ObjectStream Object, Index.ObjectStream[] AllObjects)
-    //{
-    //    ObjectID = (uint)Object.ObjIndex;
-    //    bool stop = false;
-    //    for (int b = 0; stop != true &&
-    //        b < Object.Blocks.Count; b++)
-    //    {
-    //        if (Object.Blocks[b].ReadUInt(0, 32) == 0xcccc0400)
-    //        {
-    //            var clut = new CLUT().ReadBlock(new MemoryStream(Object.Blocks[b]));
-    //            stop = true;
-    //        }
-    //    }
-    //}
+   
     public override byte[] ToArray()
     {
         var result = new List<byte>();

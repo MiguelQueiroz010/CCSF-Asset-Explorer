@@ -76,43 +76,43 @@ public class CCSF
                 obj.SetLinkedBlocks(Blocks.ToArray());
 
 
-        //Set Linked submodels objname and CCSF
-        foreach (var file in CCS_TOC.Files)
-            foreach (var obj in file.Objects)
-                foreach (var block in obj.Blocks)
-                    if (block.Type == 0xcccc0800)
-                    {
-                        var mdl = block as Model;
-                        if (mdl.SubModelCount > 0)
-                            foreach (var submdl in mdl.SubModels)
-                                foreach (var filex in CCS_TOC.Files)
-                                    foreach (var objx in file.Objects)
-                                        if (submdl.ObjectID != 0xFFFFFFFF)
-                                            if (objx.Index == submdl.ObjectID && !submdl.useclumpref)
-                                            {
-                                                submdl.ObjectName = objx.ObjectName;
-                                            }
-                                            else if (submdl.useclumpref)
-                                            {
-                                                Clump refcmp = null;
-                                                try
-                                                {
-                                                    foreach (var xobj in file.Objects)
-                                                        if (xobj.ObjectName.StartsWith("CMP"))
-                                                            refcmp = xobj.Blocks.Where(x => x.BlockType == "Clump").Where
-                                                            (c => (c as Clump).Nodes.Any(n => n.ID == submdl.ObjectID)).ToArray()[0] as Clump
-                                                            ;
+        ////Set Linked submodels objname and CCSF
+        //foreach (var file in CCS_TOC.Files)
+        //    foreach (var obj in file.Objects)
+        //        foreach (var block in obj.Blocks)
+        //            if (block.Type == 0xcccc0800)
+        //            {
+        //                var mdl = block as Model;
+        //                if (mdl.SubModelCount > 0)
+        //                    foreach (var submdl in mdl.SubModels)
+        //                        foreach (var filex in CCS_TOC.Files)
+        //                            foreach (var objx in file.Objects)
+        //                                if (submdl.ObjectID != 0xFFFFFFFF)
+        //                                    if (objx.Index == submdl.ObjectID && !submdl.useclumpref)
+        //                                    {
+        //                                        submdl.ObjectName = objx.ObjectName;
+        //                                    }
+        //                                    else if (submdl.useclumpref)
+        //                                    {
+        //                                        Clump refcmp = null;
+        //                                        try
+        //                                        {
+        //                                            foreach (var xobj in file.Objects)
+        //                                                if (xobj.ObjectName.StartsWith("CMP"))
+        //                                                    refcmp = xobj.Blocks.Where(x => x.BlockType == "Clump").Where
+        //                                                    (c => (c as Clump).Nodes.Any(n => n.ID == submdl.ObjectID)).ToArray()[0] as Clump
+        //                                                    ;
 
 
-                                                    if (refcmp != null)
-                                                    {
-                                                        submdl.cmpRef = refcmp;
-                                                        submdl.ObjectName = refcmp.Nodes[submdl.ObjectID]._oname;
-                                                    }
-                                                }
-                                                catch (Exception) { }
-                                            }
-                    }
+        //                                            if (refcmp != null)
+        //                                            {
+        //                                                submdl.cmpRef = refcmp;
+        //                                                submdl.ObjectName = refcmp.Nodes[submdl.ObjectID]._oname;
+        //                                            }
+        //                                        }
+        //                                        catch (Exception) { }
+        //                                    }
+        //            }
 
 
 
