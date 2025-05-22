@@ -11,6 +11,8 @@ using static Model.Mesh;
 using static Model;
 using System.IO.Ports;
 using static Clump.Node;
+using System.Runtime.InteropServices;
+using CCSF_Asset_Explorer;
 
 /// <summary>
 /// Model class. Treats with the model data from 0xCCCC0800 blocks.
@@ -30,9 +32,12 @@ public class Model : Block
     };
     public override Block ReadBlock(Stream Input, Header header)
     {
-        Data = Input.ReadBytes(0, (int)Size);
-        Model ccModel = new Model();
         _ccsHeader = header;
+        Data = Input.ReadBytes(0, (int)Size);
+
+        Model ccModel = new Model();
+        ccModel.Type = Input.ReadUInt(0, 32);
+        ccModel.Size = Input.ReadUInt(4, 32) * 4;
 
         ccModel.ObjectID = Input.ReadUInt(32);
         ccModel.VertexScale = Input.ReadSingle();
@@ -85,23 +90,24 @@ public class Model : Block
        (ccModel.Mdl_Type & (int)ModelType.TrianglesList) == 0)
             {
                 Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                    .Select(x => new Deformable(Input, ccModel._ccsHeader._version, ccModel.VertexScale,
+                    .Select(x => new Deformable(this, _ccsToc,
+                    Input, header._version, ccModel.VertexScale,
                     ccModel.TangentBinormalsFlag)));
             }
             else if (ccModel.Mdl_Type == (int)ModelType.ShadowMesh)
             {
                 Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                    .Select(x => new Shadow(Input, ccModel.VertexScale)));
+                    .Select(x => new Shadow(this, _ccsToc, Input, ccModel.VertexScale)));
             }
             else if ((ccModel.Mdl_Type & (int)ModelType.TrianglesList) != 0)
             {
-                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                    .Select(x => new Unk(Input, ccModel.VertexScale)));
+                //Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+                //    .Select(x => new Unk(this, _ccsToc, Input, ccModel.VertexScale)));
             }
             else
             {
                 Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                    .Select(x => new Rigid(Input, ccModel.VertexScale, ccModel._ccsHeader._version,
+                    .Select(x => new Rigid(this, _ccsToc, Input, ccModel.VertexScale, header._version,
                     ccModel.Mdl_Flags, ccModel.TangentBinormalsFlag
                     )));
             }
@@ -136,8 +142,110 @@ public class Model : Block
 
     public List<Mesh> Meshes;
 
+    [Category("Model Data")]
+    [DisplayName("VertexScale")]
+    public float _vertexScale
+    {
+        get => VertexScale;
+        set => VertexScale = value;
+    }
+
+    [Category("Model Data")]
+    [DisplayName("Model Type")]
+    public ModelType _mdlType
+    {
+        get => (ModelType)Mdl_Type;
+    }
+
+    [Category("Model Data")]
+    [DisplayName("Outline Color")]
+    [Description("Outline color")]
+    public Color _outlineColor
+    {
+        get => OutlineColor;
+        set => OutlineColor = value;
+    }
+    [Category("Model Data")]
+    [DisplayName("Outline Width")]
+    [Description("Outline width")]
+    public float _outlineWidth
+    {
+        get => OutlineWidth;
+        set => OutlineWidth = value;
+    }
+
+    [Category("Model Data")]
+    [DisplayName("Mesh Count")]
+    [Description("Number of meshes")]
+    public int _meshCount
+    {
+        get => (int)Mesh_Count;
+    }
+
     public class Mesh
     {
+        Index _CCStoc;
+        Model mdlRef;
+        public virtual void GetOBJECT3D(StringBuilder Writer, out StringBuilder matBuilder, 
+            out string mtlname, out Bitmap texture, out string texname)
+        {
+            //Material mat = null;
+            //Texture tex = null;
+            texture = null;
+
+            //try
+            //{
+            //    mat = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == MaterialID).ToArray()[0] as Material;
+            //    tex = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == mat.TextureID).ToArray()[0] as Texture;
+            //    CLUT clt = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == tex.CLUTID).ToArray()[0] as CLUT;
+            //    texture = tex.ToBitmap(clt);
+            //}
+            //catch (NullReferenceException) { }
+
+            //if (mat != null && tex != null)
+            //{
+            //    Writer.AppendLine($"mtllib MAT_{mat.ObjectID}.mtl");
+            //}
+
+            Writer.AppendLine($"o {mdlRef.ObjectName}");
+                //$"{(_type == Model.SubModel.SubModelType.DEFORMABLE ? mdlRef.ObjectName : ObjectName)}");
+            mtlname = "";
+            texname = "";
+            matBuilder = null;
+
+            if(Vertices!=null)
+            //Vertices, UVs and Normals
+            foreach (var vertex in Vertices)
+            {
+                Writer.Append($"v {vertex._position.X} {vertex._position.Y} {vertex._position.Z}\r\n" +
+                    $"vt {vertex._uv.X} {vertex._uv.Y}\r\n" +
+                    $"vn {vertex._normal.X} {vertex._normal.Y}   {vertex._normal.Z}\r\n");//Vertices
+            }
+            ////Material
+            //if (mat != null && tex != null)
+            //{
+            //    Writer.AppendLine($"usemtl {mat.ObjectName}");
+            //    Writer.AppendLine($"s off");
+
+            //    mtlname = $"MAT_{mat.ObjectID}";
+            //    texname = tex.ObjectName;
+
+            //    matBuilder = new StringBuilder();
+            //    matBuilder.AppendLine($"newmtl {mat.ObjectName}");
+            //    matBuilder.AppendLine($"Ka 1.0 1.0 1.0");
+            //    matBuilder.AppendLine($"Kd 1.0 1.0 1.0");
+            //    matBuilder.AppendLine($"Ks 0.0 0.0 0.0");
+
+            //    matBuilder.AppendLine($"map_Kd {tex.ObjectName}.png");
+
+            //}
+
+            ////Faces
+            //foreach (var triangle in Triangles)
+            //    Writer.AppendLine($"f {triangle.ID1 + 1}/{triangle.ID1 + 1} {triangle.ID2 + 1}/{triangle.ID2 + 1} " +
+            //        $"{triangle.ID3 + 1}/{triangle.ID3 + 1}");//Triangles
+        }
+
         public class DeformableVertex
         {
             public List<Vector3H> _positions;
@@ -174,17 +282,81 @@ public class Model : Block
 
         public class Rigid : Mesh
         {
+            public override void GetOBJECT3D(StringBuilder Writer, out StringBuilder matBuilder,
+            out string mtlname, out Bitmap texture, out string texname)
+            {
+                Material mat = null;
+                Texture tex = null;
+                texture = null;
+
+                try
+                {
+                    mat = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == MaterialID).ToArray()[0] as Material;
+                    tex = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == mat.TextureID).ToArray()[0] as Texture;
+                    CLUT clt = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == tex.CLUTID).ToArray()[0] as CLUT;
+                    texture = tex.ToBitmap(clt);
+                }
+                catch (NullReferenceException) { }
+
+                if (mat != null && tex != null)
+                {
+                    Writer.AppendLine($"mtllib MAT_{mat.ObjectID}.mtl");
+                }
+
+                Writer.AppendLine($"o {mdlRef.ObjectName}");
+                //$"{(_type == Model.SubModel.SubModelType.DEFORMABLE ? mdlRef.ObjectName : ObjectName)}");
+                mtlname = "";
+                texname = "";
+                matBuilder = null;
+
+                if (Vertices != null)
+                    //Vertices, UVs and Normals
+                    foreach (var vertex in Vertices)
+                    {
+                        Writer.Append($"v {vertex._position.X} {vertex._position.Y} {vertex._position.Z}\r\n" +
+                            $"vt {vertex._uv.X} {vertex._uv.Y}\r\n" +
+                            $"vn {vertex._normal.X} {vertex._normal.Y}   {vertex._normal.Z}\r\n");//Vertices
+                    }
+                //Material
+                if (mat != null && tex != null)
+                {
+                    Writer.AppendLine($"usemtl {mat.ObjectName}");
+                    Writer.AppendLine($"s off");
+
+                    mtlname = $"MAT_{mat.ObjectID}";
+                    texname = tex.ObjectName;
+
+                    matBuilder = new StringBuilder();
+                    matBuilder.AppendLine($"newmtl {mat.ObjectName}");
+                    matBuilder.AppendLine($"Ka 1.0 1.0 1.0");
+                    matBuilder.AppendLine($"Kd 1.0 1.0 1.0");
+                    matBuilder.AppendLine($"Ks 0.0 0.0 0.0");
+
+                    matBuilder.AppendLine($"map_Kd {tex.ObjectName}.png");
+
+                }
+
+                ////Faces
+                //foreach (var triangle in Triangles)
+                //    Writer.AppendLine($"f {triangle.ID1 + 1}/{triangle.ID1 + 1} {triangle.ID2 + 1}/{triangle.ID2 + 1} " +
+                //        $"{triangle.ID3 + 1}/{triangle.ID3 + 1}");//Triangles
+            }
+
+
             public int ParentIndex;
             public int MaterialID;
 
             public float FinalScale;
 
-            public Rigid(Stream Input,
+            public Rigid(Model refmdl, Index ccstoc ,Stream Input,
                 float VertexScale = 64.0f,
             int _version = 0x110,
             byte _mdlflags = 0,
-            uint tangentBinormalsFlag = 0)
+            uint tangentBinormalsFlag = 0
+           )
             {
+                mdlRef = refmdl;
+                _CCStoc = ccstoc;
                 ParentIndex = (int)Input.ReadUInt(32);
                 MaterialID = (int)Input.ReadUInt(32);
                 VertexCount = (int)Input.ReadUInt(32);
@@ -307,15 +479,77 @@ public class Model : Block
 
         public class Shadow : Mesh
         {
+            internal void GetOBJECT3D(StringBuilder Writer, out StringBuilder matBuilder,
+            out string mtlname, out Bitmap texture, out string texname)
+            {
+                //Material mat = null;
+                //Texture tex = null;
+                texture = null;
+
+                //try
+                //{
+                //    mat = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == MaterialID).ToArray()[0] as Material;
+                //    tex = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == mat.TextureID).ToArray()[0] as Texture;
+                //    CLUT clt = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == tex.CLUTID).ToArray()[0] as CLUT;
+                //    texture = tex.ToBitmap(clt);
+                //}
+                //catch (NullReferenceException) { }
+
+                //if (mat != null && tex != null)
+                //{
+                //    Writer.AppendLine($"mtllib MAT_{mat.ObjectID}.mtl");
+                //}
+
+                Writer.AppendLine($"o {mdlRef.ObjectName}");
+                //$"{(_type == Model.SubModel.SubModelType.DEFORMABLE ? mdlRef.ObjectName : ObjectName)}");
+                mtlname = "";
+                texname = "";
+                matBuilder = null;
+
+                if (Vertices != null)
+                    //Vertices, UVs and Normals
+                    foreach (var vertex in Vertices)
+                    {
+                        Writer.Append($"v {vertex._position.X} {vertex._position.Y} {vertex._position.Z}\r\n" +
+                            $"vt {vertex._uv.X} {vertex._uv.Y}\r\n" +
+                            $"vn {vertex._normal.X} {vertex._normal.Y}   {vertex._normal.Z}\r\n");//Vertices
+                    }
+                ////Material
+                //if (mat != null && tex != null)
+                //{
+                //    Writer.AppendLine($"usemtl {mat.ObjectName}");
+                //    Writer.AppendLine($"s off");
+
+                //    mtlname = $"MAT_{mat.ObjectID}";
+                //    texname = tex.ObjectName;
+
+                //    matBuilder = new StringBuilder();
+                //    matBuilder.AppendLine($"newmtl {mat.ObjectName}");
+                //    matBuilder.AppendLine($"Ka 1.0 1.0 1.0");
+                //    matBuilder.AppendLine($"Kd 1.0 1.0 1.0");
+                //    matBuilder.AppendLine($"Ks 0.0 0.0 0.0");
+
+                //    matBuilder.AppendLine($"map_Kd {tex.ObjectName}.png");
+
+                //}
+
+                //Faces
+                foreach (var triangle in Triangles)
+                    Writer.AppendLine($"f {triangle.X + 1}/{triangle.X + 1} {triangle.Y + 1}/{triangle.Y + 1} " +
+                        $"{triangle.Z + 1}/{triangle.Z + 1}");//Triangles
+            }
+
             public int TriangleVerticesCount;
             public Vector3[] Triangles;
 
-            public Shadow(Stream Input,
+            public Shadow(Model refmdl, Index ccstoc ,Stream Input,
                 float VertexScale = 64.0f)
             {
+                mdlRef = refmdl;
+                _CCStoc = ccstoc;
                 VertexCount = (int)Input.ReadUInt(32);
                 TriangleVerticesCount = (int)Input.ReadUInt(32);
-
+                Vertices = new Vertex[VertexCount];
                 for (int i = 0; i < VertexCount; i++)
                 {
                     Vector3H position = new Vector3H(Input.ReadUInt(16),
@@ -343,22 +577,85 @@ public class Model : Block
 
         public class Deformable : Mesh
         {
+            internal void GetOBJECT3D(StringBuilder Writer, out StringBuilder matBuilder,
+            out string mtlname, out Bitmap texture, out string texname)
+            {
+                Material mat = null;
+                Texture tex = null;
+                texture = null;
+
+                try
+                {
+                    mat = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == MaterialID).ToArray()[0] as Material;
+                    tex = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == mat.TextureID).ToArray()[0] as Texture;
+                    CLUT clt = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == tex.CLUTID).ToArray()[0] as CLUT;
+                    texture = tex.ToBitmap(clt);
+                }
+                catch (NullReferenceException) { }
+
+                if (mat != null && tex != null)
+                {
+                    Writer.AppendLine($"mtllib MAT_{mat.ObjectID}.mtl");
+                }
+
+                Writer.AppendLine($"o {mdlRef.ObjectName}");
+                //$"{(_type == Model.SubModel.SubModelType.DEFORMABLE ? mdlRef.ObjectName : ObjectName)}");
+                mtlname = "";
+                texname = "";
+                matBuilder = null;
+
+                if (Vertices != null)
+                    //Vertices, UVs and Normals
+                    foreach (var vertex in DefVertices)
+                    {
+                        for(int i =0; i< vertex._positions.Count;i++)
+                            Writer.Append($"v {vertex._positions[i].X} {vertex._positions[i].Y} {vertex._positions[i].Z}\r\n" +
+                                $"vt {vertex._uv.X} {vertex._uv.Y}\r\n" +
+                                $"vn {vertex._normals[i].X} {vertex._normals[i].Y}   {vertex._normals[i].Z}\r\n");//Vertices
+                    }
+                //Material
+                if (mat != null && tex != null)
+                {
+                    Writer.AppendLine($"usemtl {mat.ObjectName}");
+                    Writer.AppendLine($"s off");
+
+                    mtlname = $"MAT_{mat.ObjectID}";
+                    texname = tex.ObjectName;
+
+                    matBuilder = new StringBuilder();
+                    matBuilder.AppendLine($"newmtl {mat.ObjectName}");
+                    matBuilder.AppendLine($"Ka 1.0 1.0 1.0");
+                    matBuilder.AppendLine($"Kd 1.0 1.0 1.0");
+                    matBuilder.AppendLine($"Ks 0.0 0.0 0.0");
+
+                    matBuilder.AppendLine($"map_Kd {tex.ObjectName}.png");
+
+                }
+
+                ////Faces
+                //foreach (var triangle in Triangles)
+                //    Writer.AppendLine($"f {triangle.ID1 + 1}/{triangle.ID1 + 1} {triangle.ID2 + 1}/{triangle.ID2 + 1} " +
+                //        $"{triangle.ID3 + 1}/{triangle.ID3 + 1}");//Triangles
+            }
+
             public int MaterialID;
             public int DeformableVerticesCount;
             public List<DeformableVertex> DefVertices;
 
             public float FinalScale;
-            public Deformable(Stream Input,
+            public Deformable(Model refmdl, Index ccstoc, Stream Input,
                 int _version = 0x100,
                 float VertexScale = 256.0f,
                 uint tangentBinormalFlag = 0)
             {
+                mdlRef = refmdl;
+                _CCStoc = ccstoc;
                 MaterialID = (int)Input.ReadUInt(32);
                 VertexCount = (int)Input.ReadUInt(32);
                 DeformableVerticesCount = (int)Input.ReadUInt(32);
 
                 FinalScale = (float)(((VertexScale / 256) / 16) * 0.01);
-
+                DefVertices = new List<DeformableVertex>();
                 if (DeformableVerticesCount == 0)
                 {
                     uint boneID = Input.ReadUInt(32);
@@ -382,17 +679,17 @@ public class Model : Block
                         vertex.Weights = new List<float>(1);
                         vertex.BoneId = new List<int>(1);
 
-                        vertex._positions[0] = new Vector3H(
+                        vertex._positions.Add(new Vector3H(
                             (decimal)(vpBuffer.ReadInt16() * FinalScale),
                             (decimal)(vpBuffer.ReadInt16() * FinalScale),
-                            (decimal)(vpBuffer.ReadInt16() * FinalScale));
+                            (decimal)(vpBuffer.ReadInt16() * FinalScale)));
 
-                        vertex.BoneId[0] = (int)boneID;
-                        vertex.Weights[0] = 1;
-                        vertex._normals[0] = new Vector3H(
+                        vertex.BoneId.Add((int)boneID);
+                        vertex.Weights.Add(1);
+                        vertex._normals.Add(new Vector3H(
                             (decimal)(vnBuffer.ReadByte() / 64),
                             (decimal)(vnBuffer.ReadByte() / 64),
-                            (decimal)(vnBuffer.ReadByte() / 64));
+                            (decimal)(vnBuffer.ReadByte() / 64)));
                         vertex.TF = (byte)vnBuffer.ReadByte();
                         DefVertices.Add(vertex);
                     }
@@ -446,32 +743,32 @@ public class Model : Block
                             vertex.Weights = new List<float>(2);
                             vertex.BoneId = new List<int>(2);
 
-                            vertex._positions[0] = new Vector3H(
+                            vertex._positions.Add(new Vector3H(
                                 (decimal)(vpBuffer.ReadInt16() * FinalScale),
                                 (decimal)(vpBuffer.ReadInt16() * FinalScale),
-                                (decimal)(vpBuffer.ReadInt16() * FinalScale));
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale)));
                             var vertParams = vpBuffer.ReadInt16();
-                            vertex.BoneId[0] = vertParams >> 10;
-                            vertex.Weights[0] = (vertParams & 0x1ff) / 256;
-                            vertex._normals[0] = new Vector3H(
+                            vertex.BoneId.Add(vertParams >> 10);
+                            vertex.Weights.Add((vertParams & 0x1ff) / 256);
+                            vertex._normals.Add(new Vector3H(
                                 (decimal)(vnBuffer.ReadByte() / 64),
                                 (decimal)(vnBuffer.ReadByte() / 64),
-                                (decimal)(vnBuffer.ReadByte() / 64));
+                                (decimal)(vnBuffer.ReadByte() / 64)));
                             vertex.TF = (byte)vnBuffer.ReadByte();
 
                             if (((vertParams >> 9) & 0x1) == 0)
                             {
-                                vertex._positions[1] = new Vector3H(
+                                vertex._positions.Add(new Vector3H(
                                 (decimal)(vpBuffer.ReadInt16() * FinalScale),
                                 (decimal)(vpBuffer.ReadInt16() * FinalScale),
-                                (decimal)(vpBuffer.ReadInt16() * FinalScale));
+                                (decimal)(vpBuffer.ReadInt16() * FinalScale)));
                                 var secondvertParams = vpBuffer.ReadInt16();
-                                vertex.BoneId[1] = secondvertParams >> 10;
-                                vertex.Weights[1] = (secondvertParams & 0x1ff) / 256;
-                                vertex._normals[1] = new Vector3H(
+                                vertex.BoneId.Add(secondvertParams >> 10);
+                                vertex.Weights.Add((secondvertParams & 0x1ff) / 256);
+                                vertex._normals.Add(new Vector3H(
                                     (decimal)(vnBuffer.ReadByte() / 64),
                                     (decimal)(vnBuffer.ReadByte() / 64),
-                                    (decimal)(vnBuffer.ReadByte() / 64));
+                                    (decimal)(vnBuffer.ReadByte() / 64)));
                                 vertex.TF = (byte)vnBuffer.ReadByte();
                             }
 
@@ -556,6 +853,67 @@ public class Model : Block
 
         public class Unk : Mesh
         {
+            internal void GetOBJECT3D(StringBuilder Writer, out StringBuilder matBuilder,
+           out string mtlname, out Bitmap texture, out string texname)
+            {
+                Material mat = null;
+                Texture tex = null;
+                texture = null;
+
+                try
+                {
+                    mat = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == MaterialID).ToArray()[0] as Material;
+                    tex = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == mat.TextureID).ToArray()[0] as Texture;
+                    CLUT clt = _CCStoc._ccsf.Blocks.Where(x => x.ObjectID == tex.CLUTID).ToArray()[0] as CLUT;
+                    texture = tex.ToBitmap(clt);
+                }
+                catch (NullReferenceException) { }
+
+                if (mat != null && tex != null)
+                {
+                    Writer.AppendLine($"mtllib MAT_{mat.ObjectID}.mtl");
+                }
+
+                Writer.AppendLine($"o {mdlRef.ObjectName}");
+                //$"{(_type == Model.SubModel.SubModelType.DEFORMABLE ? mdlRef.ObjectName : ObjectName)}");
+                mtlname = "";
+                texname = "";
+                matBuilder = null;
+
+                if (Vertices != null)
+                    //Vertices, UVs and Normals
+                    foreach (var vertex in vertices)
+                    {
+                        for (int i = 0; i < vertex._positions.Count; i++)
+                            Writer.Append($"v {vertex._positions[i].X} {vertex._positions[i].Y} {vertex._positions[i].Z}\r\n" +
+                                $"vt {Uvs[i].X} {Uvs[i].Y}\r\n" +
+                                $"vn {Normals[i].X} {Normals[i].Y} {Normals[i].Z}\r\n");//Vertices
+                    }
+                //Material
+                if (mat != null && tex != null)
+                {
+                    Writer.AppendLine($"usemtl {mat.ObjectName}");
+                    Writer.AppendLine($"s off");
+
+                    mtlname = $"MAT_{mat.ObjectID}";
+                    texname = tex.ObjectName;
+
+                    matBuilder = new StringBuilder();
+                    matBuilder.AppendLine($"newmtl {mat.ObjectName}");
+                    matBuilder.AppendLine($"Ka 1.0 1.0 1.0");
+                    matBuilder.AppendLine($"Kd 1.0 1.0 1.0");
+                    matBuilder.AppendLine($"Ks 0.0 0.0 0.0");
+
+                    matBuilder.AppendLine($"map_Kd {tex.ObjectName}.png");
+
+                }
+
+                ////Faces
+                //foreach (var triangle in Triangles)
+                //    Writer.AppendLine($"f {triangle.ID1 + 1}/{triangle.ID1 + 1} {triangle.ID2 + 1}/{triangle.ID2 + 1} " +
+                //        $"{triangle.ID3 + 1}/{triangle.ID3 + 1}");//Triangles
+            }
+
             public int MaterialID;
             public int SectionCount;
             public int ClumpIndex;
@@ -570,9 +928,11 @@ public class Model : Block
             public List<byte> TFs;
             public List<int> TriangleIndices;
 
-            public Unk(Stream Input,
+            public Unk(Model refmdl, Index ccstoc, Stream Input,
                 float VertexScale = 64.0f)
             {
+                mdlRef = refmdl;
+                _CCStoc = ccstoc;
                 MaterialID = (int)Input.ReadUInt(32);
                 SectionCount = (int)Input.ReadUInt(32);
                 _Unk = (int)Input.ReadUInt(32);
@@ -597,73 +957,77 @@ public class Model : Block
                     float FinalScale = (float)(((_vertexScale / 256) / 16) * 0.01);
 
                     //Vertex Normals
-                    if (sectionType == 0)
-                        for (int c = 0; i < count; c++)
-                            Normals.Add(new Vector3H((decimal)(Input.ReadByte() / 64),
-                                (decimal)(Input.ReadByte() / 64),
-                                (decimal)(Input.ReadByte() / 64)));
-                    else if (sectionType == 1)//UVS
-                        for (int c = 0; i < count; c++)
-                            Uvs.Add(new Vector2(Input.ReadUInt(16) / 256,
-                                Input.ReadUInt(16) / 256));
-                    else if (sectionType == 7)//TriangleFlags
-                        for (int c = 0; i < count; c++)
-                            TFs.Add((byte)Input.ReadByte());
-                    else if (sectionType == 8)//TriangleIndices
-                        for (int c = 0; i < count; c++)
-                            TriangleIndices.Add((int)Input.ReadUInt(16));
-                    else if (sectionType == 32)//Vertex Pos and Weights
-                        if (sectionFlags == 33)
+                    if (count > 0)
+                    {
+                        if (sectionType == 0)
                             for (int c = 0; i < count; c++)
-                            {
-                                var vertex = new DeformableVertex();
-                                vertex._positions = new List<Vector3H>(1);
-                                vertex._normals = new List<Vector3H>(1);
-                                vertex.Weights = new List<float>(1);
-                                vertex.BoneId = new List<int>(1);
+                                Normals.Add(new Vector3H((decimal)(Input.ReadByte() / 64),
+                                    (decimal)(Input.ReadByte() / 64),
+                                    (decimal)(Input.ReadByte() / 64)));
+                        else if (sectionType == 1)//UVS
+                            for (int c = 0; i < count; c++)
+                                Uvs.Add(new Vector2(Input.ReadUInt(16) / 256,
+                                    Input.ReadUInt(16) / 256));
+                        else if (sectionType == 7)//TriangleFlags
+                            for (int c = 0; i < count; c++)
+                                TFs.Add((byte)Input.ReadByte());
+                        else if (sectionType == 8)//TriangleIndices
+                            for (int c = 0; i < count; c++)
+                                TriangleIndices.Add((int)Input.ReadUInt(16));
+                        else if (sectionType == 32)//Vertex Pos and Weights
+                            if (sectionFlags == 33)
+                                for (int c = 0; i < count; c++)
+                                {
+                                    var vertex = new DeformableVertex();
+                                    vertex._positions = new List<Vector3H>(1);
+                                    vertex._normals = new List<Vector3H>(1);
+                                    vertex.Weights = new List<float>(1);
+                                    vertex.BoneId = new List<int>(1);
 
-                                vertex._positions[0] = new Vector3H(
-                                    (decimal)(Input.ReadUInt(16) * FinalScale),
-                                    (decimal)(Input.ReadUInt(16) * FinalScale),
-                                    (decimal)(Input.ReadUInt(16) * FinalScale));
+                                    vertex._positions[0] = new Vector3H(
+                                        (decimal)(Input.ReadUInt(16) * FinalScale),
+                                        (decimal)(Input.ReadUInt(16) * FinalScale),
+                                        (decimal)(Input.ReadUInt(16) * FinalScale));
 
-                                var vertParams = (int)Input.ReadUInt(16);
-                                vertex.BoneId[0] = vertParams >> 10;
-                                vertex.Weights[0] = (vertParams & 0x1ff) / 256;
+                                    var vertParams = (int)Input.ReadUInt(16);
+                                    vertex.BoneId[0] = vertParams >> 10;
+                                    vertex.Weights[0] = (vertParams & 0x1ff) / 256;
 
-                                vertices.Add(vertex);
-                            }
-                        else if (sectionFlags == 34)
-                            for (int c = 0; i < count / 2; c++)
-                            {
-                                var vertex = new DeformableVertex();
-                                vertex._positions = new List<Vector3H>(2);
-                                vertex._normals = new List<Vector3H>(2);
-                                vertex.Weights = new List<float>(2);
-                                vertex.BoneId = new List<int>(2);
+                                    vertices.Add(vertex);
+                                }
+                            else if (sectionFlags == 34)
+                                for (int c = 0; i < count / 2; c++)
+                                {
+                                    var vertex = new DeformableVertex();
+                                    vertex._positions = new List<Vector3H>(2);
+                                    vertex._normals = new List<Vector3H>(2);
+                                    vertex.Weights = new List<float>(2);
+                                    vertex.BoneId = new List<int>(2);
 
-                                vertex._positions[0] = new Vector3H(
-                                    (decimal)(Input.ReadUInt(16) * FinalScale),
-                                    (decimal)(Input.ReadUInt(16) * FinalScale),
-                                    (decimal)(Input.ReadUInt(16) * FinalScale));
+                                    vertex._positions[0] = new Vector3H(
+                                        (decimal)(Input.ReadUInt(16) * FinalScale),
+                                        (decimal)(Input.ReadUInt(16) * FinalScale),
+                                        (decimal)(Input.ReadUInt(16) * FinalScale));
 
-                                var vertParams = (int)Input.ReadUInt(16);
-                                vertex.BoneId[0] = vertParams >> 10;
-                                vertex.Weights[0] = (vertParams & 0x1ff) / 256;
+                                    var vertParams = (int)Input.ReadUInt(16);
+                                    vertex.BoneId[0] = vertParams >> 10;
+                                    vertex.Weights[0] = (vertParams & 0x1ff) / 256;
 
-                                vertex._positions[1] = new Vector3H(
-                                    (decimal)(Input.ReadUInt(16) * FinalScale),
-                                    (decimal)(Input.ReadUInt(16) * FinalScale),
-                                    (decimal)(Input.ReadUInt(16) * FinalScale));
+                                    vertex._positions[1] = new Vector3H(
+                                        (decimal)(Input.ReadUInt(16) * FinalScale),
+                                        (decimal)(Input.ReadUInt(16) * FinalScale),
+                                        (decimal)(Input.ReadUInt(16) * FinalScale));
 
-                                vertParams = (int)Input.ReadUInt(16);
-                                vertex.BoneId[1] = vertParams >> 10;
-                                vertex.Weights[1] = (vertParams & 0x1ff) / 256;
+                                    vertParams = (int)Input.ReadUInt(16);
+                                    vertex.BoneId[1] = vertParams >> 10;
+                                    vertex.Weights[1] = (vertParams & 0x1ff) / 256;
 
-                                vertices.Add(vertex);
-                            }
-                    else if (sectionType == 33)
-                        ClumpIndex = (int)Input.ReadUInt(32);
+                                    vertices.Add(vertex);
+                                }
+                            else if (sectionType == 33)
+                                ClumpIndex = (int)Input.ReadUInt(32);
+                    }
+                    
 
                     //Alinhar a 4 bytes
                     while(Input.Position % 0x4 != 0)

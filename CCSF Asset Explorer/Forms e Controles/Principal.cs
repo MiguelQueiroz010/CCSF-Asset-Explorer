@@ -363,32 +363,32 @@ namespace CCSF_Asset_Explorer
                     case 2: //Block
                         var ccsnode = (ccstab.resourceView.SelectedNode as CCSNode);
 
-                        if (ccsnode.Block.BlockType == "Model" &&
-                            MessageBox.Show("Want to import model parts?", "Model Converter", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        {
-                            var folder = new FolderBrowserDialog();
-                            folder.Description = "Select models part containing folder.";
-                            if (folder.ShowDialog() == DialogResult.OK)
-                            {
-                                var files = Directory.EnumerateFiles(folder.SelectedPath, "*.obj");
-                                Model mdl = ccsnode.Block as Model;
-                                //if (new DirectoryInfo(folder.SelectedPath).Name == mdl.ObjectName)
-                                //{
-                                //    for (int i = 0; i < mdl.SubModels.Length; i++)
-                                //    {
-                                //        if (mdl.SubModels[i].subMDLType != Model.SubModel.SubModelType.DEFORMABLE)
-                                //        {
-                                //            string fname = mdl.SubModels[i].subMDLType == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : mdl.SubModels[i].ObjectName;
-                                //            mdl.SubModels[i].SetfromOBJECT3D(new StreamReader(files.Where(x => Path.GetFileName(x) == $"{fname}.obj").ToArray()[0]));
-                                //        }
-                                //    }
-                                //    ccsnode.Block = mdl;
-                                //}
+                        //if (ccsnode.Block.BlockType == "Model" &&
+                        //    MessageBox.Show("Want to import model parts?", "Model Converter", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        //{
+                        //    var folder = new FolderBrowserDialog();
+                        //    folder.Description = "Select models part containing folder.";
+                        //    if (folder.ShowDialog() == DialogResult.OK)
+                        //    {
+                        //        var files = Directory.EnumerateFiles(folder.SelectedPath, "*.obj");
+                        //        Model mdl = ccsnode.Block as Model;
+                        //        //if (new DirectoryInfo(folder.SelectedPath).Name == mdl.ObjectName)
+                        //        //{
+                        //        //    for (int i = 0; i < mdl.SubModels.Length; i++)
+                        //        //    {
+                        //        //        if (mdl.SubModels[i].subMDLType != Model.SubModel.SubModelType.DEFORMABLE)
+                        //        //        {
+                        //        //            string fname = mdl.SubModels[i].subMDLType == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : mdl.SubModels[i].ObjectName;
+                        //        //            mdl.SubModels[i].SetfromOBJECT3D(new StreamReader(files.Where(x => Path.GetFileName(x) == $"{fname}.obj").ToArray()[0]));
+                        //        //        }
+                        //        //    }
+                        //        //    ccsnode.Block = mdl;
+                        //        //}
 
-                            }
-                        }
-                        else
-                        {
+                        //    }
+                        //}
+                        //else
+                        //{
                             fext = ".bin";
                             open.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
                             if (open.ShowDialog() == DialogResult.OK)
@@ -413,7 +413,7 @@ namespace CCSF_Asset_Explorer
                                 ccsnode.Block = replaceBlock[0];
                                 replaced = true;
                             }
-                        }
+                        //}
                         break;
                 }
 
@@ -525,34 +525,41 @@ namespace CCSF_Asset_Explorer
 
                         break;
                     case 2: //Block
-                        if ((ccstab.resourceView.SelectedNode as CCSNode).Block.BlockType == "Model" &&
-                            MessageBox.Show("Want to export model parts?", "Model Converter", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if ((ccstab.resourceView.SelectedNode as CCSNode).Block.BlockType == "Model")
                         {
-                            var browser = new FolderBrowserDialog();
-                            browser.Description = "Select a folder where extracted model parts will be.";
-                            if (browser.ShowDialog() == DialogResult.OK)
-                            {
-                                Model mdl = (ccstab.resourceView.SelectedNode as CCSNode).Block as Model;
+                            Model mdl = (ccstab.resourceView.SelectedNode as CCSNode).Block as Model;
+                            if (mdl.Mesh_Count > 0 && mdl.Meshes != null)
+                                if (MessageBox.Show("Want to export model parts?", "Model Converter", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                                    return;
+                                else
+                                {
+                                    var browser = new FolderBrowserDialog();
+                                    browser.Description = "Select a folder where extracted model parts will be.";
+                                    if (browser.ShowDialog() == DialogResult.OK)
+                                    {
 
-                                string path = browser.SelectedPath + $@"/{mdl.ObjectName}";
-                                if (!Directory.Exists(path))
-                                    Directory.CreateDirectory(path);
-                                path += @"/";
+                                        string path = browser.SelectedPath + $@"/{mdl.ObjectName}";
+                                        if (!Directory.Exists(path))
+                                            Directory.CreateDirectory(path);
+                                        path += @"/";
 
-
-                                //foreach (var submdl in mdl.SubModels)
-                                //{
-                                //    var writer = new StringBuilder();
-                                //    writer.AppendLine("#CCSF ASSET EXPLORER - MODEL CONVERTER\r\n" +
-                                //        "#BIT.RAIDEN - 2022\r\n");
-                                //    submdl.GetOBJECT3D(writer, out var writerMat, out var mtlNAM,
-                                //        out Bitmap tex, out var texNAM);
-                                //    tex.Save(path + $"{texNAM}.png");
-                                //    File.WriteAllText(path + $"{(submdl._type == Model.SubModel.SubModelType.DEFORMABLE ? mdl.ObjectName : submdl.ObjectName)}.obj", writer.ToString());
-                                //    File.WriteAllText(path + $"{mtlNAM}.mtl", writerMat.ToString());
-                                //}
-                                savepath = path;
-                            }
+                                        int i = 0;
+                                        if (mdl.Meshes != null)
+                                            foreach (var submdl in mdl.Meshes)
+                                            {
+                                                var writer = new StringBuilder();
+                                                writer.AppendLine("#CCSF ASSET EXPLORER - MODEL CONVERTER\r\n" +
+                                                    "#BIT.RAIDEN - 2022\r\n");
+                                                submdl.GetOBJECT3D(writer, out var writerMat, out var mtlNAM,
+                                                    out Bitmap tex, out var texNAM);
+                                                tex.Save(path + $"{texNAM}.png");
+                                                File.WriteAllText(path + $"{mdl.ObjectName}_MESH{i}.obj", writer.ToString());
+                                                File.WriteAllText(path + $"{mtlNAM}.mtl", writerMat.ToString());
+                                                i++;
+                                            }
+                                        savepath = path;
+                                    }
+                                }
 
                         }
                         else

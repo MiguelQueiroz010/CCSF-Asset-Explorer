@@ -360,8 +360,7 @@ public class Block
                     blocks.Add(new Object().ReadBlock(mem, CCSHeader));
                     break;
                 case SECTION_MODEL_CONTAINER: //MODEL
-                    var blockModel = new Model().ReadBlock(mem, CCSHeader);
-                    blocks.Add(blockModel);
+                    blocks.Add(new Model().ReadBlock(mem, CCSHeader));
                     break;
 
                 case SECTION_CLUMP: //CLUMP
