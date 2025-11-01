@@ -263,6 +263,29 @@ public class Block
         ObjectID = Input.ReadUInt(8, 32),
         Size = Input.ReadUInt(4, 32) * 4
     };
+    public static int FindIntInByteArray(byte[] data, int valueToFind, bool littleEndian = true)
+    {
+        // Converte o inteiro para array de bytes
+        byte[] bytesToFind = BitConverter.GetBytes(valueToFind);
+
+        // Ajusta para little-endian se necessário
+        if (!BitConverter.IsLittleEndian && littleEndian)
+            Array.Reverse(bytesToFind);
+
+        // Percorre o array de bytes
+        for (int i = 0; i <= data.Length - 4; i++)
+        {
+            if (data[i] == bytesToFind[0] &&
+                data[i + 1] == bytesToFind[1] &&
+                data[i + 2] == bytesToFind[2] &&
+                data[i + 3] == bytesToFind[3])
+            {
+                return i; // posição onde foi encontrado
+            }
+        }
+
+        return -1; // não encontrado
+    }
     public static List<Block> ReadAllBlocks(Stream Input, bool logAllBlocks = false, bool logExport = false, Header cch = null, bool readone = false, CCSF ccsfile = null, Animation anm = null)
     {
         Console.WriteLine("Iniciando leitura de dados...\r\n");
@@ -286,38 +309,27 @@ public class Block
 
 
             byte[] BlockData = Input.ReadBytes((int)SizeBlock);
-
             var mem = new MemoryStream(BlockData);
             uint BlockType = mem.ReadUInt(0, 32);
+            if(BlockType == 0xCCCC0800)
+            {
+                
+                foreach(var block in ObjectTypeNames)
+                {
+                    int indexBLOCKERROR = FindIntInByteArray(BlockData,
+                    (int)(0xCCCC0000 | block.Key));
+                    if (indexBLOCKERROR > 0)
+                    {
+                        Input.Position = oldOffset;
+                        BlockData = Input.ReadBytes((int)indexBLOCKERROR);
+                    }
+                }
+                
+            }
             mem.Position = 0;
 
-            //if(BlockType == 0xcccc0800)
-            //{
-            //    var data = new List<byte>();
-            //    byte[] readed = mem.ReadBytes(4);
-            //    data.AddRange(readed);
-            //    readed = mem.ReadBytes(4);
-            //    data.AddRange(readed);
 
-            //    bool end = false;
-            //    while (end == false)
-            //    {
-            //        if (readed.ReadUInt(2, 16) != 0xCCCC)
-            //        {
-            //            readed = mem.ReadBytes(4);
-            //            data.AddRange(readed);
-            //        }
-            //        else
-            //            end = true;
-            //    }
-            //    readed = mem.ReadBytes(4);
-            //    data.AddRange(readed);
-            //    BlockData = data.ToArray();
-            //}
-            //mem = new MemoryStream(BlockData);
-            //mem.Position = 0;
-
-            string objName = "";
+                string objName = "";
             if (logAllBlocks)
             {
                 ObjectTypeNames.TryGetValue((int)(BlockType & 0xFFFF), out objName);
@@ -402,17 +414,17 @@ public class Block
                     break;
 
                 case SECTION_MATERIAL: //MATERIAL
-                    if (CCSHeader.Version == Header.CCSFVersion.GEN2)
-                    {
-                        //Fix Block size subtract with 3
-                        Input.Position = oldOffset;
+                    //if (CCSHeader.Version == Header.CCSFVersion.GEN2)
+                    //{
+                    //    //Fix Block size subtract with 3
+                    //    Input.Position = oldOffset;
 
-                        SizeBlock = (SizeBlock / 4) + 3;
-                        SizeBlock *= 4;
+                    //    SizeBlock = (SizeBlock / 4) + 3;
+                    //    SizeBlock *= 4;
 
-                        BlockData = Input.ReadBytes((int)SizeBlock);
-                        mem = new MemoryStream(BlockData);
-                    }
+                    //    BlockData = Input.ReadBytes((int)SizeBlock);
+                    //    mem = new MemoryStream(BlockData);
+                    //}
 
                     blocks.Add(new Material().ReadBlock(mem, CCSHeader));
                     break;

@@ -75,6 +75,13 @@ public class Texture : Block
     public TEXType TexType
     {
         get => TextureType;
+        set {
+            TextureType = value;
+
+            CLUTCount = (byte)(value == TEXType.I4 ? 16 : 256);
+            
+
+        }
     }
 
     [DisplayName("Mipmap Count")]

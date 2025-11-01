@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Xml;
 using System.Windows.Forms;
+using System.Xml;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace CCSF_Asset_Explorer
 {
@@ -41,6 +42,7 @@ namespace CCSF_Asset_Explorer
         #region Functions
 
         public PropertyBox propBox;
+        public CCSF_Asset_Explorer.VFWEditor VFWEditor;
         public CCSTab GetSelectedTab() =>
             (CCSTab)this.tabControl1.SelectedTab;
 
@@ -182,6 +184,9 @@ namespace CCSF_Asset_Explorer
             closeToolStripMenuItem.Enabled = !closeToolStripMenuItem.Enabled;
             closeAllToolStripMenuItem.Enabled = !closeAllToolStripMenuItem.Enabled;
             extractAllToolStripMenuItem.Enabled = !extractAllToolStripMenuItem.Enabled;
+            repackAllToolStripMenuItem.Enabled = !repackAllToolStripMenuItem.Enabled;
+            exportTexturesFromAllToolStripMenuItem.Enabled = !exportTexturesFromAllToolStripMenuItem.Enabled;
+            importTexturesForAllToolStripMenuItem.Enabled = !importTexturesForAllToolStripMenuItem.Enabled;
             saveAsToolStripMenuItem.Enabled = !saveAsToolStripMenuItem.Enabled;
             addToolStripMenuItem.Enabled = !addToolStripMenuItem.Enabled;
             resourceTreeToolStripMenuItem.Enabled = !resourceTreeToolStripMenuItem.Enabled;
@@ -389,30 +394,30 @@ namespace CCSF_Asset_Explorer
                         //}
                         //else
                         //{
-                            fext = ".bin";
-                            open.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
-                            if (open.ShowDialog() == DialogResult.OK)
+                        fext = ".bin";
+                        open.Filter = $"Binary CCSF Block Data (*{fext})|*{fext}";
+                        if (open.ShowDialog() == DialogResult.OK)
+                        {
+                            openpath = open.FileName;
+                            var replaceBlock = Block.ReadAllBlocks(File.OpenRead(open.FileName), false, false
+                                 , ccstab.CCSFile.CCS_Header, true, ccstab.CCSFile);
+                            for (int i = 0; i < ccstab.CCSFile.Blocks.Count; i++)
                             {
-                                openpath = open.FileName;
-                                var replaceBlock = Block.ReadAllBlocks(File.OpenRead(open.FileName), false, false
-                                     , ccstab.CCSFile.CCS_Header, true, ccstab.CCSFile);
-                                for (int i = 0; i < ccstab.CCSFile.Blocks.Count; i++)
+                                if (ccstab.CCSFile.Blocks[i] == ccsnode.Block)
                                 {
-                                    if (ccstab.CCSFile.Blocks[i] == ccsnode.Block)
+                                    if (replaceBlock[0].ObjectID != ccstab.CCSFile.Blocks[i].ObjectID)
                                     {
-                                        if (replaceBlock[0].ObjectID != ccstab.CCSFile.Blocks[i].ObjectID)
-                                        {
-                                            MessageBox.Show("Different Object Block identified, error!!");
-                                            return;
-                                        }
-                                        ccstab.CCSFile.Blocks[i] = replaceBlock[0];
-
+                                        MessageBox.Show("Different Object Block identified, error!!");
+                                        return;
                                     }
-                                }
+                                    ccstab.CCSFile.Blocks[i] = replaceBlock[0];
 
-                                ccsnode.Block = replaceBlock[0];
-                                replaced = true;
+                                }
                             }
+
+                            ccsnode.Block = replaceBlock[0];
+                            replaced = true;
+                        }
                         //}
                         break;
                 }
@@ -481,7 +486,7 @@ namespace CCSF_Asset_Explorer
                         save.Filter = $"CCSF Internal File (*{fext})|*{fext}";
                         if (save.ShowDialog() == DialogResult.OK)
                         {
-                            File.WriteAllBytes(save.FileName, file.GetFile(fext == ".png" ? true : false));
+                            File.WriteAllBytes(save.FileName, file.GetFile(out string bpp, fext == ".png" ? true : false));
                             savepath = save.FileName;
                         }
 
@@ -696,51 +701,51 @@ namespace CCSF_Asset_Explorer
                 }
                 //else if (selected.resourceView.Visible)
                 //{
-                    var objectremove = new List<CCSNode>();
-                    foreach (CCSNode node in selected.resourceView.Nodes)
-                    {
+                var objectremove = new List<CCSNode>();
+                foreach (CCSNode node in selected.resourceView.Nodes)
+                {
 
-                        foreach (CCSNode objectnode in node.Nodes)
+                    foreach (CCSNode objectnode in node.Nodes)
+                    {
+                        if (objectnode.Checked)
                         {
-                            if (objectnode.Checked)
+                            int c = 0;
+                            foreach (Block block in objectnode.Object.Blocks)
                             {
-                                int c = 0;
-                                foreach (Block block in objectnode.Object.Blocks)
-                                {
-                                    if (c > 0)
-                                        selected.CCSFile.Blocks.Remove(block);
-                                    c++;
-                                }
-                                objectremove.Add(objectnode);
+                                if (c > 0)
+                                    selected.CCSFile.Blocks.Remove(block);
+                                c++;
                             }
-
+                            objectremove.Add(objectnode);
                         }
+
                     }
+                }
 
-                    //Remove the OBJs
-                    //if (objectremove != null && objectremove.Count > 0)
-                    //{
-                    //    foreach (CCSNode remobj in objectremove)
-                    //    {
-                    //        if (selected.CCSFile.CCS_TOC.Objects.Contains(remobj.Object))
-                    //        {
-                    //            var objlist = selected.CCSFile.CCS_TOC.Objects.ToList();
-                    //            objlist.Remove(remobj.Object);
+                //Remove the OBJs
+                //if (objectremove != null && objectremove.Count > 0)
+                //{
+                //    foreach (CCSNode remobj in objectremove)
+                //    {
+                //        if (selected.CCSFile.CCS_TOC.Objects.Contains(remobj.Object))
+                //        {
+                //            var objlist = selected.CCSFile.CCS_TOC.Objects.ToList();
+                //            objlist.Remove(remobj.Object);
 
-                    //            //Atualizar Info
-                    //            selected.CCSFile.CCS_TOC.Objects = objlist.ToArray();
-                    //        }
-                    //        remobj.Remove();
-                    //    }
+                //            //Atualizar Info
+                //            selected.CCSFile.CCS_TOC.Objects = objlist.ToArray();
+                //        }
+                //        remobj.Remove();
+                //    }
 
 
-                    //}
-                    if (selected.resourceView.SelectedNode.Level == 2)//Block level
-                    {
-                        selected.CCSFile.Blocks.Remove((selected.resourceView.SelectedNode as CCSNode)
-                            .Block);
-                        selected.resourceView.SelectedNode.Remove();
-                    }
+                //}
+                if (selected.resourceView.SelectedNode.Level == 2)//Block level
+                {
+                    selected.CCSFile.Blocks.Remove((selected.resourceView.SelectedNode as CCSNode)
+                        .Block);
+                    selected.resourceView.SelectedNode.Remove();
+                }
                 //}
             }
         }
@@ -997,13 +1002,384 @@ namespace CCSF_Asset_Explorer
 
         #endregion
 
-        #endregion
-
         private void pictureBox2_LoadCompleted(object sender, AsyncCompletedEventArgs e)
         {
 
         }
 
+        private void exportTexturesFromAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var saveFolder = new FolderBrowserDialog();
+            var selected = GetSelectedTab();
+            saveFolder.SelectedPath = selected.CCSFile.File_path.Substring(0, selected.CCSFile.File_path.LastIndexOf('\\'));
+            if (saveFolder.ShowDialog() != DialogResult.OK)
+                return;
+            string basePath = saveFolder.SelectedPath + @"/";
 
+            foreach (CCSTab tab in tabControl1.TabPages)
+            {
+                tab.CCSFile.ExtractAllTextures(basePath);
+            }
+            MessageBox.Show("Textures exported successfully!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void importTexturesForAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selected = GetSelectedTab();
+            var openFolder = new FolderBrowserDialog();
+            openFolder.SelectedPath = selected.CCSFile.File_path.Substring(0, selected.CCSFile.File_path.LastIndexOf('\\'));
+            if (openFolder.ShowDialog() != DialogResult.OK)
+                return;
+            string basePath = openFolder.SelectedPath;
+            bool direct = MessageBox.Show("Quer procurar em uma só pasta todas as texturas?", "Questão",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+            foreach (CCSTab tab in tabControl1.TabPages)
+            {
+                tab.CCSFile.ImportAllTextures(basePath, direct);
+                File.WriteAllBytes(tab.CCSFile.File_path, tab.CCSFile.Rebuild());
+            }
+            MessageBox.Show("Textures imported successfully!\n All CCS Files SAVED!", "Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void superRenamerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selected = GetSelectedTab();
+            var openFolder = new FolderBrowserDialog();
+            openFolder.SelectedPath = selected.CCSFile.File_path.Substring(0, selected.CCSFile.File_path.LastIndexOf('\\'));
+            if (openFolder.ShowDialog() != DialogResult.OK)
+                return;
+            string basePath = openFolder.SelectedPath;
+            foreach (string file in Directory.EnumerateFiles(basePath))
+                foreach (CCSTab tab in tabControl1.TabPages)
+                {
+                    string name = Path.GetFileNameWithoutExtension(file);
+                    foreach (var fileX in tab.CCSFile.CCS_TOC.Files)
+                    {
+                        if (fileX.FileName != @"%\" && fileX.Ftype == FileType.Bitmap)
+                        {
+                            if (fileX.FileName.Contains(name))
+                            {
+                                byte[] image = fileX.GetFile(out string bpp, true); //Ensure file is loaded
+                                File.Move(file, file.Replace(name, name + $"_{bpp.ToLower()}"));
+                            }
+                        }
+                    }
+                }
+        }
+
+        private void textureMipMaperConverterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool UN23mode = MessageBox.Show("Você quer converter as imagens no modo Coluna Extra (para jogos como UN3 e 2)?\n" +
+                "Se não, será usado o modo UN4/5", "Modo de conversão", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+
+            // Prompt para múltiplas imagens
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Selecione as imagens para converter";
+            openFileDialog.Filter = "Imagens (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
+            openFileDialog.Multiselect = true;
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                Console.WriteLine("Nenhuma imagem selecionada.");
+                return;
+            }
+
+            foreach (string filePath in openFileDialog.FileNames)
+            {
+                int PixelSpace = 0;
+                if (UN23mode == true)
+                    PixelSpace = 2;
+
+                using (Bitmap original = new Bitmap(filePath))
+                {
+                    int halfWidth = original.Width / 2;
+                    int doubleHeight = original.Height * 2;
+
+                    using (Bitmap result = new Bitmap(halfWidth, doubleHeight))
+                    {
+                        using (Graphics g = Graphics.FromImage(result))
+                        {
+                            Rectangle srcRect = new Rectangle(0, 0, halfWidth, original.Height);
+                            Rectangle srcRect2 = new Rectangle(halfWidth, 0, halfWidth, original.Height);
+                            Rectangle destTop = new Rectangle(0 - PixelSpace, 0, halfWidth, original.Height);
+                            Rectangle destBottom = new Rectangle(0 + PixelSpace, original.Height, halfWidth, original.Height);
+
+                            g.DrawImage(original, destTop, srcRect, GraphicsUnit.Pixel);
+                            g.DrawImage(original, destBottom, srcRect2, GraphicsUnit.Pixel);
+                        }
+
+                        // Gera caminho de saída
+                        string dir = Path.GetDirectoryName(filePath);
+                        string filename = Path.GetFileNameWithoutExtension(filePath);
+                        string ext = Path.GetExtension(filePath);
+                        string outputPath = Path.Combine(dir, filename + "_CONV" + ext);
+
+                        result.Save(outputPath);
+                        Console.WriteLine($"Convertido: {Path.GetFileName(filePath)} → {Path.GetFileName(outputPath)}");
+                    }
+                }
+
+            }
+        }
+
+        private void mipMapDeConvertToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool UN23mode = MessageBox.Show("Você quer converter as imagens no modo Coluna Extra (para jogos como UN3 e 2)?\n" +
+                "Se não, será usado o modo UN4/5", "Modo de conversão", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+
+            // Prompt para múltiplas imagens
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Selecione as imagens para de-converter";
+            openFileDialog.Filter = "Imagens (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
+            openFileDialog.Multiselect = true;
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                Console.WriteLine("Nenhuma imagem selecionada.");
+                return;
+            }
+
+            foreach (string filePath in openFileDialog.FileNames)
+            {
+                int PixelSpace = 0;
+                if (UN23mode == true)
+                    PixelSpace = 2;
+
+                using (Bitmap original = new Bitmap(filePath))
+                {
+                    int doubleWidth = original.Width * 2;
+                    int halfHeight = original.Height / 2;
+
+                    using (Bitmap result = new Bitmap(doubleWidth, halfHeight))
+                    {
+                        using (Graphics g = Graphics.FromImage(result))
+                        {
+                            Rectangle srcRect = new Rectangle(0, 0, original.Width, halfHeight);
+                            Rectangle srcRect2 = new Rectangle(0, halfHeight, original.Width, halfHeight);
+
+                            Rectangle destTop = new Rectangle(PixelSpace, 0, original.Width, halfHeight);
+                            Rectangle destBottom = new Rectangle(original.Width - PixelSpace, 0, original.Width, halfHeight);
+
+                            g.DrawImage(original, destTop, srcRect, GraphicsUnit.Pixel);
+                            g.DrawImage(original, destBottom, srcRect2, GraphicsUnit.Pixel);
+                        }
+
+                        // Gera caminho de saída
+                        string dir = Path.GetDirectoryName(filePath);
+                        string filename = Path.GetFileNameWithoutExtension(filePath);
+                        string ext = Path.GetExtension(filePath);
+                        string outputPath = Path.Combine(dir, filename + "_DECONV" + ext);
+
+                        result.Save(outputPath);
+                        Console.WriteLine($"Convertido: {Path.GetFileName(filePath)} → {Path.GetFileName(outputPath)}");
+                    }
+                }
+            }
+        }
+
+        private void iDInsertorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string baseIDS = "";
+
+            var open = new OpenFileDialog();
+            open.Filter = "Text File(.txt)|*.txt";
+            open.Title = "Abra o arquivo com [ID=NOMES]";
+
+            if (open.ShowDialog() != DialogResult.OK)
+                return;
+
+            baseIDS = open.FileName;
+            open.Multiselect = true;
+            open.Title = "Abra os arquivos AHX para inserir os IDS baseado na lista.";
+            open.Filter = "AHX Audio File(.ahx)|*.ahx";
+
+            if (open.ShowDialog() != DialogResult.OK)
+                return;
+
+            bool unshow = false;
+            if (consoleToolStripMenuItem.Checked != true)
+            {
+                unshow = true;
+                consoleToolStripMenuItem.PerformClick();
+            }
+
+            MessageBox.Show("Digite no console a quantidade de divisão!");
+            Console.WriteLine("Digite a quantidade de divisão de falas dos arquivos por personagem: (2, 3, 4, 5, etc.)");
+            int division = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Digine o sufixo (2 caracteres hein!!):");
+            string suffix = Console.ReadLine();
+            string[] allLines = File.ReadAllLines(baseIDS);
+            string[] inputFiles = open.FileNames;
+            // Ordenar os arquivos se desejar (opcional), mas agora estamos seguindo a ordem do arquivo de ID
+            inputFiles = inputFiles.OrderBy(f => f).ToArray();
+
+            //if (allLines.Length != inputFiles.Length)
+            //{
+            //    MessageBox.Show("A quantidade de arquivos não corresponde à quantidade de linhas no arquivo de IDs.");
+            //    return;
+            //}
+            // Mapa para controlar a contagem de sufixos por ID base
+            Dictionary<string, int> idCounters = new Dictionary<string, int>();
+
+            for (int i = 0, c = 0; i < open.FileNames.Length; i += division, c++)
+            {
+                if(division==1)
+                {
+                    
+                    string line = allLines[i];
+                    string baseCharId = line.Split('=')[0].Trim();
+
+                    // Contador de repetição por ID base
+                    if (!idCounters.ContainsKey(baseCharId))
+                        idCounters[baseCharId] = 0;
+                    else
+                        idCounters[baseCharId]++;
+
+                    string id = $"{baseCharId}_{suffix}_{idCounters[baseCharId].ToString("X1")}";
+
+                    // Leitura e escrita segura no buffer
+                    byte[] fileBuffer = File.ReadAllBytes(inputFiles[i]);
+                    byte[] idBytes = Encoding.Default.GetBytes(id);
+                    int maxLength = Math.Min(idBytes.Length, fileBuffer.Length - 0x14);
+
+                    Array.Copy(new byte[1] { 0 }, 0, fileBuffer, 0x1c, 1);
+                    Array.Copy(idBytes, 0, fileBuffer, 0x14, maxLength);
+                    
+                    File.WriteAllBytes(inputFiles[i], fileBuffer);
+                    
+                }
+                else 
+                { 
+                    for (int k = 0; k < division; k++)
+                    {
+                        byte[] Filebuffer = File.ReadAllBytes(open.FileNames[i + k]);
+                        string id = allLines[c].Split('=')[0].Trim() +
+                        $"_{suffix}_{k + 1}";
+
+                        Array.Copy(Encoding.Default.GetBytes(id), 0, Filebuffer,
+                            0x14,
+                            id.Length);
+                        File.WriteAllBytes(open.FileNames[i + k], Filebuffer);
+                    }
+                }
+            }
+
+            MessageBox.Show("IDS inseridos com sucesso!", "ID Inserter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (unshow == true)
+                consoleToolStripMenuItem.PerformClick();
+        }
+
+        private void iDCheckerRenamerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var open = new OpenFileDialog();
+            open.Multiselect = true;
+            open.Title = "Abra os arquivos AHX para renomear de acordo com os IDS dentro.";
+            open.Filter = "AHX Audio File(.ahx)|*.ahx";
+
+            if (open.ShowDialog() != DialogResult.OK)
+                return;
+
+            foreach (string file in open.FileNames)
+            {
+                byte[] Filebuffer = File.ReadAllBytes(file);
+                string id = Encoding.Default.GetString(Filebuffer, 0x14, 8);
+                if (id != "")
+                {
+                    string newName = id + ".ahx";
+                    string newPath = Path.Combine(Path.GetDirectoryName(file), newName);
+                    if (File.Exists(newPath))
+                        newPath = Path.Combine(Path.GetDirectoryName(file), $"{id}_{Guid.NewGuid().ToString().Substring(0, 4)}.ahx");
+                    File.Move(file, newPath);
+                }
+            }
+            MessageBox.Show("Arquivos renomeados com sucesso!", "ID Checker/Renamer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void sBVCreatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var open = new OpenFileDialog();
+            open.Multiselect = true;
+            open.Title = "Abra os arquivos WAV para criar o SBV correspondente.";
+            open.Filter = "WAV Audio File(.wav)|*.wav";
+
+            if (open.ShowDialog() != DialogResult.OK)
+                return;
+
+            var sb = new StringBuilder();
+            sb.AppendLine("0:00:01.000,0:00:03.000\r\n<SHADOWON> <colorFFFFFF>"); //Para não dar erro
+            foreach (string file in open.FileNames)
+            {
+                string dir = Path.GetDirectoryName(file);
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                string outputPath = Path.Combine(dir, fileName.Substring(0,8) + ".sbv");
+
+                File.WriteAllText(outputPath, sb.ToString());
+            }
+            MessageBox.Show("Arquivos SBV criados com sucesso!", "SBV Creator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
+
+        private void vFWEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            VFWEditor = new VFWEditor(this);
+            VFWEditor.ShowDialog();
+        }
+        #endregion
+
+        private void unpackUN1BINToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog d = new OpenFileDialog();
+            d.Filter = "*.ccs|*.ccs|*.bin|*.bin";
+            if (d.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var fbd = new FolderBrowserDialog();
+                if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string lastfolder = fbd.SelectedPath + "\\";
+                    string file = d.FileName;
+                    this.Enabled = false;
+                    progressBar1.Visible = true;
+                    opLBL.Visible = true;
+                    BINHelper.UnpackToFolder(d.FileName, lastfolder, progressBar1, opLBL);
+                    progressBar1.Visible = false;
+                    opLBL.Visible = false;
+                    this.Enabled = true;
+                }
+            }
+        }
+
+        private void repackUN1BINToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fbd = new FolderBrowserDialog();
+            if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string lastfolder = fbd.SelectedPath + "\\";
+                List<string> files = new List<string>(Directory.GetFiles(lastfolder, "*.ccs", SearchOption.TopDirectoryOnly));
+                files.Sort();
+                SaveFileDialog d = new SaveFileDialog();
+                d.FileName = "data";
+                d.Filter = "Container(*.bin)|*.bin";
+                if (d.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    bool include = true;
+                    this.Enabled = false;
+                    progressBar1.Visible = true;
+                    opLBL.Visible = true;
+                    BINHelper.RepackFromFolder(d.FileName, lastfolder, progressBar1, opLBL);
+                    progressBar1.Visible = false;
+                    opLBL.Visible = false;
+                    this.Enabled = true;
+
+                    var op = new OpenFileDialog();
+                    op.Filter = "Text File(*.txt)|*.txt";
+                    if (op.ShowDialog() != DialogResult.OK)
+                        return;
+
+                    BINHelper.UpdateBinList(op.FileName, lastfolder);
+
+                    MessageBox.Show("Concluído!");
+                }
+            }
+        }
     }
 }

@@ -25,6 +25,7 @@ namespace CCSF_Asset_Explorer
             SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage,
             BackColor = Color.Black
         };
+        public Image selected;
         FileEntry SelectedFile;
         CLUT SelectedClut;
 
@@ -133,6 +134,12 @@ namespace CCSF_Asset_Explorer
                 {
                     propertyGrid1.SelectedObject = node.File;
                     label2.Text = Path.GetFileName(node.File.FileName);
+                    if(node.File.Ftype==FileType.Bitmap &&
+                        node.File.Objects.Any(x => x.Blocks.Any(c => c.Type == 0xcccc0300)) &&
+                        node.File.Objects.Any(x => x.Blocks.Any(c => c.Type == 0xcccc0400)))
+                    {
+                        propertyGrid1.SelectedObject = node.File.Objects.FirstOrDefault(x => x.ObjectName.StartsWith("TEX"))?.Blocks.FirstOrDefault(c => c.Type == 0xcccc0300) as Texture;
+                    }
                 }
                 else if (node.Object != null)
                 {
@@ -360,13 +367,15 @@ namespace CCSF_Asset_Explorer
 
                                 SelectedClut = (clut[0] as CLUT);
                                 textureBox.Image = tex.ToBitmap(SelectedClut);
+                                selected = tex.ToBitmap(SelectedClut);
+                                _principal.vFWEditorToolStripMenuItem.Enabled = true;
                             }
 
                         }
                         break;
                     default:
                         propPanel.Controls.Remove(textureBox);
-
+                        _principal.vFWEditorToolStripMenuItem.Enabled = false;
                         break;
                 }
             }

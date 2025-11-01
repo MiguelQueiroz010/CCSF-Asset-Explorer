@@ -12,6 +12,7 @@ using Rainbow.ImgLib;
 using System.Text;
 using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 public enum FileType
 {
@@ -56,14 +57,16 @@ public class FileEntry
     public ObjectEntry[] GetObjects(string startswith) => Objects.Where(x => x.ObjectName.StartsWith(startswith)).ToArray();
 
 
-    public byte[] ImageToByteArray(Image imageIn)
+    public byte[] ImageToByteArray(Image imageIn, bool fourbpp=false)
     {
-        imageIn.Save("temp", ImageFormat.Png);
+        var image = imageIn;
+        image.Save("temp", ImageFormat.Png);
         return File.ReadAllBytes("temp");
     }
-    public byte[] GetFile(bool Convert = false, bool root = false)
+    public byte[] GetFile(out string bpp, bool Convert = false, bool root = false)
     {
         var FileData = new List<byte>();
+        bpp = "";
         if (Convert == true)
             switch (Ftype)
             {
@@ -71,6 +74,7 @@ public class FileEntry
                 case FileType.Bitmap:
                     CLUT CLUT = null;
                     Texture TEX = Objects.Where(x => x.ObjectName.StartsWith("TEX")).ToArray()[0].Blocks[0] as Texture;
+                    bpp = TEX.TextureType.ToString().ToLower();
                     ObjectEntry[] objCLUTs = Objects.Where(x => x.ObjectName.StartsWith("CLT")).ToArray();
                     foreach (var obj in objCLUTs)
                     {
@@ -81,7 +85,7 @@ public class FileEntry
                     if (CLUT != null)
                     {
                         var bitmap = TEX.ToBitmap(CLUT);
-                        FileData.AddRange(ImageToByteArray(bitmap));
+                        FileData.AddRange(ImageToByteArray(bitmap, TEX.TextureType == Texture.TEXType.I4));
                     }
                     break;
                 #endregion

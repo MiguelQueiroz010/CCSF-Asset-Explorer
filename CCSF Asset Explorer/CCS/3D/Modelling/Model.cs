@@ -82,36 +82,36 @@ public class Model : Block
             ccModel.LookupList = null;
 
         //MESHS READER
-        if (ccModel.Mesh_Count > 0)
-        {
-            Meshes = new List<Mesh>();
+       // if (ccModel.Mesh_Count > 0)
+       // {
+       //     Meshes = new List<Mesh>();
 
-            if ((ccModel.Mdl_Type & (int)ModelType.Deformable) != 0 &&
-       (ccModel.Mdl_Type & (int)ModelType.TrianglesList) == 0)
-            {
-                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                    .Select(x => new Deformable(this, _ccsToc,
-                    Input, header._version, ccModel.VertexScale,
-                    ccModel.TangentBinormalsFlag)));
-            }
-            else if (ccModel.Mdl_Type == (int)ModelType.ShadowMesh)
-            {
-                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                    .Select(x => new Shadow(this, _ccsToc, Input, ccModel.VertexScale)));
-            }
-            else if ((ccModel.Mdl_Type & (int)ModelType.TrianglesList) != 0)
-            {
-                //Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                //    .Select(x => new Unk(this, _ccsToc, Input, ccModel.VertexScale)));
-            }
-            else
-            {
-                Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
-                    .Select(x => new Rigid(this, _ccsToc, Input, ccModel.VertexScale, header._version,
-                    ccModel.Mdl_Flags, ccModel.TangentBinormalsFlag
-                    )));
-            }
-        }
+       //     if ((ccModel.Mdl_Type & (int)ModelType.Deformable) != 0 &&
+       //(ccModel.Mdl_Type & (int)ModelType.TrianglesList) == 0)
+       //     {
+       //         Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+       //             .Select(x => new Deformable(this, _ccsToc,
+       //             Input, header._version, ccModel.VertexScale,
+       //             ccModel.TangentBinormalsFlag)));
+       //     }
+       //     else if (ccModel.Mdl_Type == (int)ModelType.ShadowMesh)
+       //     {
+       //         Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+       //             .Select(x => new Shadow(this, _ccsToc, Input, ccModel.VertexScale)));
+       //     }
+       //     else if ((ccModel.Mdl_Type & (int)ModelType.TrianglesList) != 0)
+       //     {
+       //         //Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+       //         //    .Select(x => new Unk(this, _ccsToc, Input, ccModel.VertexScale)));
+       //     }
+       //     else
+       //     {
+       //         Meshes.AddRange(Enumerable.Range(0, (int)ccModel.Mesh_Count)
+       //             .Select(x => new Rigid(this, _ccsToc, Input, ccModel.VertexScale, header._version,
+       //             ccModel.Mdl_Flags, ccModel.TangentBinormalsFlag
+       //             )));
+       //     }
+       // }
 
         return ccModel;
     }

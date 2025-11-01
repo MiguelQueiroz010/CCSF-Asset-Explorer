@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 public class CCSF
 {
@@ -249,6 +250,51 @@ public class CCSF
         return isGziped ? FileHelper.zipArray(res, Name + ".tmp") : res;
     }
 
+    internal void ExtractAllTextures(string savePath)
+    {
+        Console.WriteLine($"Iniciando extração de texturas {Name}");
+        string path = savePath + $@"/{Name}";
+        if(!Directory.Exists(path))
+            Directory.CreateDirectory(path);
+
+        foreach (var file in CCS_TOC.Files)
+        {
+            if (file.FileName != @"%\" &&  file.Ftype==FileType.Bitmap)
+            {
+                byte[] image = file.GetFile(out string bpp, true); //Ensure file is loaded
+                string save = Path.Combine(path,Path.GetFileNameWithoutExtension(file.FileName)+$"_{bpp}.png");
+                File.WriteAllBytes(save, image);
+                Console.WriteLine($"Salvando textura: {save}");
+            }
+        }
+
+    }
+
+    internal void ImportAllTextures(string openPath, bool direct = false)
+    {
+        Console.WriteLine($"Iniciando importação de texturas {Name}");
+        string path = openPath + $@"{(direct == false ? $@"/{Name}" : "")}";
+
+        foreach (var file in CCS_TOC.Files)
+        {
+            if (file.FileName != @"%\" && file.Ftype == FileType.Bitmap)
+            {
+                foreach(var fileX in Directory.EnumerateFiles(path, "*.png"))
+                {
+                    string fname = Path.GetFileNameWithoutExtension(fileX);
+                    if (fname.Substring(0,fname.Length-3) == Path.GetFileNameWithoutExtension(file.FileName))
+                    {
+                        Texture TEX = file.Objects.Where(x => x.ObjectName.StartsWith("TEX")).ToArray()[0].Blocks[0] as Texture;
+                        Console.WriteLine($"Importando textura: {file.FileName}\n" +
+                            $"Bpp: {TEX.TexType}");
+                        file.Replace(fileX);
+                    }
+                }
+            }
+        }
+
+    }
+
     internal void ExtractAll(string savePath, bool Convert)
     {
         Console.WriteLine("Iniciando extração...");
@@ -303,7 +349,7 @@ public class CCSF
                         break;
                 }
 
-                File.WriteAllBytes(savepath + fname, file.GetFile(Convert));
+                File.WriteAllBytes(savepath + fname, file.GetFile(out string bpp, Convert));
             }
             else
             {
@@ -316,7 +362,7 @@ public class CCSF
 
                 Console.WriteLine($"Salvando: {savepath + Path.GetDirectoryName(file.FileName.Split(new string[] { "\0" }, StringSplitOptions.RemoveEmptyEntries)[0])}");
 
-                File.WriteAllBytes(savepath + "root.bin", file.GetFile(Convert));
+                File.WriteAllBytes(savepath + "root.bin", file.GetFile(out string bpp, Convert));
             }
         }
         File.WriteAllText(savepath + "setup.ini", SetupCCSF.ToString());

@@ -83,6 +83,16 @@ namespace CCSF_Asset_Explorer.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _9b2f8930b1bd7f5695c403fe973d656e {
+            get {
+                object obj = ResourceManager.GetObject("9b2f8930b1bd7f5695c403fe973d656e", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq {
             get {
                 object obj = ResourceManager.GetObject("a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq", resourceCulture);

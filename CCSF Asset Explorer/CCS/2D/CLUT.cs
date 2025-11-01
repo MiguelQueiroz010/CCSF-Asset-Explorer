@@ -78,7 +78,7 @@ public class CLUT : Block
     {
         var result = new List<byte>();
         result.AddRange(Type.ToLEBE(32));
-        result.AddRange((Size / 4).ToLEBE(32));
+        result.AddRange(((0x14 + (ColorCount*4)) / 4).ToLEBE(32));
         result.AddRange(ObjectID.ToLEBE(32));
 
         result.AddRange(BlitGroup.ToLEBE(32));
@@ -116,7 +116,7 @@ public class CLUT : Block
             result.Add(color.R);
             result.Add(color.G);
             result.Add(color.B);
-            result.Add(convert ? HalfAlpha(color.A) : color.A);
+            result.Add(convert==true ? HalfAlpha(color.A) : color.A);
         }
         return result.ToArray();
     }

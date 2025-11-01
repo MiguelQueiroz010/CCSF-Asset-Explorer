@@ -121,6 +121,9 @@
   <data name="410218" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\410218.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Capa1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Capa1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -154,7 +157,7 @@
   <data name="sasuke_demonio_gif_9" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sasuke-demonio-gif-9.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Capa1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Capa1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="9b2f8930b1bd7f5695c403fe973d656e" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\9b2f8930b1bd7f5695c403fe973d656e.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

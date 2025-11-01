@@ -142,6 +142,13 @@
     <Compile Include="Forms e Controles\SearchCheck.Designer.cs">
       <DependentUpon>SearchCheck.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms e Controles\VFWEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms e Controles\VFWEditor.Designer.cs">
+      <DependentUpon>VFWEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\BINHelper.cs" />
     <Compile Include="Helpers\Helper3D.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Forms e Controles\Principal.cs">
@@ -258,6 +265,9 @@
     <EmbeddedResource Include="Forms e Controles\SearchCheck.resx">
       <DependentUpon>SearchCheck.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms e Controles\VFWEditor.resx">
+      <DependentUpon>VFWEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -284,6 +294,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="410218.ico" />
+    <None Include="Resources\9b2f8930b1bd7f5695c403fe973d656e.gif" />
     <None Include="Resources\Capa1.png" />
     <None Include="Resources\a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq.gif" />
     <None Include="Resources\YhSG.gif" />

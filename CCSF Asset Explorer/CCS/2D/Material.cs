@@ -103,8 +103,8 @@ public class Material : Block
         X = (int)Input.ReadUInt(0x14,16),
         Y = (int)Input.ReadUInt(0x16,16),
         SWidth = (int)Input.ReadUInt(0x18,16),
-        SHeight = (int)Input.ReadUInt(0x1a,16),
-        RestData = Input.ReadBytes(8)
+        SHeight = (int)Input.ReadUInt(0x1a,16)
+        //RestData = Input.ReadBytes(8)
     };
     public override byte[] ToArray()
     {

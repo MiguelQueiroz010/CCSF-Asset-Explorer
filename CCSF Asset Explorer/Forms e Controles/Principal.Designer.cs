@@ -69,6 +69,15 @@ namespace CCSF_Asset_Explorer
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extractAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.repackAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportTexturesFromAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importTexturesForAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.superRenamerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textureMipMaperConverterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mipMapDeConvertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iDInsertorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iDCheckerRenamerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sBVCreatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.vFWEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -80,6 +89,11 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.unpackUN1BINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.repackUN1BINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -402,7 +416,21 @@ namespace CCSF_Asset_Explorer
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.extractAllToolStripMenuItem,
-            this.repackAllToolStripMenuItem});
+            this.repackAllToolStripMenuItem,
+            this.exportTexturesFromAllToolStripMenuItem,
+            this.importTexturesForAllToolStripMenuItem,
+            this.superRenamerToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.textureMipMaperConverterToolStripMenuItem,
+            this.mipMapDeConvertToolStripMenuItem,
+            this.toolStripSeparator5,
+            this.iDInsertorToolStripMenuItem,
+            this.iDCheckerRenamerToolStripMenuItem,
+            this.sBVCreatorToolStripMenuItem,
+            this.toolStripSeparator6,
+            this.vFWEditorToolStripMenuItem,
+            this.unpackUN1BINToolStripMenuItem,
+            this.repackUN1BINToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.toolsToolStripMenuItem.Text = "Utils";
@@ -411,16 +439,84 @@ namespace CCSF_Asset_Explorer
             // 
             this.extractAllToolStripMenuItem.Enabled = false;
             this.extractAllToolStripMenuItem.Name = "extractAllToolStripMenuItem";
-            this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.extractAllToolStripMenuItem.Text = "Extract All";
             this.extractAllToolStripMenuItem.Click += new System.EventHandler(this.extractAllToolStripMenuItem_Click);
             // 
             // repackAllToolStripMenuItem
             // 
+            this.repackAllToolStripMenuItem.Enabled = false;
             this.repackAllToolStripMenuItem.Name = "repackAllToolStripMenuItem";
-            this.repackAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.repackAllToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.repackAllToolStripMenuItem.Text = "Repack All";
             this.repackAllToolStripMenuItem.Click += new System.EventHandler(this.repackAllToolStripMenuItem_Click);
+            // 
+            // exportTexturesFromAllToolStripMenuItem
+            // 
+            this.exportTexturesFromAllToolStripMenuItem.Enabled = false;
+            this.exportTexturesFromAllToolStripMenuItem.Name = "exportTexturesFromAllToolStripMenuItem";
+            this.exportTexturesFromAllToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.exportTexturesFromAllToolStripMenuItem.Text = "Export Textures from All";
+            this.exportTexturesFromAllToolStripMenuItem.Click += new System.EventHandler(this.exportTexturesFromAllToolStripMenuItem_Click);
+            // 
+            // importTexturesForAllToolStripMenuItem
+            // 
+            this.importTexturesForAllToolStripMenuItem.Enabled = false;
+            this.importTexturesForAllToolStripMenuItem.Name = "importTexturesForAllToolStripMenuItem";
+            this.importTexturesForAllToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.importTexturesForAllToolStripMenuItem.Text = "Import Textures for All";
+            this.importTexturesForAllToolStripMenuItem.Click += new System.EventHandler(this.importTexturesForAllToolStripMenuItem_Click);
+            // 
+            // superRenamerToolStripMenuItem
+            // 
+            this.superRenamerToolStripMenuItem.Name = "superRenamerToolStripMenuItem";
+            this.superRenamerToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.superRenamerToolStripMenuItem.Text = "Super Renamer";
+            this.superRenamerToolStripMenuItem.Visible = false;
+            this.superRenamerToolStripMenuItem.Click += new System.EventHandler(this.superRenamerToolStripMenuItem_Click);
+            // 
+            // textureMipMaperConverterToolStripMenuItem
+            // 
+            this.textureMipMaperConverterToolStripMenuItem.Name = "textureMipMaperConverterToolStripMenuItem";
+            this.textureMipMaperConverterToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.textureMipMaperConverterToolStripMenuItem.Text = "MipMap Convert";
+            this.textureMipMaperConverterToolStripMenuItem.Click += new System.EventHandler(this.textureMipMaperConverterToolStripMenuItem_Click);
+            // 
+            // mipMapDeConvertToolStripMenuItem
+            // 
+            this.mipMapDeConvertToolStripMenuItem.Name = "mipMapDeConvertToolStripMenuItem";
+            this.mipMapDeConvertToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.mipMapDeConvertToolStripMenuItem.Text = "MipMap DeConvert";
+            this.mipMapDeConvertToolStripMenuItem.Click += new System.EventHandler(this.mipMapDeConvertToolStripMenuItem_Click);
+            // 
+            // iDInsertorToolStripMenuItem
+            // 
+            this.iDInsertorToolStripMenuItem.Name = "iDInsertorToolStripMenuItem";
+            this.iDInsertorToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.iDInsertorToolStripMenuItem.Text = "ID Insertor";
+            this.iDInsertorToolStripMenuItem.Click += new System.EventHandler(this.iDInsertorToolStripMenuItem_Click);
+            // 
+            // iDCheckerRenamerToolStripMenuItem
+            // 
+            this.iDCheckerRenamerToolStripMenuItem.Name = "iDCheckerRenamerToolStripMenuItem";
+            this.iDCheckerRenamerToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.iDCheckerRenamerToolStripMenuItem.Text = "ID CheckerRenamer";
+            this.iDCheckerRenamerToolStripMenuItem.Click += new System.EventHandler(this.iDCheckerRenamerToolStripMenuItem_Click);
+            // 
+            // sBVCreatorToolStripMenuItem
+            // 
+            this.sBVCreatorToolStripMenuItem.Name = "sBVCreatorToolStripMenuItem";
+            this.sBVCreatorToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.sBVCreatorToolStripMenuItem.Text = "SBV Creator";
+            this.sBVCreatorToolStripMenuItem.Click += new System.EventHandler(this.sBVCreatorToolStripMenuItem_Click);
+            // 
+            // vFWEditorToolStripMenuItem
+            // 
+            this.vFWEditorToolStripMenuItem.Enabled = false;
+            this.vFWEditorToolStripMenuItem.Name = "vFWEditorToolStripMenuItem";
+            this.vFWEditorToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.vFWEditorToolStripMenuItem.Text = "VFW Editor";
+            this.vFWEditorToolStripMenuItem.Click += new System.EventHandler(this.vFWEditorToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -469,7 +565,7 @@ namespace CCSF_Asset_Explorer
             this.commandLBL.AutoSize = true;
             this.commandLBL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.commandLBL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.commandLBL.Location = new System.Drawing.Point(36, 1);
+            this.commandLBL.Location = new System.Drawing.Point(27, 1);
             this.commandLBL.Name = "commandLBL";
             this.commandLBL.Size = new System.Drawing.Size(304, 32);
             this.commandLBL.TabIndex = 3;
@@ -480,7 +576,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.opLBL.AutoSize = true;
             this.opLBL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.opLBL.Location = new System.Drawing.Point(347, 1);
+            this.opLBL.Location = new System.Drawing.Point(338, 1);
             this.opLBL.Name = "opLBL";
             this.opLBL.Size = new System.Drawing.Size(158, 32);
             this.opLBL.TabIndex = 2;
@@ -491,10 +587,10 @@ namespace CCSF_Asset_Explorer
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar1.Location = new System.Drawing.Point(512, 4);
+            this.progressBar1.Location = new System.Drawing.Point(503, 4);
             this.progressBar1.MarqueeAnimationSpeed = 50;
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(177, 26);
+            this.progressBar1.Size = new System.Drawing.Size(186, 26);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 1;
             this.progressBar1.Value = 100;
@@ -508,7 +604,7 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 310F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 164F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 183F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 192F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.progressBar1, 3, 0);
@@ -528,7 +624,7 @@ namespace CCSF_Asset_Explorer
             this.pictureBox1.Image = global::CCSF_Asset_Explorer.Properties.Resources.sigma_another_tale_22859624_210820211143;
             this.pictureBox1.Location = new System.Drawing.Point(4, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(25, 26);
+            this.pictureBox1.Size = new System.Drawing.Size(16, 26);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -537,7 +633,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.pictureBox2.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox2.Image = global::CCSF_Asset_Explorer.Properties.Resources.a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq;
+            this.pictureBox2.Image = global::CCSF_Asset_Explorer.Properties.Resources._9b2f8930b1bd7f5695c403fe973d656e;
             this.pictureBox2.Location = new System.Drawing.Point(0, 0);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(693, 458);
@@ -546,6 +642,35 @@ namespace CCSF_Asset_Explorer
             this.pictureBox2.TabStop = false;
             this.pictureBox2.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.pictureBox2_LoadCompleted);
             this.pictureBox2.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox2_Paint);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(197, 6);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(197, 6);
+            // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(197, 6);
+            // 
+            // unpackUN1BINToolStripMenuItem
+            // 
+            this.unpackUN1BINToolStripMenuItem.Name = "unpackUN1BINToolStripMenuItem";
+            this.unpackUN1BINToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.unpackUN1BINToolStripMenuItem.Text = "Unpack UN1-BIN";
+            this.unpackUN1BINToolStripMenuItem.Click += new System.EventHandler(this.unpackUN1BINToolStripMenuItem_Click);
+            // 
+            // repackUN1BINToolStripMenuItem
+            // 
+            this.repackUN1BINToolStripMenuItem.Name = "repackUN1BINToolStripMenuItem";
+            this.repackUN1BINToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.repackUN1BINToolStripMenuItem.Text = "Repack UN1-BIN";
+            this.repackUN1BINToolStripMenuItem.Click += new System.EventHandler(this.repackUN1BINToolStripMenuItem_Click);
             // 
             // Principal
             // 
@@ -634,6 +759,20 @@ namespace CCSF_Asset_Explorer
         public System.Windows.Forms.ToolStripMenuItem blockToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
         public System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.ToolStripMenuItem exportTexturesFromAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importTexturesForAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem superRenamerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textureMipMaperConverterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mipMapDeConvertToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem iDInsertorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem iDCheckerRenamerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sBVCreatorToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem vFWEditorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+        private System.Windows.Forms.ToolStripMenuItem unpackUN1BINToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem repackUN1BINToolStripMenuItem;
     }
 }
 
