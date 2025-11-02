@@ -1329,7 +1329,8 @@ namespace CCSF_Asset_Explorer
         private void unpackUN1BINToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog d = new OpenFileDialog();
-            d.Filter = "*.ccs|*.ccs|*.bin|*.bin";
+            d.Filter = "Plain Text(*.txt)|*.txt";
+            d.Title = "Choose the filelist.";
             if (d.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 var fbd = new FolderBrowserDialog();
@@ -1353,30 +1354,21 @@ namespace CCSF_Asset_Explorer
             var fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                string lastfolder = fbd.SelectedPath + "\\";
-                List<string> files = new List<string>(Directory.GetFiles(lastfolder, "*.ccs", SearchOption.TopDirectoryOnly));
-                files.Sort();
-                SaveFileDialog d = new SaveFileDialog();
-                d.FileName = "data";
-                d.Filter = "Container(*.bin)|*.bin";
+               var d = new OpenFileDialog();
+                d.Multiselect = true;
+                d.Filter = "Container|*.bin";//"Container(*.bin)|*.bin";
+
                 if (d.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    bool include = true;
                     this.Enabled = false;
                     progressBar1.Visible = true;
                     opLBL.Visible = true;
-                    BINHelper.RepackFromFolder(d.FileName, lastfolder, progressBar1, opLBL);
+
+                    BINHelper.RepackFromFolder(d.FileNames, fbd.SelectedPath, progressBar1, opLBL);
+
                     progressBar1.Visible = false;
                     opLBL.Visible = false;
                     this.Enabled = true;
-
-                    var op = new OpenFileDialog();
-                    op.Filter = "Text File(*.txt)|*.txt";
-                    if (op.ShowDialog() != DialogResult.OK)
-                        return;
-
-                    BINHelper.UpdateBinList(op.FileName, lastfolder);
-
                     MessageBox.Show("Concluído!");
                 }
             }
