@@ -248,21 +248,21 @@ namespace CCSF_Asset_Explorer
             // 
             this.readWriteToolStripMenuItem.CheckOnClick = true;
             this.readWriteToolStripMenuItem.Name = "readWriteToolStripMenuItem";
-            this.readWriteToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.readWriteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.readWriteToolStripMenuItem.Text = "Read/Write";
             // 
             // systemToolStripMenuItem1
             // 
             this.systemToolStripMenuItem1.CheckOnClick = true;
             this.systemToolStripMenuItem1.Name = "systemToolStripMenuItem1";
-            this.systemToolStripMenuItem1.Size = new System.Drawing.Size(147, 22);
+            this.systemToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
             this.systemToolStripMenuItem1.Text = "System";
             this.systemToolStripMenuItem1.Visible = false;
             // 
             // clearConsoleToolStripMenuItem
             // 
             this.clearConsoleToolStripMenuItem.Name = "clearConsoleToolStripMenuItem";
-            this.clearConsoleToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.clearConsoleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.clearConsoleToolStripMenuItem.Text = "Clear Console";
             this.clearConsoleToolStripMenuItem.Click += new System.EventHandler(this.clearConsoleToolStripMenuItem_Click);
             // 

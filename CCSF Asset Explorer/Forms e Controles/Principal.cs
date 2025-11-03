@@ -110,7 +110,9 @@ namespace CCSF_Asset_Explorer
             }
             else
             {
+                
                 CreateConfig();
+                consoleToolStripMenuItem.Checked = true;
             }
         }
         public void CreateConfig()
