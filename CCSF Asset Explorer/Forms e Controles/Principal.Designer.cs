@@ -72,12 +72,17 @@ namespace CCSF_Asset_Explorer
             this.exportTexturesFromAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importTexturesForAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.superRenamerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.textureMipMaperConverterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mipMapDeConvertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.iDInsertorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.iDCheckerRenamerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sBVCreatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.vFWEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.unpackUN1BINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.repackUN1BINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -89,11 +94,6 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.unpackUN1BINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.repackUN1BINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -475,6 +475,11 @@ namespace CCSF_Asset_Explorer
             this.superRenamerToolStripMenuItem.Visible = false;
             this.superRenamerToolStripMenuItem.Click += new System.EventHandler(this.superRenamerToolStripMenuItem_Click);
             // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(197, 6);
+            // 
             // textureMipMaperConverterToolStripMenuItem
             // 
             this.textureMipMaperConverterToolStripMenuItem.Name = "textureMipMaperConverterToolStripMenuItem";
@@ -488,6 +493,11 @@ namespace CCSF_Asset_Explorer
             this.mipMapDeConvertToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.mipMapDeConvertToolStripMenuItem.Text = "MipMap DeConvert";
             this.mipMapDeConvertToolStripMenuItem.Click += new System.EventHandler(this.mipMapDeConvertToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(197, 6);
             // 
             // iDInsertorToolStripMenuItem
             // 
@@ -510,6 +520,11 @@ namespace CCSF_Asset_Explorer
             this.sBVCreatorToolStripMenuItem.Text = "SBV Creator";
             this.sBVCreatorToolStripMenuItem.Click += new System.EventHandler(this.sBVCreatorToolStripMenuItem_Click);
             // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(197, 6);
+            // 
             // vFWEditorToolStripMenuItem
             // 
             this.vFWEditorToolStripMenuItem.Enabled = false;
@@ -517,6 +532,20 @@ namespace CCSF_Asset_Explorer
             this.vFWEditorToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.vFWEditorToolStripMenuItem.Text = "VFW Editor";
             this.vFWEditorToolStripMenuItem.Click += new System.EventHandler(this.vFWEditorToolStripMenuItem_Click);
+            // 
+            // unpackUN1BINToolStripMenuItem
+            // 
+            this.unpackUN1BINToolStripMenuItem.Name = "unpackUN1BINToolStripMenuItem";
+            this.unpackUN1BINToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.unpackUN1BINToolStripMenuItem.Text = "Unpack UN1-BIN";
+            this.unpackUN1BINToolStripMenuItem.Click += new System.EventHandler(this.unpackUN1BINToolStripMenuItem_Click);
+            // 
+            // repackUN1BINToolStripMenuItem
+            // 
+            this.repackUN1BINToolStripMenuItem.Name = "repackUN1BINToolStripMenuItem";
+            this.repackUN1BINToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.repackUN1BINToolStripMenuItem.Text = "Repack UN1-BIN";
+            this.repackUN1BINToolStripMenuItem.Click += new System.EventHandler(this.repackUN1BINToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -565,9 +594,9 @@ namespace CCSF_Asset_Explorer
             this.commandLBL.AutoSize = true;
             this.commandLBL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.commandLBL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.commandLBL.Location = new System.Drawing.Point(27, 1);
+            this.commandLBL.Location = new System.Drawing.Point(33, 1);
             this.commandLBL.Name = "commandLBL";
-            this.commandLBL.Size = new System.Drawing.Size(304, 32);
+            this.commandLBL.Size = new System.Drawing.Size(294, 32);
             this.commandLBL.TabIndex = 3;
             this.commandLBL.Text = "Open one or multiple CCS/TMP or drag\'n drop them.";
             this.commandLBL.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -576,7 +605,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.opLBL.AutoSize = true;
             this.opLBL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.opLBL.Location = new System.Drawing.Point(338, 1);
+            this.opLBL.Location = new System.Drawing.Point(334, 1);
             this.opLBL.Name = "opLBL";
             this.opLBL.Size = new System.Drawing.Size(158, 32);
             this.opLBL.TabIndex = 2;
@@ -587,10 +616,10 @@ namespace CCSF_Asset_Explorer
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar1.Location = new System.Drawing.Point(503, 4);
+            this.progressBar1.Location = new System.Drawing.Point(499, 4);
             this.progressBar1.MarqueeAnimationSpeed = 50;
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(186, 26);
+            this.progressBar1.Size = new System.Drawing.Size(190, 26);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 1;
             this.progressBar1.Value = 100;
@@ -602,9 +631,9 @@ namespace CCSF_Asset_Explorer
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.tableLayoutPanel1.ColumnCount = 4;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 310F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 300F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 164F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 192F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 196F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.progressBar1, 3, 0);
@@ -624,7 +653,7 @@ namespace CCSF_Asset_Explorer
             this.pictureBox1.Image = global::CCSF_Asset_Explorer.Properties.Resources.sigma_another_tale_22859624_210820211143;
             this.pictureBox1.Location = new System.Drawing.Point(4, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(16, 26);
+            this.pictureBox1.Size = new System.Drawing.Size(22, 26);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -633,7 +662,7 @@ namespace CCSF_Asset_Explorer
             // 
             this.pictureBox2.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox2.Image = global::CCSF_Asset_Explorer.Properties.Resources._9b2f8930b1bd7f5695c403fe973d656e;
+            this.pictureBox2.Image = global::CCSF_Asset_Explorer.Properties.Resources.ccf_asset_explorer_logo;
             this.pictureBox2.Location = new System.Drawing.Point(0, 0);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(693, 458);
@@ -642,35 +671,6 @@ namespace CCSF_Asset_Explorer
             this.pictureBox2.TabStop = false;
             this.pictureBox2.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.pictureBox2_LoadCompleted);
             this.pictureBox2.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox2_Paint);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(197, 6);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(197, 6);
-            // 
-            // toolStripSeparator6
-            // 
-            this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(197, 6);
-            // 
-            // unpackUN1BINToolStripMenuItem
-            // 
-            this.unpackUN1BINToolStripMenuItem.Name = "unpackUN1BINToolStripMenuItem";
-            this.unpackUN1BINToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.unpackUN1BINToolStripMenuItem.Text = "Unpack UN1-BIN";
-            this.unpackUN1BINToolStripMenuItem.Click += new System.EventHandler(this.unpackUN1BINToolStripMenuItem_Click);
-            // 
-            // repackUN1BINToolStripMenuItem
-            // 
-            this.repackUN1BINToolStripMenuItem.Name = "repackUN1BINToolStripMenuItem";
-            this.repackUN1BINToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.repackUN1BINToolStripMenuItem.Text = "Repack UN1-BIN";
-            this.repackUN1BINToolStripMenuItem.Click += new System.EventHandler(this.repackUN1BINToolStripMenuItem_Click);
             // 
             // Principal
             // 

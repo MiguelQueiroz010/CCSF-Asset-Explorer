@@ -54,7 +54,7 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>410218.ico</ApplicationIcon>
+    <ApplicationIcon>ccsf_s_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -294,6 +294,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="410218.ico" />
+    <Content Include="ccsfICON.ico" />
+    <Content Include="ccsf_icon.ico" />
+    <Content Include="ccsf_shuriken_icon.ico" />
+    <Content Include="ccsf_s_icon.ico" />
+    <None Include="Resources\ChatGPT Image 3 de nov. de 2025, 10_49_28.png" />
+    <None Include="ccf_asset_explorer_logo.png" />
     <None Include="Resources\9b2f8930b1bd7f5695c403fe973d656e.gif" />
     <None Include="Resources\Capa1.png" />
     <None Include="Resources\a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq.gif" />

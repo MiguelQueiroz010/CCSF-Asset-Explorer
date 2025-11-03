@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // conjunto de atributos. Altere estes valores de atributo para modificar as informações
 // associadas a um assembly.
 [assembly: AssemblyTitle("CCSF Asset Explorer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Tool to manipulate CCS/CMP archives from CC2 games and also.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CCSF Asset Explorer")]
-[assembly: AssemblyCopyright("Bit.Raiden ©  2023")]
+[assembly: AssemblyCopyright("Bit.Raiden ©  2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // É possível especificar todos os valores ou usar como padrão os Números de Build e da Revisão
 // usando o "*" como mostrado abaixo:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("5.0.0.0")]
-[assembly: AssemblyFileVersion("5.0.0.0")]
+[assembly: AssemblyVersion("7.0.2.1")]
+[assembly: AssemblyFileVersion("7.0.2.1")]

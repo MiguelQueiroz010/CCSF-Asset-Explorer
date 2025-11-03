@@ -83,29 +83,9 @@ namespace CCSF_Asset_Explorer.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _9b2f8930b1bd7f5695c403fe973d656e {
+        internal static System.Drawing.Bitmap ccf_asset_explorer_logo {
             get {
-                object obj = ResourceManager.GetObject("9b2f8930b1bd7f5695c403fe973d656e", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq {
-            get {
-                object obj = ResourceManager.GetObject("a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Capa1 {
-            get {
-                object obj = ResourceManager.GetObject("Capa1", resourceCulture);
+                object obj = ResourceManager.GetObject("ccf_asset_explorer_logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -116,6 +96,16 @@ namespace CCSF_Asset_Explorer.Properties {
         internal static System.Drawing.Bitmap cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00 {
             get {
                 object obj = ResourceManager.GetObject("cf5586409dc3f2b30b9dba080dfb5c2e4a9b7cfe_00", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ChatGPT_Image_3_de_nov__de_2025__10_49_28 {
+            get {
+                object obj = ResourceManager.GetObject("ChatGPT Image 3 de nov. de 2025, 10_49_28", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

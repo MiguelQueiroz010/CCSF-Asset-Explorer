@@ -285,7 +285,7 @@ namespace CCSF_Asset_Explorer
             pictureBox2.Location = oldPIC2loc;
             pictureBox2.BackColor = Color.Transparent;
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox2.Image = Properties.Resources.a6bb6136c11d70f3de0209032fcf8a9ab60f28e2_hq;
+            pictureBox2.Image = Properties.Resources.ccf_asset_explorer_logo;
         }
         public void Salvar()
         {
@@ -603,6 +603,35 @@ namespace CCSF_Asset_Explorer
         }
 
         #endregion
+
+        #region Atalhos
+        private void Principal_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
+                copyToolStripMenuItem.PerformClick();
+            if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
+                pasteToolStripMenuItem.PerformClick();
+            if (e.KeyCode == Keys.F2)
+                openToolStripMenuItem.PerformClick();
+            if (e.KeyCode == Keys.W && e.Modifiers == Keys.Control)
+                if (closeToolStripMenuItem.Enabled)
+                    closeToolStripMenuItem.PerformClick();
+            if (e.KeyCode == Keys.Q && e.Modifiers == Keys.Control)
+                if (closeAllToolStripMenuItem.Enabled)
+                    closeAllToolStripMenuItem.PerformClick();
+            if (e.KeyCode == Keys.S && e.Modifiers == Keys.Control)
+                if (saveToolStripMenuItem.Enabled)
+                    saveToolStripMenuItem.PerformClick();
+            if (e.KeyCode == Keys.S && e.Modifiers == Keys.Shift)
+                if (saveAllToolStripMenuItem.Enabled)
+                    saveAllToolStripMenuItem.PerformClick();
+            if (e.KeyData == (Keys.Control | Keys.Shift | Keys.S))
+                if (saveAsToolStripMenuItem.Enabled)
+                    saveAsToolStripMenuItem.PerformClick();
+        }
+
+        #endregion
+
         #region Events and Buttons
         private void abrirToolStripMenuItem_Click(object sender, EventArgs e) =>
             Open(false);
@@ -668,7 +697,9 @@ namespace CCSF_Asset_Explorer
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var about = new Sobre();
+            this.Visible = false;
             about.ShowDialog();
+            this.Visible = true;
         }
         private void convertToI8ToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -880,13 +911,7 @@ namespace CCSF_Asset_Explorer
 
         }
 
-        private void Principal_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
-                copyToolStripMenuItem.PerformClick();
-            if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
-                pasteToolStripMenuItem.PerformClick();
-        }
+        
 
         private void consoleToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
@@ -983,7 +1008,7 @@ namespace CCSF_Asset_Explorer
         }
         private void pictureBox2_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.DrawImage(Properties.Resources.Capa1, 26, 45, 648, 390);
+            //e.Graphics.DrawImage(Properties.Resources.Capa1, 26, 45, 648, 390);
         }
 
         #region Drag'n Drop
@@ -1324,7 +1349,6 @@ namespace CCSF_Asset_Explorer
             VFWEditor = new VFWEditor(this);
             VFWEditor.ShowDialog();
         }
-        #endregion
 
         private void unpackUN1BINToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1354,7 +1378,7 @@ namespace CCSF_Asset_Explorer
             var fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-               var d = new OpenFileDialog();
+                var d = new OpenFileDialog();
                 d.Multiselect = true;
                 d.Filter = "Container|*.bin";//"Container(*.bin)|*.bin";
 
@@ -1373,5 +1397,7 @@ namespace CCSF_Asset_Explorer
                 }
             }
         }
+        #endregion
+
     }
 }

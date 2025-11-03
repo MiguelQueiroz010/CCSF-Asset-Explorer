@@ -1,0 +1,258 @@
+﻿Manual de Uso e Referência - EDITOR DE TEXTO CCS BLOCADO
+-------------------------------------------------------
+#########################
+Programador e Romhacker: Bit.Raiden (Discord Bit.Raiden#2578)
+#########################
+----------------------
+#########################
+Bibliotecas usadas:
+#########################
+
+CCSF e Blocks - CCS File Explorer (WarrantyVoider)
+
+ImgLib - Rainbow
+
+nQuant.Core - Nquant
+----------------------
+########################
+Tipos de Arquivos e Suporte
+########################
+
+A ferramenta em si suporta todos os arquivos contendo texto de linguagem,
+dos jogos da franquia Narutimate (Naruto Ultimate Ninja) e Narutimate Ninja Accel.
+
+Os tipos de arquivos suportados atualmente, são 4:
+
+ELF = Arquivos élficos são suportados!! kkkkk ELF(Executable and Linkable Format) é um formato de arquivo
+para programas já compilados em Linux e diversas variantes de arquitetura, processador e sistema.
+
+Um elfo como esse(ELF) é carregado na memória do console alvo em uma determinada posição, e ele também
+carrega dados sobre um determinado tamanho, tudo isso declarado nos Program Headers. 
+
+Para mais informações, visite https://pt.wikipedia.org/wiki/Executable_and_Linkable_Format
+
+MWo3 = Arquivos de extensão para carregamento na memória. Costuma-se encontrar ele na internet como Metrowerks Object, ou algo assim. Sua estrutura é muito simples, ele contém um bloco de dados
+dentro de si, um endereço de memória para carregar os dados, e o endereço final de carga de dados.
+Era um arquivo misterioso, talvez para mim apenas, mas o desvendei logo tão cedo em 2021.
+A disposição de sua estrutura segue abaixo:
+
+Header(0x40 bytes)
+---------
+Offset-Value-Type
+------------------
+0 - "MWo3" - (0x4 bytes Magic string)
+4 - ID(Segment number, ignored) - UINT32
+8 - (Virtualmem)Allocation Address - UINT32
+0xC - unk - UINT32
+0x10 - Data Block Size - UINT32
+0x14 - Unk - UINT32
+0x18 - (Virtualmem)Final Allocation Addres(END) - UINT32
+0x1C - (Virtualmem)Final Allocation Addres(END) - UINT32 (repeats?)
+0x20 - Filename - STRING
+...
+Data Block
+-------------
+(Virtualmem)offset = Final Allocation Addres(END) - Data Block Size
+Offset = (Virtualmem)offset - (Virtualmem)Allocation Address
+
+Por causa da alocação de base na memória virtual, todos os ponteiros possíveis no arquivo
+costumam estar alocados na base de alocação do endereço de início, ou seja, os offsets
+somados + esse valor.
+
+CCS - Arquivos compactados em Gzip contendo em seu interior um TMP, que simplesmente é
+o arquivo principal.
+
+TMP - Em outros jogos pode vir como CCS a sua extensão(e não ser compactado), mas nos jogos da
+série Naruto Ultimate Ninja, o núcleo TMP/CCS é para os arquivos da Cyber Connect, com um nome
+que adotamos: CyberConnectSystemFile ou algo assim.
+
+A disposição de sua estrutura segue abaixo:
+
+Offset | Valor
+
+ 0 - [UINT32] Tipo de Bloco
+ 4 - [UINT32] Tamanho do bloco (dividido por 4) * 4 = Tamanho real
+ 8 - [UINT32] Id do Bloco + Dados[Tamanho]
+ 
+ #Bloco (CCCC0002) Nomes de arquivo e Objetos+Índices:
+ 
+ 0 - [UINT32] Tipo de Bloco
+ 4 - [UINT32] Tamanho do bloco (dividido por 4) * 4 = Tamanho real
+ 8 - [UINT32] Quantia de arquivos -1
+ C - [UINT32] Quantia de objetos -1
+ 10 - Início dos Dados[Nomes e Objetos]
+
+  @Nomes e Objetos
+  
+    Nomes:
+ 0x20 Padding
+ 20 - Início dos Nomes
+ ... Quantia
+ 
+   Objetos:
+ 0x20 Padding
+ 20 - Início dos Objetos
+ 
+ @Cada Objeto:
+ 
+  Posição + 0x1E = [UINT16] Índice(Final do nome, 2 bytes antes do próx.)
+  
+---------------------------------------------------
+ Procura de 4 em 4 bytes pelos tipos:
+ 
+            0xCCCC0001, 0xCCCC0002, 0xCCCC0003, 0xCCCC0005, 
+            0xCCCC0100, 0xCCCC0102, 0xCCCC0108, 0xCCCC0200, 
+            0xCCCC0300, 0xCCCC0400, 0xCCCC0500, 0xCCCC0502, 
+            0xCCCC0600, 0xCCCC0601, 0xCCCC0603, 0xCCCC0609, 
+            0xCCCC0700, 0xCCCC0800, 0xCCCC0900, 0xCCCC0A00, 
+            0xCCCC0B00, 0xCCCC0C00, 0xCCCC0E00, 0xCCCC1100, 
+            0xCCCC1200, 0xCCCC1300, 0xCCCC1400, 0xCCCC1900, 
+            0xCCCC1901, 0xCCCC2000, 0xCCCCFF01, 0xCCCC2400
+			
+			#Estrutura geral:
+			
+                             |-|Arquivo CCSF(TMP/CCS)|
+							 |
+				             |---|Arquivos
+								 | 
+								 |--|Objetos
+								    |
+								    |--Blocos
+
+Structure by Warranty Voider, analytics by Bit.Raiden. 
+
+-------------------------------
+Esses 4 tipos de arquivos, dos quais 2 são praticamente um só por causa apenas da compressão, estão
+com suporte na ferramenta.
+
+#########################
+Como Usar?
+#########################
+
+O uso da ferramenta é simples, basta abrir o arquivo que você quer editar, fazer suas edições e salvar
+como você desejar, evitando mudar coisas de sistema como por exemplo "ITEM_NAME_AND_TEXT" ou "DUMMY".
+
+A ferramenta suporta multi arquivos abertos com abas organizadas na lateral esquerda, e tem também
+atalhos para facilitar a sua vida de tradução e transliteração.
+
+Antes de começar, selecione o Jogo na aba "Jogo", e se preferir mudar a codificação de entrada,
+mude em "Editar", mas tendo em mente que a codificação de edição padrão, ou seja, de salvamento de
+texto editado é sempre o padrão ANSI.(você tem a opção de Shift-Jis Japonês, mas apenas visualizar)
+
+A opção Exportar e Importar para Blocos selecionados nos arquivos CCS é apenas para os mesmos,
+falaremos mais dos elfos e suas traquinagens.
+
+A função de Recentes, funciona com até 7 arquivos, mas não está aperfeiçoada no momento, quero
+ressaltar isso. Clique num item e ele se abrirá, suporta os ELF e os CCS.
+
+A função de Localizar e Substituir é muito simples, procure palavras, letras, números, e ademais que quer
+encontrar nas tabelas do ELF ou nos textos dos blocos CCS do arquivo aberto e vá para o texto, ou substitua
+ele por outro, ou até mesmo substitua todos os idênticos em todo o arquivo, legal né?
+
+Quando for editar um ELF ou MWo3, seja memória virtual ou não, e você já tiver endereçado tabelas,
+tome cuidado e evite editar coisas cheia de símbolos, exemplo: ".,1@", pois podem ser ponteiros
+que apontam outros ponteiros, assim transformados em string, então evite-os. (Para revisão posterior)
+
+Veja abaixo como funcionam os XML atrelados à ferramenta.
+
+#########################
+ELFconfigs.xml e configs.xml
+#########################
+
+Não pule esta informação, garanto que é MUITO importante!!
+
+IDs de Jogo:
+
+Nin = Ultimate Ninja 1
+Nin2 = Ultimate Ninja 2
+Nin3 = Ultimate Ninja 3
+Nin4 = Ultimate Ninja 4
+Nin5 = Ultimate Ninja 5
+Accel = Ultimate Ninja Accel
+Accel2 = Ultimate Ninja Accel 2
+
+
+*config.xml
+
+Esse arquivo guarda algumas poucas configurações no momento, vou explicar:
+
+defaulgame = Modo de edição de Jogo Padrão, você pode escolher o id de jogo para
+abrir a ferramenta com ele selecionado por padrão.
+
+special = Ativação do editor de fonte (Experimental e incompleto).
+true para ligado, e false para desligado.
+
+*ELFconfigs.xml
+
+Esse arquivo guarda muitas opções por Jogo, que são para diversos aspectos,
+alguns até indispensáveis, vamos ver:
+
+<magic> = Número mágico usado para encontrar e gerar ponteiros, é uma reversão matemática dos offsets de memória virtual do elf e alocação de base
+
+<padding> = Alinhamento requerido pelo jogo para os textos, em bytes
+
+<table> = contém a estrutura int Offset Início, int Offset Final, e com isso temos o endereço [inicial,final] de uma tabela de ponteiros ou onde estão localizados.
+
+<group> = contém a estrutura int Offset Ponteiro formando um grupo de vários do mesmo, separados por vírgula.
+
+<space> = contém a estrutura int Offset Início, int Offset Final, e com isso temos o endereço [inicial,final] de partes do ELF que podem ser usadas como espaço livre para textos que passem do tamanho original.
+
+<charswitch> = Seção de troca de caracteres, use para alterações na fonte do jogo ou quando o mesmo não tem algum caractere que você quer ou por qualquer outro motivo em que essa função se faça necessária.
+  <char> = Representa uma troca de caracteres marcada para acontecer, dispõe da estrutura [char/int original, char/int modificado], ambos os valores original e modificado podem estar em inteiro ou como uma simples letra caractere 'ç' por exemplo.
+
+<virtual> = valor para modo de memória virtual emulada (booleano)
+<alloc> = Offset do bloco de dados para alocação no arquivo principal
+<allocstart> = Onde na memória vai ser alocado o bloco de dados
+<allocsize> = Tamanho do bloco de dados a ser alocado
+
+No modo de alocação e emulação da memória virtual e quando se abre um MWo3, o magic é 0, pois não há diferença entre uma memória e outra, as operações de salvamento são executadas e fazem todo o resto do processo, e mais, as tabelas de espaço livre e ponteiros também usam posições de memória virtual.
+
+Quando o MWo3 for suportado, após você selecionar o ELF para abrir vai te aparecer um diálogo para
+selecionar também o MWo3 a ser aberto(apenas um por vez), e assim ele será alocado na memória virtual.
+Para o modo linkado do MWo3 funcionar, você não deve e nem precisa colocar o modo virtual como ativo(true),
+mas precisa apontar o endereço de alocação do elf e ademais ALLOC.
+
+Para montar as tabelas de ponteiro, encontrá-las no caso, abra-as num editor hexadecimal de sua
+preferência e encontre a tabela de uin32, e seu endereço de início e fim.
+
+Para o modo MWo3 e o modo Virtual, que é para casos de aumento do elf ou coisa parecida, estou deixando
+uma opção de "Exportar Memória Emulada" para exportar a memória carregada simulada do console Playstation 2.
+
+Todos os valores dessas gracinhas podem estar em hexadecimal ou não, ou seja você pode adicionar em hexadecimal com o sufixo "0x" ou em decimal comum mesmo.
+
+#########################
+Atalhos do Teclado
+#########################
+
+Atalhos Principais:
+
+Abrir CCS: F2
+Abrir ELF/MWo3: F3
+Fechar: CTRL+W
+Fechar Tudo: CTRL+Q
+Salvar: CTRL+S
+Salvar Tudo: CTRL+SHIFT+S
+Salvar Como: SHIFT+S
+
+Localizar: CTRL+F
+Substituir: CTRL+R
+
+Editor de Texto:
+
+Fechar: CTRL+W
+Anterior: CTRL+ ←
+Próximo: CTRL+ →
+
+#########################
+Finalizando
+#########################
+
+Aproveite e faça bom uso, a ferramenta não pode ser usada comercialmente, esse é um projeto
+de fã para fã, podendo ter imperfeições, mas sempre buscando o melhor, para traduzirmos
+esses jogos, editar e visualizar.
+
+Portanto, quer comais quer bebais, ou façais outra qualquer coisa,
+fazei tudo para glória de Deus.  
+                                                1 Coríntios 10:31
+
+Bit.Raiden, 03/11/2021 - Graças a Deus
