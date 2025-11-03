@@ -73,16 +73,6 @@ namespace CCSF_Asset_Explorer.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _410218 {
-            get {
-                object obj = ResourceManager.GetObject("410218", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap ccf_asset_explorer_logo {
             get {
                 object obj = ResourceManager.GetObject("ccf_asset_explorer_logo", resourceCulture);
